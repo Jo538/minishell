@@ -1,19 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   s.c                                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/06 15:09:49 by benji             #+#    #+#             */
-/*   Updated: 2026/04/06 18:48:19 by benji            ###   ########.fr       */
+/*   Created: 2025/11/27 15:55:08 by bribot            #+#    #+#             */
+/*   Updated: 2025/11/28 15:53:23 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../ft_printf.h"
 
-int main(void)
+int	s(char *str)
 {
-	printf("test6");
-	return (0);
+	int	i;
+
+	if (!str)
+	{
+		write (1, "(null)", 6);
+		return (6);
+	}
+	i = 0;
+	while (str[i])
+	{
+		write(1, &str[i], 1);
+		i++;
+	}
+	return (i);
 }

@@ -1,19 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   ft_striteri.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/06 15:09:49 by benji             #+#    #+#             */
-/*   Updated: 2026/04/06 18:48:19 by benji            ###   ########.fr       */
+/*   Created: 2025/11/12 13:54:02 by bribot            #+#    #+#             */
+/*   Updated: 2026/01/27 17:01:41 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-
-int main(void)
+void	ft_striteri(char *s, void (*f)(unsigned int, char*))
 {
-	printf("test6");
-	return (0);
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		f(i, &s[i]);
+		i++;
+	}
 }

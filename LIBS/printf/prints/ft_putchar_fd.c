@@ -1,19 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   ft_putchar_fd.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/06 15:09:49 by benji             #+#    #+#             */
-/*   Updated: 2026/04/06 18:48:19 by benji            ###   ########.fr       */
+/*   Created: 2025/11/12 14:07:23 by bribot            #+#    #+#             */
+/*   Updated: 2026/01/27 17:01:41 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include<unistd.h>
 
-int main(void)
+void	ft_putchar_fd(char c, int fd)
 {
-	printf("test6");
-	return (0);
+	write (fd, &c, 1);
 }

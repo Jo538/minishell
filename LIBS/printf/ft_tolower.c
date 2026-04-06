@@ -1,19 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   ft_tolower.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/06 15:09:49 by benji             #+#    #+#             */
-/*   Updated: 2026/04/06 18:48:19 by benji            ###   ########.fr       */
+/*   Created: 2025/11/10 18:49:39 by bribot            #+#    #+#             */
+/*   Updated: 2026/01/27 17:01:41 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+int	ft_tolower(int i)
+{
+	if (i < 91 && i > 64)
+		return (i + 32);
+	return (i);
+}
 
+/*
+#include<stdio.h>
 int main(void)
 {
-	printf("test6");
+	printf("%c", ft_tolower('J'));
 	return (0);
 }
+*/

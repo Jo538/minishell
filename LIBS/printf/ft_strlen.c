@@ -1,19 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/06 15:09:49 by benji             #+#    #+#             */
-/*   Updated: 2026/04/06 18:48:19 by benji            ###   ########.fr       */
+/*   Created: 2025/11/03 17:25:15 by bribot            #+#    #+#             */
+/*   Updated: 2025/11/17 16:09:29 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-
-int main(void)
+int	ft_strlen(const char *str)
 {
-	printf("test6");
-	return (0);
+	int	i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
 }

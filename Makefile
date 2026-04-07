@@ -2,13 +2,14 @@ NAME        = minishell
 CC            = cc
 AR            = ar rcs
 RM            = rm -f
-CFLAGS        = -Wall -Wextra -Werror
+CFLAGS        = -Wall -Wextra -Werror -lreadline
 
 PATH_printf = LIBS/printf
 PRINTF = LIBS/printf/libftprintf.a
 
 
-SRC_MINISHELL = main.c 
+SRC_MINISHELL = main.c \
+				$(addprefix prompt_attente/, prompt.c)
 
 all: $(NAME)
 

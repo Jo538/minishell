@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/06 15:09:49 by benji             #+#    #+#             */
-/*   Updated: 2026/04/06 18:48:19 by benji            ###   ########.fr       */
+/*   Updated: 2026/04/07 12:57:24 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,12 @@
 
 int main(void)
 {
-	printf("test6");
+	char *mess;
+	int	i = 0;
+	while (i++ < 5)
+	{
+		mess = prompt();
+	}
+	printf("%s", mess);
 	return (0);
 }

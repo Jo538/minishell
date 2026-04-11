@@ -9,7 +9,7 @@ PRINTF = LIBS/printf/libftprintf.a
 
 
 SRC_MINISHELL = main.c \
-				$(addprefix prompt_attente/, prompt.c)
+				$(addprefix prompt_attente/, prompt.c handle_quotes.c)
 
 all: $(NAME)
 

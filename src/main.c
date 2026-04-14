@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/04/14 15:13:48 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/15 00:17:56 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,6 @@ int	main(void)
 		add_history(prompt);
 		free(prompt);
 	}
-	clear_history();
+	rl_clear_history();
 	return (0);
 }

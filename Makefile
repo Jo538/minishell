@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
+#    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/14 14:52:03 by admin            ###   ########.fr        #
+#    Updated: 2026/04/15 00:25:00 by benji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,11 +33,11 @@ all: $(NAME)
 
 # Linking
 $(NAME): $(OBJ) $(LIBFT_ARCHIVE)
-	$(CC) $(CFLAGS) $(ADDITIONAL_FLAGS) $(OBJ) $(LIBFT_ARCHIVE) -o $(NAME)
+	$(CC) $(OBJ) $(LIBFT_ARCHIVE) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(NAME)
 
 # Object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(INCLUDES) $(ADDITIONAL_FLAGS) -c $< -o $@
 
 # Create libft archive
 $(LIBFT_ARCHIVE):

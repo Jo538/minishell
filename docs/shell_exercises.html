@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minishell Pipeline Training</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: #0d1117;
+    color: #c9d1d9;
+    min-height: 100vh;
+    padding: 1.5rem;
+  }
+  h1 { color: #58a6ff; margin-bottom: 0.3rem; font-size: 1.5rem; }
+  .subtitle { color: #8b949e; margin-bottom: 1.2rem; font-size: 0.85rem; }
+
+  /* Stage pills (top bar) */
+  .stage-bar { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .stage-pill {
+    padding: 0.55rem 1.1rem;
+    background: #161b22;
+    border: 2px solid #30363d;
+    border-radius: 20px;
+    color: #8b949e;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+    font-weight: bold;
+  }
+  .stage-pill:hover { border-color: #58a6ff; color: #c9d1d9; }
+  .stage-pill.active { background: #1f2937; border-color: #58a6ff; color: #58a6ff; }
+
+  /* Sub-bar: exercise type tabs */
+  .sub-bar { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .sub-tab {
+    padding: 0.4rem 0.85rem;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #8b949e;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+  }
+  .sub-tab:hover { border-color: #58a6ff; color: #c9d1d9; }
+  .sub-tab.active { background: #1f2937; border-color: #58a6ff; color: #58a6ff; }
+
+  /* Exercise panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Stats bar */
+  .stats {
+    display: flex; gap: 1.5rem; margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+    font-size: 0.8rem; max-width: 800px;
+  }
+  .stat-label { color: #8b949e; }
+  .stat-val { color: #58a6ff; font-weight: bold; }
+  .stat-val.good { color: #3fb950; }
+  .stat-val.bad { color: #f85149; }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 4px; background: #21262d; border-radius: 2px;
+    margin-bottom: 1rem; max-width: 800px;
+  }
+  .progress-fill {
+    height: 100%; background: #58a6ff; border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* Exercise card */
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    max-width: 800px;
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+  }
+  .difficulty {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .difficulty.easy { background: #0d2818; color: #3fb950; border: 1px solid #238636; }
+  .difficulty.medium { background: #2a1f00; color: #d29922; border: 1px solid #9e6a03; }
+  .difficulty.hard { background: #300; color: #f85149; border: 1px solid #da3633; }
+
+  .prompt-label { color: #8b949e; font-size: 0.75rem; margin-bottom: 0.4rem; }
+  .command-line {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    color: #f0f6fc;
+    margin-bottom: 1rem;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .command-line .space-dot { color: #484f58; }
+
+  .instruction { color: #8b949e; font-size: 0.8rem; margin-bottom: 0.75rem; line-height: 1.5; }
+  .instruction code {
+    background: #0d1117; padding: 0.1rem 0.35rem; border-radius: 3px; color: #79c0ff; font-size: 0.8rem;
+  }
+
+  /* Input area */
+  .token-input {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 1rem;
+  }
+  .token-input:focus { border-color: #58a6ff; }
+  .token-input::placeholder { color: #484f58; }
+
+  /* Multiple choice */
+  .choices { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+  .choice-btn {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .choice-btn:hover { border-color: #58a6ff; background: #1a2332; }
+  .choice-btn.correct { border-color: #3fb950; background: #0d2818; color: #3fb950; }
+  .choice-btn.wrong { border-color: #f85149; background: #300; color: #f85149; }
+  .choice-btn.reveal { border-color: #3fb950; background: #0d2818; color: #3fb950; opacity: 0.7; }
+  .choice-btn.disabled { pointer-events: none; opacity: 0.6; }
+
+  /* Buttons */
+  .btn {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+    background: #21262d;
+    color: #c9d1d9;
+  }
+  .btn:hover { border-color: #58a6ff; }
+  .btn-primary { background: #238636; border-color: #238636; color: #fff; }
+  .btn-primary:hover { background: #2ea043; }
+  .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+  /* Feedback */
+  .feedback {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    display: none;
+    line-height: 1.5;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #0d2818; border: 1px solid #238636; color: #3fb950; }
+  .feedback.wrong { background: #300; border: 1px solid #da3633; color: #f85149; }
+
+  .expected {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #0d1117;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #8b949e;
+  }
+  .expected strong { color: #c9d1d9; }
+
+  /* Token display */
+  .token-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+  .token-pill {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+  .token-pill.word { background: #1f2937; color: #79c0ff; border: 1px solid #304a6e; }
+  .token-pill.pipe { background: #2a1f00; color: #d29922; border: 1px solid #9e6a03; }
+  .token-pill.redir { background: #1a0d2e; color: #bc8cff; border: 1px solid #6e40c9; }
+
+  .hint-text {
+    color: #8b949e;
+    font-size: 0.75rem;
+    margin-top: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Cursor arrow for lexer state */
+  .cursor-row {
+    font-size: 1.1rem;
+    color: #f85149;
+    letter-spacing: 0;
+    white-space: pre;
+    margin-top: -0.3rem;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem;
+  }
+
+  /* Segment pills */
+  .seg-unquoted { background: #1f2937; color: #79c0ff; border: 1px solid #304a6e; }
+  .seg-single { background: #1a2e1a; color: #3fb950; border: 1px solid #238636; }
+  .seg-double { background: #2a1f00; color: #d29922; border: 1px solid #9e6a03; }
+  .segment-pill {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin: 0.15rem;
+  }
+  .segment-token-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.4rem 0.6rem;
+    margin: 0.3rem 0;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+  }
+  .segment-token-label {
+    font-size: 0.7rem;
+    color: #484f58;
+    margin-right: 0.3rem;
+    text-transform: uppercase;
+  }
+  .seg-legend {
+    display: flex;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .seg-legend span { display: flex; align-items: center; gap: 0.3rem; }
+  .seg-legend-swatch {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Env bar for expander */
+  .env-bar {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+    color: #8b949e;
+    max-width: 800px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .env-bar strong { color: #bc8cff; }
+  .env-bar .env-key { color: #d29922; }
+  .env-bar .env-val { color: #79c0ff; }
+</style>
+</head>
+<body>
+
+<h1>Minishell Pipeline Training</h1>
+<p class="subtitle">Master every stage of your shell &mdash; from raw text to execution.</p>
+
+<!-- ===== STAGE PILLS ===== -->
+<div class="stage-bar" id="stage-bar"></div>
+
+<!-- ===== SUB-TABS ===== -->
+<div class="sub-bar" id="sub-bar"></div>
+
+<!-- ===== CONTENT AREA ===== -->
+<div id="content-area"></div>
+
+<script>
+// =========================================================================
+//  UTILITY FUNCTIONS
+// =========================================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderTokenPills(tokens) {
+  return tokens.map(t => {
+    let cls = 'word';
+    if (t === '|') cls = 'pipe';
+    else if (['<','>','<<','>>'].includes(t)) cls = 'redir';
+    const display = t === '' ? '(empty string)' : escapeHtml(t);
+    return `<span class="token-pill ${cls}">${display}</span>`;
+  }).join(' ');
+}
+
+function formatSegments(tokens) {
+  const typeClass = { u: 'seg-unquoted', s: 'seg-single', d: 'seg-double' };
+  return tokens.map((segs, i) => {
+    const pills = segs.map(s => {
+      const display = s.v === '' ? '(empty)' : escapeHtml(s.v);
+      return `<span class="segment-pill ${typeClass[s.t]}">${s.t}:${display}</span>`;
+    }).join('<span style="color:#484f58;margin:0 0.1rem">+</span>');
+    return `<span class="segment-token-group"><span class="segment-token-label">T${i+1}</span>${pills}</span>`;
+  }).join(' ');
+}
+
+function parseSegmentInput(str) {
+  const tokens = str.split(',').map(tok => {
+    const segs = tok.split('+').map(seg => {
+      const trimmed = seg.trim();
+      const colonIdx = trimmed.indexOf(':');
+      if (colonIdx === -1) return { t: trimmed, v: '' };
+      const t = trimmed.substring(0, colonIdx).trim();
+      const v = trimmed.substring(colonIdx + 1);
+      return { t, v };
+    });
+    return segs;
+  });
+  return tokens;
+}
+
+function segmentsEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].length !== b[i].length) return false;
+    for (let j = 0; j < a[i].length; j++) {
+      if (a[i][j].t !== b[i][j].t || a[i][j].v !== b[i][j].v) return false;
+    }
+  }
+  return true;
+}
+
+function generateNumberChoices(correct, min, max) {
+  const opts = new Set([correct]);
+  let attempts = 0;
+  while (opts.size < 4 && attempts < 100) {
+    attempts++;
+    let d = correct + Math.floor(Math.random() * 7) - 3;
+    if (d >= min && d !== correct && d <= max) opts.add(d);
+  }
+  for (let f = 1; opts.size < 4; f++) {
+    if (correct + f <= max && !opts.has(correct + f)) opts.add(correct + f);
+    if (opts.size < 4 && correct - f >= min && !opts.has(correct - f)) opts.add(correct - f);
+  }
+  return [...opts].sort((a,b) => a - b);
+}
+
+function highlightCmd(cmd, ranges, color) {
+  color = color || '#58a6ff';
+  let html = '';
+  for (let i = 0; i < cmd.length; i++) {
+    let inHighlight = false;
+    for (const r of ranges) {
+      if (i >= r[0] && i <= r[1]) { inHighlight = true; break; }
+    }
+    const ch = escapeHtml(cmd[i]);
+    if (inHighlight) {
+      html += `<span style="background:${color}33;color:${color};border-bottom:2px solid ${color};font-weight:bold">${ch}</span>`;
+    } else {
+      html += `<span style="color:#484f58">${ch}</span>`;
+    }
+  }
+  return html;
+}
+
+function highlightWord(cmd, word) {
+  // Highlight a specific word/command in the command string
+  const idx = cmd.indexOf(word);
+  if (idx === -1) return escapeHtml(cmd);
+  let html = '';
+  for (let i = 0; i < cmd.length; i++) {
+    const ch = escapeHtml(cmd[i]);
+    if (i >= idx && i < idx + word.length) {
+      html += `<span style="background:#58a6ff33;color:#58a6ff;border-bottom:2px solid #58a6ff;font-weight:bold">${ch}</span>`;
+    } else {
+      html += ch;
+    }
+  }
+  return html;
+}
+
+// =========================================================================
+//  EXERCISE DATA - LEXER
+// =========================================================================
+
+const tokenizeExercises = [
+  { cmd: 'echo hello', tokens: ['echo','hello'], diff: 'easy' },
+  { cmd: 'ls -l -a', tokens: ['ls','-l','-a'], diff: 'easy' },
+  { cmd: 'cat Makefile', tokens: ['cat','Makefile'], diff: 'easy' },
+  { cmd: '/bin/ls', tokens: ['/bin/ls'], diff: 'easy' },
+  { cmd: 'echo hello world', tokens: ['echo','hello','world'], diff: 'easy' },
+  { cmd: 'ls > out.txt', tokens: ['ls','>','out.txt'], diff: 'easy' },
+  { cmd: 'cat < in.txt', tokens: ['cat','<','in.txt'], diff: 'easy' },
+  { cmd: 'echo hello | wc -l', tokens: ['echo','hello','|','wc','-l'], diff: 'easy' },
+  { cmd: 'echo "hello world"', tokens: ['echo','hello world'], diff: 'medium' },
+  { cmd: "echo 'hello world'", tokens: ['echo','hello world'], diff: 'medium' },
+  { cmd: 'echo ""', tokens: ['echo', ''], diff: 'medium' },
+  { cmd: "echo ''", tokens: ['echo', ''], diff: 'medium' },
+  { cmd: 'echo hello>out.txt', tokens: ['echo','hello','>','out.txt'], diff: 'medium' },
+  { cmd: 'echo hello|wc', tokens: ['echo','hello','|','wc'], diff: 'medium' },
+  { cmd: 'echo >> log.txt', tokens: ['echo','>>','log.txt'], diff: 'medium' },
+  { cmd: '<< EOF cat', tokens: ['<<','EOF','cat'], diff: 'medium' },
+  { cmd: 'grep "hello world" file.txt', tokens: ['grep','hello world','file.txt'], diff: 'medium' },
+  { cmd: 'echo "$USER"', tokens: ['echo','$USER'], diff: 'medium' },
+  { cmd: "echo '$USER'", tokens: ['echo','$USER'], diff: 'medium' },
+  { cmd: 'echo hello   world', tokens: ['echo','hello','world'], diff: 'medium' },
+  { cmd: 'cat < in > out', tokens: ['cat','<','in','>','out'], diff: 'medium' },
+  { cmd: 'echo hel"lo wo"rld', tokens: ['echo','hello world'], diff: 'hard' },
+  { cmd: "echo hel'lo wo'rld", tokens: ['echo','hello world'], diff: 'hard' },
+  { cmd: 'echo "hello"world', tokens: ['echo','helloworld'], diff: 'hard' },
+  { cmd: 'echo "hello"\'world\'', tokens: ['echo','helloworld'], diff: 'hard' },
+  { cmd: "echo ''\"\"", tokens: ['echo',''], diff: 'hard' },
+  { cmd: 'echo "|"', tokens: ['echo','|'], diff: 'hard' },
+  { cmd: "echo '|' | cat", tokens: ['echo','|','|','cat'], diff: 'hard' },
+  { cmd: 'echo ">"', tokens: ['echo','>'], diff: 'hard' },
+  { cmd: 'echo a"b"c\'d\'e', tokens: ['echo','abcde'], diff: 'hard' },
+  { cmd: '""', tokens: [''], diff: 'hard' },
+  { cmd: 'cat<<EOF', tokens: ['cat','<<','EOF'], diff: 'hard' },
+  { cmd: 'echo hello>>out|wc -l', tokens: ['echo','hello','>>','out','|','wc','-l'], diff: 'hard' },
+  { cmd: '>out echo hello', tokens: ['>','out','echo','hello'], diff: 'hard' },
+  { cmd: 'echo "hello   world"', tokens: ['echo','hello   world'], diff: 'hard' },
+  { cmd: "echo 'he\"llo'", tokens: ['echo','he"llo'], diff: 'hard' },
+  { cmd: 'echo "he\'llo"', tokens: ['echo',"he'llo"], diff: 'hard' },
+  { cmd: 'echo "hello \\"world\\""', tokens: ['echo','hello "world"'], diff: 'hard' },
+  { cmd: 'echo hello\\ world', tokens: ['echo','hello world'], diff: 'hard' },
+  { cmd: 'echo hello\\|wc', tokens: ['echo','hello|wc'], diff: 'hard' },
+  { cmd: 'echo \\"hello\\"', tokens: ['echo','"hello"'], diff: 'hard' },
+  { cmd: "echo 'hello\\nworld'", tokens: ['echo','hello\\nworld'], diff: 'hard' },
+  { cmd: 'echo "hello\\nworld"', tokens: ['echo','hello\\nworld'], diff: 'hard' },
+  { cmd: 'echo >>>out', tokens: ['echo','>>','>','out'], diff: 'hard' },
+  { cmd: 'echo $?', tokens: ['echo','$?'], diff: 'medium' },
+  { cmd: 'echo $USER$HOME', tokens: ['echo','$USER$HOME'], diff: 'medium' },
+  { cmd: '<< "EOF" cat', tokens: ['<<','EOF','cat'], diff: 'hard' },
+  { cmd: "echo 'hello'\"world\"end", tokens: ['echo','helloworldend'], diff: 'hard' },
+  { cmd: 'echo hello | cat | wc -l', tokens: ['echo','hello','|','cat','|','wc','-l'], diff: 'medium' },
+  { cmd: '> > out', tokens: ['>','>','out'], diff: 'hard' },
+  { cmd: 'echo "hello">"out.txt"', tokens: ['echo','hello','>','out.txt'], diff: 'hard' },
+];
+
+const countExercises = [
+  { cmd: 'ls', count: 1, diff: 'easy' },
+  { cmd: 'echo hello world', count: 3, diff: 'easy' },
+  { cmd: 'echo "hello world"', count: 2, diff: 'easy' },
+  { cmd: 'ls -l -a -h', count: 4, diff: 'easy' },
+  { cmd: 'echo hello | wc -l', count: 5, diff: 'medium' },
+  { cmd: 'cat < in > out', count: 5, diff: 'medium' },
+  { cmd: 'echo hello>out', count: 4, diff: 'medium' },
+  { cmd: 'echo hel"lo wo"rld', count: 2, diff: 'hard' },
+  { cmd: "echo ''\"\"", count: 2, diff: 'hard' },
+  { cmd: 'echo hello>>out|wc -l', count: 7, diff: 'hard' },
+  { cmd: '""', count: 1, diff: 'hard' },
+  { cmd: "echo 'hello'world", count: 2, diff: 'medium' },
+  { cmd: 'echo a"b"c', count: 2, diff: 'hard' },
+  { cmd: 'cat<<EOF', count: 3, diff: 'hard' },
+  { cmd: 'echo "|" | cat', count: 4, diff: 'hard' },
+  { cmd: 'echo hello\\ world', count: 2, diff: 'hard' },
+  { cmd: 'echo hello\\|wc', count: 2, diff: 'hard' },
+  { cmd: 'echo "hello \\"world\\""', count: 2, diff: 'hard' },
+  { cmd: 'echo >>>out', count: 4, diff: 'hard' },
+  { cmd: '> > out', count: 3, diff: 'hard' },
+  { cmd: 'echo hello | cat | wc -l', count: 7, diff: 'medium' },
+  { cmd: 'echo "hello">"out.txt"', count: 4, diff: 'hard' },
+];
+
+const spotExercises = [
+  { cmd: 'echo hello', valid: true, reason: 'All tokens are well-formed.', diff: 'easy' },
+  { cmd: 'echo "hello world', valid: false, reason: 'Unclosed double quote \u2014 the lexer reaches end of input still inside a quoted string.', diff: 'easy' },
+  { cmd: "echo 'hello world", valid: false, reason: "Unclosed single quote.", diff: 'easy' },
+  { cmd: 'echo ""', valid: true, reason: 'Empty quotes are valid \u2014 they produce an empty-string token.', diff: 'medium' },
+  { cmd: 'echo "hello \'world"', valid: true, reason: "Single quote inside double quotes is just a literal character. The double quotes are properly closed.", diff: 'medium' },
+  { cmd: "echo 'hello \"world'", valid: true, reason: "Double quote inside single quotes is just a literal character. The single quotes are properly closed.", diff: 'medium' },
+  { cmd: "echo 'hello''world'", valid: true, reason: "Two properly closed single-quoted segments adjacent to each other. Perfectly valid \u2014 produces one token: helloworld.", diff: 'medium' },
+  { cmd: 'echo "hello"\'', valid: false, reason: "The trailing single quote is never closed.", diff: 'hard' },
+  { cmd: 'echo "it\'s a test"', valid: true, reason: "The single quote is inside double quotes, so it's just a literal character. The double quotes are properly closed.", diff: 'medium' },
+  { cmd: 'echo hello"world', valid: false, reason: "The double quote opens but is never closed.", diff: 'medium' },
+  { cmd: "echo 'hello'\"world\"", valid: true, reason: "Both the single-quoted and double-quoted segments are properly closed.", diff: 'hard' },
+  { cmd: 'echo "hello \\"world"', valid: true, reason: 'Inside double quotes, \\" is an escaped double quote \u2014 it produces a literal " without closing the string. The lexer sees one quoted token with value: hello "world.', diff: 'hard' },
+  { cmd: 'echo hello\\', valid: false, reason: 'Trailing backslash with nothing after it \u2014 the backslash expects a character to escape but finds end of input. This is a lexer error.', diff: 'hard' },
+  { cmd: 'echo hello\\ world', valid: true, reason: 'The backslash escapes the space, making it literal. This produces two tokens: echo and hello world (space is part of the second token).', diff: 'hard' },
+  { cmd: "echo 'hello\\nworld'", valid: true, reason: "Inside single quotes, backslash has no special meaning \u2014 it's just a literal character. The quotes are properly closed. Token value: hello\\nworld.", diff: 'hard' },
+  { cmd: 'echo \'hello\' "world" | cat', valid: true, reason: 'All quotes are properly closed, pipe is valid.', diff: 'easy' },
+  { cmd: 'echo "hello|world"', valid: true, reason: "The pipe is inside double quotes so it's a literal character. Quotes are properly closed.", diff: 'medium' },
+  { cmd: 'echo >>>out', valid: true, reason: 'This is valid: >>> is parsed as >> (append operator) followed by > (redirect operator). Then out is a word. Four tokens: echo, >>, >, out.', diff: 'hard' },
+  { cmd: '> > out', valid: true, reason: 'Two separate > operators followed by the word "out". Syntactically unusual but the lexer can tokenize it. (The parser may reject it later, but the lexer is fine.)', diff: 'hard' },
+  { cmd: 'echo "hello">"out.txt"', valid: true, reason: 'All quotes are properly closed. The > between them is an operator. Four tokens: echo, hello, >, out.txt.', diff: 'hard' },
+  { cmd: "echo 'hello' 'world", valid: false, reason: "The first 'hello' is properly closed, but the second ' before world is never closed. Lexer error.", diff: 'medium' },
+  { cmd: 'echo "hello""world"', valid: true, reason: 'Two adjacent double-quoted segments, both properly closed. They merge into one token: helloworld.', diff: 'medium' },
+];
+
+const boundaryExercises = [
+  { cmd: 'echo hello', highlight: [[0,3],[5,9]], answer: 'separate', explanation: 'Space separates them into two tokens: echo and hello.', diff: 'easy' },
+  { cmd: 'echo "hello world"', highlight: [[5,18]], answer: 'same', explanation: 'The entire quoted segment (including the quotes) forms a single token. Value: hello world.', diff: 'easy' },
+  { cmd: 'echo hel"lo"', highlight: [[5,7],[8,10]], answer: 'same', explanation: 'No space between hel and "lo" \u2014 the unquoted hel and quoted lo merge into one token: hello.', diff: 'medium' },
+  { cmd: 'echo hello|wc', highlight: [[5,9],[11,12]], answer: 'separate', explanation: 'The pipe | is an operator that always creates a token boundary. hello and wc are separate tokens with | between them.', diff: 'medium' },
+  { cmd: 'echo hello>out', highlight: [[5,9],[10,10]], answer: 'separate', explanation: '> is an operator \u2014 it creates a boundary even without spaces. hello and > are separate tokens.', diff: 'medium' },
+  { cmd: "echo 'hello'\"world\"", highlight: [[5,11],[12,18]], answer: 'same', explanation: "No space between 'hello' and \"world\" \u2014 adjacent quoted segments with no separator merge into one token: helloworld.", diff: 'hard' },
+  { cmd: 'echo hello   world', highlight: [[5,9],[13,17]], answer: 'separate', explanation: 'Multiple spaces still create a token boundary. hello and world are separate tokens.', diff: 'easy' },
+  { cmd: 'echo "hello   world"', highlight: [[6,10],[14,18]], answer: 'same', explanation: 'Spaces inside quotes do not create boundaries. This is one token: hello   world (with the spaces preserved).', diff: 'medium' },
+  { cmd: "echo a'b'c", highlight: [[5,5],[7,7],[9,9]], answer: 'same', explanation: "a, 'b', and c have no spaces between them \u2014 they merge into one token: abc.", diff: 'hard' },
+  { cmd: 'echo "|"', highlight: [[5,7]], answer: 'same', explanation: 'The pipe is inside quotes, so it is a literal character, not an operator. This is one WORD token with value: |', diff: 'hard' },
+  { cmd: 'cat<<EOF', highlight: [[0,2],[3,4],[5,7]], answer: 'separate', explanation: '<< is an operator. It creates boundaries even without spaces. Three tokens: cat, <<, EOF.', diff: 'hard' },
+  { cmd: 'echo hello\\ world', highlight: [[5,11],[12,16]], answer: 'same', explanation: 'The backslash escapes the space, making it a literal character instead of a token separator. hello world is one token.', diff: 'hard' },
+  { cmd: 'echo hello\\|wc', highlight: [[5,11],[12,13]], answer: 'same', explanation: 'The backslash escapes the pipe, making it a literal character instead of an operator. hello|wc is one token.', diff: 'hard' },
+];
+
+const stateExercises = [
+  { cmd: 'echo hello', pos: 4, state: 'DELIMITER', explanation: 'Position 4 is the space between "echo" and "hello". The lexer has just finished the word "echo" and is now consuming whitespace \u2014 state is DELIMITER.', diff: 'easy' },
+  { cmd: 'echo   hello', pos: 5, state: 'DELIMITER', explanation: 'Position 5 is the second space in the gap between "echo" and "hello". Multiple spaces are all consumed in DELIMITER state.', diff: 'easy' },
+  { cmd: 'echo hello | wc', pos: 10, state: 'DELIMITER', explanation: 'Position 10 is the space before the pipe. The lexer finished the word "hello" and is back to DELIMITER, consuming whitespace.', diff: 'easy' },
+  { cmd: 'echo hello | wc', pos: 12, state: 'DELIMITER', explanation: 'Position 12 is the space after the pipe. The pipe was emitted as an operator token, and now the lexer is in DELIMITER consuming the space before "wc".', diff: 'medium' },
+  { cmd: '  echo hello', pos: 0, state: 'DELIMITER', explanation: 'The lexer starts in DELIMITER state. Position 0 is a leading space \u2014 still in DELIMITER, waiting for the first non-space character.', diff: 'easy' },
+  { cmd: 'echo hello', pos: 0, state: 'IN_WORD', explanation: 'Position 0 is "e", the first character of the word "echo". No quotes open, not whitespace, not an operator \u2014 the lexer is building a word token: IN_WORD.', diff: 'easy' },
+  { cmd: 'echo hello', pos: 3, state: 'IN_WORD', explanation: 'Position 3 is "o" in "echo". The lexer is still accumulating characters into the same word token \u2014 IN_WORD.', diff: 'easy' },
+  { cmd: 'echo hello', pos: 5, state: 'IN_WORD', explanation: 'Position 5 is "h" of "hello". The space at position 4 ended the previous word and the lexer entered DELIMITER, but this "h" starts a new word \u2014 IN_WORD.', diff: 'easy' },
+  { cmd: 'echo hello', pos: 9, state: 'IN_WORD', explanation: 'Position 9 is "o" at the end of "hello". Still accumulating into the word \u2014 IN_WORD.', diff: 'easy' },
+  { cmd: 'ls -l -a', pos: 3, state: 'IN_WORD', explanation: 'Position 3 is "-" starting the token "-l". The hyphen is not a special character \u2014 it starts a new word: IN_WORD.', diff: 'easy' },
+  { cmd: '/bin/ls', pos: 4, state: 'IN_WORD', explanation: 'Position 4 is "/" in "/bin/ls". Slashes are ordinary word characters \u2014 IN_WORD.', diff: 'easy' },
+  { cmd: 'echo hello>out', pos: 5, state: 'IN_WORD', explanation: 'Position 5 is "h" of "hello". The lexer is building the word "hello" \u2014 IN_WORD. The > at position 10 hasn\'t been reached yet.', diff: 'medium' },
+  { cmd: 'echo hello>out', pos: 11, state: 'IN_WORD', explanation: 'Position 11 is "o" of "out". After the > operator was emitted, this ordinary character starts a new word \u2014 IN_WORD.', diff: 'medium' },
+  { cmd: "echo 'hello world'", pos: 5, state: 'IN_SQUOTE', explanation: "Position 5 is the opening '. This character causes the transition into IN_SQUOTE. The quote itself is consumed in this state.", diff: 'medium' },
+  { cmd: "echo 'hello world'", pos: 6, state: 'IN_SQUOTE', explanation: "Position 6 is 'h' inside 'hello world'. Inside single quotes, everything is literal \u2014 IN_SQUOTE.", diff: 'easy' },
+  { cmd: "echo 'hello world'", pos: 11, state: 'IN_SQUOTE', explanation: "Position 11 is the space inside 'hello world'. Inside single quotes, spaces are literal \u2014 they don't delimit tokens. Still IN_SQUOTE.", diff: 'medium' },
+  { cmd: "echo 'hello world'", pos: 17, state: 'IN_SQUOTE', explanation: "Position 17 is the closing '. The lexer processes this and transitions back. At this position, we're still in IN_SQUOTE (about to exit).", diff: 'medium' },
+  { cmd: "echo 'hello|world'", pos: 10, state: 'IN_SQUOTE', explanation: "Position 10 is '|' inside single quotes. The pipe has no special meaning here \u2014 it's a literal character. IN_SQUOTE.", diff: 'medium' },
+  { cmd: "echo 'hello>world'", pos: 10, state: 'IN_SQUOTE', explanation: "Position 10 is '>' inside single quotes. Operators lose their meaning inside quotes \u2014 literal character. IN_SQUOTE.", diff: 'medium' },
+  { cmd: "echo 'hello\\nworld'", pos: 10, state: 'IN_SQUOTE', explanation: "Position 10 is the backslash inside single quotes. In IN_SQUOTE, NOTHING is special \u2014 not even backslash. It's just a literal character. IN_SQUOTE.", diff: 'hard' },
+  { cmd: "echo ''", pos: 5, state: 'IN_SQUOTE', explanation: "Position 5 is the opening '. Even though the next char immediately closes it, at this position we're entering IN_SQUOTE.", diff: 'medium' },
+  { cmd: 'echo "hello world"', pos: 5, state: 'IN_DQUOTE', explanation: 'Position 5 is the opening ". This character triggers the transition to IN_DQUOTE.', diff: 'medium' },
+  { cmd: 'echo "hello world"', pos: 6, state: 'IN_DQUOTE', explanation: 'Position 6 is "h" inside "hello world". We are inside double quotes \u2014 IN_DQUOTE.', diff: 'easy' },
+  { cmd: 'echo "hello world"', pos: 11, state: 'IN_DQUOTE', explanation: 'Position 11 is the space inside "hello world". Spaces inside double quotes don\'t delimit tokens. IN_DQUOTE.', diff: 'medium' },
+  { cmd: 'echo "hello world"', pos: 17, state: 'IN_DQUOTE', explanation: 'Position 17 is the closing ". At this character, the lexer is about to transition back to IN_WORD. But at this position, we are still in IN_DQUOTE.', diff: 'medium' },
+  { cmd: 'echo "hello|world"', pos: 10, state: 'IN_DQUOTE', explanation: 'Position 10 is "|" inside double quotes. Pipe is not special here \u2014 literal character. IN_DQUOTE.', diff: 'medium' },
+  { cmd: 'echo "$USER"', pos: 6, state: 'IN_DQUOTE', explanation: 'Position 6 is "$" inside double quotes. The $ has special meaning for expansion, but the lexer state is still IN_DQUOTE \u2014 expansion happens later.', diff: 'medium' },
+  { cmd: 'echo "hello   world"', pos: 10, state: 'IN_DQUOTE', explanation: 'Position 10 is a space (one of several) inside "hello   world". Multiple spaces inside double quotes are all literal \u2014 IN_DQUOTE.', diff: 'easy' },
+  { cmd: 'echo hello\\ world', pos: 10, state: 'ESCAPE', explanation: 'Position 10 is the backslash. In unquoted context, a backslash enters ESCAPE state \u2014 it will consume the next character as a literal, regardless of what it is.', diff: 'medium' },
+  { cmd: 'echo hello\\ world', pos: 11, state: 'IN_WORD', explanation: 'Position 11 is the space after the backslash. The ESCAPE state consumed the backslash and made this space literal. Now we\'re back to building the word \u2014 IN_WORD. The space is part of the token, not a delimiter.', diff: 'hard' },
+  { cmd: 'echo hello\\|wc', pos: 10, state: 'ESCAPE', explanation: 'Position 10 is the backslash before |. The lexer enters ESCAPE state to consume the next character literally.', diff: 'medium' },
+  { cmd: 'echo hello\\|wc', pos: 11, state: 'IN_WORD', explanation: 'Position 11 is | after the backslash. ESCAPE consumed the backslash and made | literal \u2014 it does NOT act as a pipe operator. Back to IN_WORD.', diff: 'hard' },
+  { cmd: 'echo \\"hello\\"', pos: 5, state: 'ESCAPE', explanation: 'Position 5 is the backslash. In unquoted context, this enters ESCAPE to consume the next char literally.', diff: 'hard' },
+  { cmd: 'echo \\"hello\\"', pos: 6, state: 'IN_WORD', explanation: 'Position 6 is " after the backslash. ESCAPE consumed the backslash and made " literal \u2014 it does NOT open a quoted string. Back to IN_WORD, with a literal " in the token.', diff: 'hard' },
+  { cmd: 'echo \\\\hello', pos: 5, state: 'ESCAPE', explanation: 'Position 5 is the first backslash. It enters ESCAPE state to escape the next character.', diff: 'hard' },
+  { cmd: 'echo \\\\hello', pos: 6, state: 'IN_WORD', explanation: 'Position 6 is the second backslash. The first backslash (ESCAPE) consumed it as a literal backslash character. We are back to IN_WORD with a literal \\ in the token.', diff: 'hard' },
+  { cmd: 'echo "hello \\"world"', pos: 12, state: 'DQUOTE_ESCAPE', explanation: 'Position 12 is the backslash inside double quotes. Inside double quotes, backslash before $ ` " \\ or newline enters DQUOTE_ESCAPE \u2014 a temporary sub-state that consumes the next char as literal.', diff: 'hard' },
+  { cmd: 'echo "hello \\"world"', pos: 13, state: 'IN_DQUOTE', explanation: 'Position 13 is " after the backslash inside double quotes. DQUOTE_ESCAPE consumed the backslash and made this " literal \u2014 it does NOT close the string. Back to IN_DQUOTE.', diff: 'hard' },
+  { cmd: 'echo "hello\\nworld"', pos: 10, state: 'IN_DQUOTE', explanation: 'Position 10 is the backslash inside double quotes, but the next character is "n". Since "n" is NOT one of the escapable characters ($ ` " \\ newline), the backslash is kept literally \u2014 no state transition to DQUOTE_ESCAPE. We stay in IN_DQUOTE and both \\ and n become part of the token.', diff: 'hard' },
+  { cmd: 'echo "\\\\hello"', pos: 6, state: 'DQUOTE_ESCAPE', explanation: 'Position 6 is the first backslash inside double quotes. The next char is also a backslash, which IS one of the escapable chars \u2014 so we enter DQUOTE_ESCAPE.', diff: 'hard' },
+  { cmd: 'echo "\\\\hello"', pos: 7, state: 'IN_DQUOTE', explanation: 'Position 7 is the second backslash. DQUOTE_ESCAPE consumed the first backslash and made this one literal. Back to IN_DQUOTE.', diff: 'hard' },
+  { cmd: 'echo "\\$USER"', pos: 6, state: 'DQUOTE_ESCAPE', explanation: 'Position 6 is the backslash inside double quotes, and the next char is $. Since $ IS one of the escapable characters inside double quotes, we enter DQUOTE_ESCAPE.', diff: 'hard' },
+  { cmd: 'echo "\\$USER"', pos: 7, state: 'IN_DQUOTE', explanation: 'Position 7 is $ after the backslash. DQUOTE_ESCAPE consumed the backslash and made $ literal (no expansion will happen). Back to IN_DQUOTE.', diff: 'hard' },
+  { cmd: 'echo hello | wc', pos: 11, state: 'IN_OPERATOR', explanation: 'Position 11 is the pipe |. The lexer recognizes this as an operator character and enters IN_OPERATOR. Since | is always a single-character operator (in minishell), the token is immediately emitted.', diff: 'medium' },
+  { cmd: 'echo > out.txt', pos: 5, state: 'IN_OPERATOR', explanation: 'Position 5 is >. The lexer enters IN_OPERATOR. It must look ahead to see if the next char is also > (which would make >>). Since the next char is a space, this is a single > operator.', diff: 'medium' },
+  { cmd: 'echo >> out.txt', pos: 5, state: 'IN_OPERATOR', explanation: 'Position 5 is the first >. The lexer enters IN_OPERATOR and peeks ahead. The next char is also >, so this will become a >> token.', diff: 'medium' },
+  { cmd: 'echo >> out.txt', pos: 6, state: 'IN_OPERATOR', explanation: 'Position 6 is the second > of >>. The lexer is still in IN_OPERATOR, now finalizing the two-character >> operator token.', diff: 'hard' },
+  { cmd: '<< EOF cat', pos: 0, state: 'IN_OPERATOR', explanation: 'Position 0 is the first <. The lexer enters IN_OPERATOR. The next char is also <, so this becomes a << (heredoc) token.', diff: 'medium' },
+  { cmd: '<< EOF cat', pos: 1, state: 'IN_OPERATOR', explanation: 'Position 1 is the second < of <<. Still in IN_OPERATOR, completing the two-character operator.', diff: 'medium' },
+  { cmd: 'echo hello>out', pos: 10, state: 'IN_OPERATOR', explanation: 'Position 10 is >. Even without surrounding spaces, > is an operator. The lexer finishes the word "hello", then enters IN_OPERATOR for the >.', diff: 'medium' },
+  { cmd: 'cat<<EOF', pos: 3, state: 'IN_OPERATOR', explanation: 'Position 3 is the first < in <<. No space needed \u2014 the lexer finished the word "cat" and enters IN_OPERATOR.', diff: 'hard' },
+  { cmd: 'cat<<EOF', pos: 4, state: 'IN_OPERATOR', explanation: 'Position 4 is the second < of <<. Still in IN_OPERATOR, completing the heredoc operator.', diff: 'hard' },
+  { cmd: 'echo hel"lo wo"rld', pos: 7, state: 'IN_WORD', explanation: 'Position 7 is "l" in "hel". No quote is open \u2014 IN_WORD, accumulating unquoted characters.', diff: 'medium' },
+  { cmd: 'echo hel"lo wo"rld', pos: 8, state: 'IN_DQUOTE', explanation: 'Position 8 is the opening " after "hel". The lexer transitions from IN_WORD into IN_DQUOTE. The token is not yet complete \u2014 the quoted segment will be appended to it.', diff: 'hard' },
+  { cmd: 'echo hel"lo wo"rld', pos: 12, state: 'IN_DQUOTE', explanation: 'Position 12 is the space inside "lo wo". Spaces inside double quotes are literal \u2014 IN_DQUOTE.', diff: 'medium' },
+  { cmd: 'echo hel"lo wo"rld', pos: 15, state: 'IN_DQUOTE', explanation: 'Position 15 is the closing ". At this position, the lexer is about to transition back to IN_WORD for "rld".', diff: 'hard' },
+  { cmd: 'echo hel"lo wo"rld', pos: 16, state: 'IN_WORD', explanation: 'Position 16 is "r" after the closing quote. Back to IN_WORD \u2014 the unquoted "rld" is appended to the same token.', diff: 'hard' },
+  { cmd: "echo 'hello'\"world\"", pos: 11, state: 'IN_SQUOTE', explanation: "Position 11 is the closing ' of 'hello'. At this position the lexer is in IN_SQUOTE, about to exit back to IN_WORD.", diff: 'hard' },
+  { cmd: "echo 'hello'\"world\"", pos: 12, state: 'IN_DQUOTE', explanation: 'Position 12 is the opening " of "world". The lexer transitioned from IN_SQUOTE through IN_WORD and immediately into IN_DQUOTE \u2014 all within the same token.', diff: 'hard' },
+  { cmd: 'echo a"b"c\'d\'e', pos: 6, state: 'IN_WORD', explanation: 'Position 6 is "c" between the closing " and opening \'. Back to IN_WORD briefly before the next quote opens. All part of the same token.', diff: 'hard' },
+  { cmd: 'echo ""', pos: 5, state: 'IN_DQUOTE', explanation: 'Position 5 is the opening ". Even though the next char immediately closes it, at this position the lexer enters IN_DQUOTE.', diff: 'medium' },
+  { cmd: 'echo ""', pos: 6, state: 'IN_DQUOTE', explanation: 'Position 6 is the closing ". The lexer is still in IN_DQUOTE at this position (about to exit). The empty string is a valid token.', diff: 'medium' },
+  { cmd: 'echo hello>>out|wc -l', pos: 10, state: 'IN_OPERATOR', explanation: 'Position 10 is the first > after "hello". The lexer finishes the word and enters IN_OPERATOR.', diff: 'hard' },
+  { cmd: 'echo hello>>out|wc -l', pos: 11, state: 'IN_OPERATOR', explanation: 'Position 11 is the second > of >>. Still IN_OPERATOR, completing the append operator.', diff: 'hard' },
+  { cmd: 'echo hello>>out|wc -l', pos: 15, state: 'IN_OPERATOR', explanation: 'Position 15 is | after "out". The lexer finishes the word "out" and enters IN_OPERATOR for the pipe.', diff: 'hard' },
+  { cmd: '>out echo hello', pos: 0, state: 'IN_OPERATOR', explanation: 'Position 0 is > at the very start. The lexer begins in DELIMITER but immediately encounters an operator \u2014 IN_OPERATOR.', diff: 'medium' },
+  { cmd: '>out echo hello', pos: 1, state: 'IN_WORD', explanation: 'Position 1 is "o" of "out". After the single-char > operator was emitted, this ordinary character starts a new word \u2014 IN_WORD.', diff: 'medium' },
+];
+
+const transitionExercises = [
+  { from: 'DELIMITER', char: ' ', to: 'DELIMITER', explanation: 'Spaces in DELIMITER are consumed \u2014 we stay in DELIMITER, still looking for the start of the next token.', diff: 'easy' },
+  { from: 'DELIMITER', char: 'e', to: 'IN_WORD', explanation: 'An ordinary character in DELIMITER starts a new word token \u2014 transition to IN_WORD.', diff: 'easy' },
+  { from: 'DELIMITER', char: "'", to: 'IN_SQUOTE', explanation: "A single quote in DELIMITER opens a single-quoted segment \u2014 transition to IN_SQUOTE. This also starts a new token.", diff: 'easy' },
+  { from: 'DELIMITER', char: '"', to: 'IN_DQUOTE', explanation: 'A double quote in DELIMITER opens a double-quoted segment \u2014 transition to IN_DQUOTE. This also starts a new token.', diff: 'easy' },
+  { from: 'DELIMITER', char: '|', to: 'IN_OPERATOR', explanation: 'A pipe in DELIMITER starts an operator token \u2014 transition to IN_OPERATOR.', diff: 'easy' },
+  { from: 'DELIMITER', char: '>', to: 'IN_OPERATOR', explanation: '> in DELIMITER starts an operator token \u2014 transition to IN_OPERATOR. The lexer will peek ahead to check for >>.', diff: 'medium' },
+  { from: 'DELIMITER', char: '<', to: 'IN_OPERATOR', explanation: '< in DELIMITER starts an operator token \u2014 transition to IN_OPERATOR. The lexer will peek ahead to check for <<.', diff: 'medium' },
+  { from: 'DELIMITER', char: '\\', to: 'ESCAPE', explanation: 'A backslash in DELIMITER enters ESCAPE state. The next character will be consumed as a literal, starting a new word token.', diff: 'medium' },
+  { from: 'IN_WORD', char: 'l', to: 'IN_WORD', explanation: 'An ordinary character in IN_WORD is appended to the current token. We stay in IN_WORD.', diff: 'easy' },
+  { from: 'IN_WORD', char: ' ', to: 'DELIMITER', explanation: 'A space in IN_WORD ends the current word token. Transition to DELIMITER.', diff: 'easy' },
+  { from: 'IN_WORD', char: "'", to: 'IN_SQUOTE', explanation: "A single quote in IN_WORD opens a quoted segment WITHIN the same token (no token break!). Transition to IN_SQUOTE.", diff: 'medium' },
+  { from: 'IN_WORD', char: '"', to: 'IN_DQUOTE', explanation: 'A double quote in IN_WORD opens a quoted segment within the same token. Transition to IN_DQUOTE.', diff: 'medium' },
+  { from: 'IN_WORD', char: '|', to: 'IN_OPERATOR', explanation: 'A pipe in IN_WORD ends the current word token and starts an operator token. Transition to IN_OPERATOR.', diff: 'medium' },
+  { from: 'IN_WORD', char: '>', to: 'IN_OPERATOR', explanation: '> in IN_WORD ends the current word and starts an operator. Transition to IN_OPERATOR.', diff: 'medium' },
+  { from: 'IN_WORD', char: '\\', to: 'ESCAPE', explanation: 'A backslash in IN_WORD enters ESCAPE. The next character will be added literally to the current token.', diff: 'medium' },
+  { from: 'IN_WORD', char: '-', to: 'IN_WORD', explanation: 'A hyphen is an ordinary character \u2014 it gets appended to the word. Stay in IN_WORD.', diff: 'easy' },
+  { from: 'IN_WORD', char: '/', to: 'IN_WORD', explanation: 'A slash is an ordinary character \u2014 stay in IN_WORD. (Paths like /bin/ls are single word tokens.)', diff: 'easy' },
+  { from: 'IN_WORD', char: '$', to: 'IN_WORD', explanation: '$ is just a regular character at the lexer level. The lexer does not expand variables \u2014 that is the expander\'s job. Stay in IN_WORD.', diff: 'hard' },
+  { from: 'IN_SQUOTE', char: 'h', to: 'IN_SQUOTE', explanation: "Any ordinary character inside single quotes is literal. Stay in IN_SQUOTE.", diff: 'easy' },
+  { from: 'IN_SQUOTE', char: ' ', to: 'IN_SQUOTE', explanation: "Spaces inside single quotes are literal \u2014 they do NOT delimit tokens. Stay in IN_SQUOTE.", diff: 'easy' },
+  { from: 'IN_SQUOTE', char: '|', to: 'IN_SQUOTE', explanation: "Pipe inside single quotes has no special meaning \u2014 just a literal character. Stay in IN_SQUOTE.", diff: 'medium' },
+  { from: 'IN_SQUOTE', char: '"', to: 'IN_SQUOTE', explanation: 'A double quote inside single quotes is just a literal character. Stay in IN_SQUOTE.', diff: 'medium' },
+  { from: 'IN_SQUOTE', char: '\\', to: 'IN_SQUOTE', explanation: 'Backslash inside single quotes has NO special meaning. It is a literal character. Stay in IN_SQUOTE. This is a key difference from double quotes!', diff: 'hard' },
+  { from: 'IN_SQUOTE', char: '$', to: 'IN_SQUOTE', explanation: '$ inside single quotes is literal \u2014 no expansion. Stay in IN_SQUOTE.', diff: 'medium' },
+  { from: 'IN_SQUOTE', char: "'", to: 'IN_WORD', explanation: "The closing single quote ends the segment and returns to IN_WORD. The token continues (adjacent segments merge).", diff: 'medium' },
+  { from: 'IN_DQUOTE', char: 'h', to: 'IN_DQUOTE', explanation: 'Ordinary character inside double quotes \u2014 literal. Stay in IN_DQUOTE.', diff: 'easy' },
+  { from: 'IN_DQUOTE', char: ' ', to: 'IN_DQUOTE', explanation: 'Space inside double quotes is literal \u2014 no token break. Stay in IN_DQUOTE.', diff: 'easy' },
+  { from: 'IN_DQUOTE', char: '|', to: 'IN_DQUOTE', explanation: 'Pipe inside double quotes has no special meaning \u2014 literal. Stay in IN_DQUOTE.', diff: 'medium' },
+  { from: 'IN_DQUOTE', char: "'", to: 'IN_DQUOTE', explanation: "Single quote inside double quotes is just a literal character. Stay in IN_DQUOTE. It does NOT open a single-quoted segment.", diff: 'medium' },
+  { from: 'IN_DQUOTE', char: '$', to: 'IN_DQUOTE', explanation: '$ inside double quotes is recognized for expansion, but at the lexer level the state stays IN_DQUOTE. Expansion happens later.', diff: 'medium' },
+  { from: 'IN_DQUOTE', char: '"', to: 'IN_WORD', explanation: 'The closing double quote ends the segment and returns to IN_WORD. The token continues if more characters follow without a delimiter.', diff: 'medium' },
+  { from: 'IN_DQUOTE', char: '\\', charAfter: '"', to: 'DQUOTE_ESCAPE', explanation: 'Backslash inside double quotes, and the NEXT character is " (one of the escapable chars: $ ` " \\ newline). Transition to DQUOTE_ESCAPE.', diff: 'hard' },
+  { from: 'IN_DQUOTE', char: '\\', charAfter: '$', to: 'DQUOTE_ESCAPE', explanation: 'Backslash inside double quotes, next char is $ (escapable). Transition to DQUOTE_ESCAPE to consume $ literally.', diff: 'hard' },
+  { from: 'IN_DQUOTE', char: '\\', charAfter: 'n', to: 'IN_DQUOTE', explanation: 'Backslash inside double quotes, but the next char is "n" \u2014 NOT one of the escapable chars ($ ` " \\ newline). The backslash is kept literally. Stay in IN_DQUOTE. Both \\ and n become part of the token.', diff: 'hard' },
+  { from: 'IN_DQUOTE', char: '\\', charAfter: '\\', to: 'DQUOTE_ESCAPE', explanation: 'Backslash inside double quotes, next char is also backslash (escapable). Transition to DQUOTE_ESCAPE.', diff: 'hard' },
+  { from: 'ESCAPE', char: ' ', to: 'IN_WORD', explanation: 'The escaped space is consumed as a literal character in the current token. Return to IN_WORD. The space does NOT delimit tokens.', diff: 'medium' },
+  { from: 'ESCAPE', char: '|', to: 'IN_WORD', explanation: 'The escaped pipe is consumed literally \u2014 it does NOT act as an operator. Return to IN_WORD.', diff: 'medium' },
+  { from: 'ESCAPE', char: '"', to: 'IN_WORD', explanation: 'The escaped double quote is consumed literally \u2014 it does NOT open a quoted string. Return to IN_WORD.', diff: 'hard' },
+  { from: 'ESCAPE', char: "'", to: 'IN_WORD', explanation: "The escaped single quote is consumed literally \u2014 it does NOT open a quoted string. Return to IN_WORD.", diff: 'hard' },
+  { from: 'ESCAPE', char: '\\', to: 'IN_WORD', explanation: 'The escaped backslash is consumed as a literal backslash character. Return to IN_WORD.', diff: 'hard' },
+  { from: 'ESCAPE', char: 'a', to: 'IN_WORD', explanation: 'Any character after a backslash is consumed literally. Return to IN_WORD.', diff: 'easy' },
+  { from: 'DQUOTE_ESCAPE', char: '"', to: 'IN_DQUOTE', explanation: 'The escaped " is consumed as a literal " within the double-quoted segment. It does NOT close the string. Return to IN_DQUOTE.', diff: 'hard' },
+  { from: 'DQUOTE_ESCAPE', char: '$', to: 'IN_DQUOTE', explanation: 'The escaped $ is consumed literally \u2014 no expansion will happen. Return to IN_DQUOTE.', diff: 'hard' },
+  { from: 'DQUOTE_ESCAPE', char: '\\', to: 'IN_DQUOTE', explanation: 'The escaped backslash becomes a literal \\. Return to IN_DQUOTE.', diff: 'hard' },
+  { from: 'IN_OPERATOR', char: '>', charContext: 'first char is >', to: 'DELIMITER', explanation: 'Second > after first > \u2014 this completes the >> (append) operator. The two-char token is emitted. Transition to DELIMITER.', diff: 'medium' },
+  { from: 'IN_OPERATOR', char: '<', charContext: 'first char is <', to: 'DELIMITER', explanation: 'Second < after first < \u2014 this completes the << (heredoc) operator. Transition to DELIMITER.', diff: 'medium' },
+  { from: 'IN_OPERATOR', char: ' ', charContext: 'first char is >', to: 'DELIMITER', explanation: 'Space after single > \u2014 the > is emitted as a single-char operator. The space starts DELIMITER for the next token.', diff: 'medium' },
+  { from: 'IN_OPERATOR', char: 'o', charContext: 'first char is >', to: 'IN_WORD', explanation: 'Ordinary char immediately after > (no space). The > is emitted as an operator, and "o" starts a new word. Transition to IN_WORD.', diff: 'hard' },
+  { from: 'IN_OPERATOR', char: '<', charContext: 'first char is >', to: 'IN_OPERATOR', explanation: '< after > \u2014 these are different operators. The > is emitted as a single-char operator, then < starts a new IN_OPERATOR.', diff: 'hard' },
+];
+
+const segmentExercises = [
+  { cmd: 'echo hello', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hello'}]], diff: 'easy' },
+  { cmd: 'ls -l', tokens: [[{t:'u',v:'ls'}], [{t:'u',v:'-l'}]], diff: 'easy' },
+  { cmd: 'ls -l -a', tokens: [[{t:'u',v:'ls'}], [{t:'u',v:'-l'}], [{t:'u',v:'-a'}]], diff: 'easy' },
+  { cmd: '/bin/ls', tokens: [[{t:'u',v:'/bin/ls'}]], diff: 'easy' },
+  { cmd: 'echo hello world', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hello'}], [{t:'u',v:'world'}]], diff: 'easy' },
+  { cmd: 'ls > out.txt', tokens: [[{t:'u',v:'ls'}], [{t:'u',v:'>'}], [{t:'u',v:'out.txt'}]], diff: 'easy' },
+  { cmd: 'cat < in.txt', tokens: [[{t:'u',v:'cat'}], [{t:'u',v:'<'}], [{t:'u',v:'in.txt'}]], diff: 'easy' },
+  { cmd: 'echo "hello world"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'hello world'}]], diff: 'easy' },
+  { cmd: "echo 'hello world'", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'hello world'}]], diff: 'easy' },
+  { cmd: 'echo hello | wc -l', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hello'}], [{t:'u',v:'|'}], [{t:'u',v:'wc'}], [{t:'u',v:'-l'}]], diff: 'easy' },
+  { cmd: 'echo "hello   world"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'hello   world'}]], diff: 'medium' },
+  { cmd: 'grep "hello world" file.txt', tokens: [[{t:'u',v:'grep'}], [{t:'d',v:'hello world'}], [{t:'u',v:'file.txt'}]], diff: 'medium' },
+  { cmd: 'echo hello>out.txt', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hello'}], [{t:'u',v:'>'}], [{t:'u',v:'out.txt'}]], diff: 'medium' },
+  { cmd: 'echo hello|wc', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hello'}], [{t:'u',v:'|'}], [{t:'u',v:'wc'}]], diff: 'medium' },
+  { cmd: 'echo >> log.txt', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'>>'}], [{t:'u',v:'log.txt'}]], diff: 'medium' },
+  { cmd: '<< EOF cat', tokens: [[{t:'u',v:'<<'}], [{t:'u',v:'EOF'}], [{t:'u',v:'cat'}]], diff: 'medium' },
+  { cmd: 'cat < in > out', tokens: [[{t:'u',v:'cat'}], [{t:'u',v:'<'}], [{t:'u',v:'in'}], [{t:'u',v:'>'}], [{t:'u',v:'out'}]], diff: 'medium' },
+  { cmd: 'echo ""', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:''}]], diff: 'medium' },
+  { cmd: "echo ''", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:''}]], diff: 'medium' },
+  { cmd: 'echo "|"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'|'}]], diff: 'medium' },
+  { cmd: 'echo ">"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'>'}]], diff: 'medium' },
+  { cmd: 'echo "$USER"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'$USER'}]], diff: 'medium' },
+  { cmd: "echo '$USER'", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'$USER'}]], diff: 'medium' },
+  { cmd: 'echo $USER', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'$USER'}]], diff: 'medium' },
+  { cmd: 'echo hel"lo wo"rld', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hel'},{t:'d',v:'lo wo'},{t:'u',v:'rld'}]], diff: 'medium' },
+  { cmd: "echo hel'lo wo'rld", tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hel'},{t:'s',v:'lo wo'},{t:'u',v:'rld'}]], diff: 'medium' },
+  { cmd: 'echo "hello"world', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'hello'},{t:'u',v:'world'}]], diff: 'medium' },
+  { cmd: "echo 'hello'world", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'hello'},{t:'u',v:'world'}]], diff: 'medium' },
+  { cmd: "echo 'hello'\"world\"", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'hello'},{t:'d',v:'world'}]], diff: 'hard' },
+  { cmd: 'echo "$USER"is\'$HOME\'here', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'$USER'},{t:'u',v:'is'},{t:'s',v:'$HOME'},{t:'u',v:'here'}]], diff: 'hard' },
+  { cmd: 'echo "hello"\'world\'end', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'hello'},{t:'s',v:'world'},{t:'u',v:'end'}]], diff: 'hard' },
+  { cmd: 'echo a"b"c\'d\'e', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'a'},{t:'d',v:'b'},{t:'u',v:'c'},{t:'s',v:'d'},{t:'u',v:'e'}]], diff: 'hard' },
+  { cmd: "echo ''\"\"", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:''},{t:'d',v:''}]], diff: 'hard' },
+  { cmd: 'echo "he\'llo"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:"he'llo"}]], diff: 'hard' },
+  { cmd: "echo 'he\"llo'", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'he"llo'}]], diff: 'hard' },
+  { cmd: 'echo hello>>out|wc -l', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'hello'}], [{t:'u',v:'>>'}], [{t:'u',v:'out'}], [{t:'u',v:'|'}], [{t:'u',v:'wc'}], [{t:'u',v:'-l'}]], diff: 'hard' },
+  { cmd: 'cat<<EOF', tokens: [[{t:'u',v:'cat'}], [{t:'u',v:'<<'}], [{t:'u',v:'EOF'}]], diff: 'hard' },
+  { cmd: '>out echo hello', tokens: [[{t:'u',v:'>'}], [{t:'u',v:'out'}], [{t:'u',v:'echo'}], [{t:'u',v:'hello'}]], diff: 'medium' },
+  { cmd: 'echo "hello|world" | cat', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'hello|world'}], [{t:'u',v:'|'}], [{t:'u',v:'cat'}]], diff: 'hard' },
+  { cmd: "echo '|' | cat", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'|'}], [{t:'u',v:'|'}], [{t:'u',v:'cat'}]], diff: 'hard' },
+  { cmd: 'echo "$HOME"/bin', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:'$HOME'},{t:'u',v:'/bin'}]], diff: 'hard' },
+  { cmd: "echo '$HOME'/bin", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'$HOME'},{t:'u',v:'/bin'}]], diff: 'hard' },
+  { cmd: 'echo $HOME/bin', tokens: [[{t:'u',v:'echo'}], [{t:'u',v:'$HOME/bin'}]], diff: 'hard' },
+  { cmd: 'echo "it\'s a test"', tokens: [[{t:'u',v:'echo'}], [{t:'d',v:"it's a test"}]], diff: 'medium' },
+  { cmd: "echo 'it\"s a test'", tokens: [[{t:'u',v:'echo'}], [{t:'s',v:'it"s a test'}]], diff: 'medium' },
+];
+
+const segCountExercises = [
+  { cmd: 'echo hello', hl: [5, 9], count: 1, explanation: '"hello" \u2014 one unquoted segment.', diff: 'easy' },
+  { cmd: 'echo "hello world"', hl: [5, 17], count: 1, explanation: '"hello world" (with quotes) \u2014 one double-quoted segment.', diff: 'easy' },
+  { cmd: "echo 'hello world'", hl: [5, 17], count: 1, explanation: "'hello world' \u2014 one single-quoted segment.", diff: 'easy' },
+  { cmd: 'echo hel"lo wo"rld', hl: [5, 18], count: 3, explanation: 'hel (unquoted) + "lo wo" (double-quoted) + rld (unquoted) = 3 segments.', diff: 'medium' },
+  { cmd: "echo hel'lo wo'rld", hl: [5, 18], count: 3, explanation: "hel (unquoted) + 'lo wo' (single-quoted) + rld (unquoted) = 3 segments.", diff: 'medium' },
+  { cmd: 'echo "hello"world', hl: [5, 17], count: 2, explanation: '"hello" (double-quoted) + world (unquoted) = 2 segments.', diff: 'medium' },
+  { cmd: "echo 'hello'world", hl: [5, 17], count: 2, explanation: "'hello' (single-quoted) + world (unquoted) = 2 segments.", diff: 'medium' },
+  { cmd: "echo 'hello'\"world\"", hl: [5, 18], count: 2, explanation: "'hello' (single-quoted) + \"world\" (double-quoted) = 2 segments.", diff: 'hard' },
+  { cmd: 'echo a"b"c\'d\'e', hl: [5, 13], count: 5, explanation: 'a (unquoted) + "b" (double) + c (unquoted) + \'d\' (single) + e (unquoted) = 5 segments.', diff: 'hard' },
+  { cmd: 'echo ""', hl: [5, 6], count: 1, explanation: '"" \u2014 one double-quoted segment with empty content. Still 1 segment.', diff: 'medium' },
+  { cmd: "echo ''\"\"", hl: [5, 8], count: 2, explanation: "'' (single-quoted empty) + \"\" (double-quoted empty) = 2 segments, even though both are empty.", diff: 'hard' },
+  { cmd: 'echo "$USER"is\'$HOME\'here', hl: [5, 24], count: 4, explanation: '"$USER" (double-quoted) + is (unquoted) + \'$HOME\' (single-quoted) + here (unquoted) = 4 segments. Each has different expansion behavior!', diff: 'hard' },
+  { cmd: 'echo "$HOME"/bin', hl: [5, 15], count: 2, explanation: '"$HOME" (double-quoted) + /bin (unquoted) = 2 segments.', diff: 'medium' },
+  { cmd: 'echo $HOME/bin', hl: [5, 13], count: 1, explanation: '$HOME/bin \u2014 entirely unquoted, so just 1 segment. The / doesn\'t create a new segment.', diff: 'medium' },
+  { cmd: 'echo "|"', hl: [5, 7], count: 1, explanation: '"|" \u2014 one double-quoted segment. The pipe is literal inside quotes.', diff: 'easy' },
+  { cmd: 'echo hello', hl: [0, 3], count: 1, explanation: '"echo" \u2014 one unquoted segment. Just a plain word.', diff: 'easy' },
+  { cmd: 'echo "hello"\'world\'end', hl: [5, 20], count: 3, explanation: '"hello" (double-quoted) + \'world\' (single-quoted) + end (unquoted) = 3 segments.', diff: 'hard' },
+  { cmd: 'echo "he\'llo"', hl: [5, 12], count: 1, explanation: '"he\'llo" \u2014 the single quote is inside double quotes, so it\'s just a character. Still 1 double-quoted segment.', diff: 'medium' },
+  { cmd: "echo 'he\"llo'", hl: [5, 12], count: 1, explanation: "'he\"llo' \u2014 the double quote is inside single quotes, just a character. 1 single-quoted segment.", diff: 'medium' },
+  { cmd: 'ls > out.txt', hl: [4, 4], count: 1, explanation: '> \u2014 one unquoted segment (it\'s an operator token, but still 1 segment).', diff: 'easy' },
+];
+
+const expandExercises = [
+  { cmd: 'echo $USER', hl: [5, 9], expands: true, explanation: '$USER is in an unquoted segment. The expander WILL expand it to the value of $USER.', diff: 'easy' },
+  { cmd: 'echo "$USER"', hl: [6, 10], expands: true, explanation: '$USER is inside double quotes. Double-quoted segments DO get expansion \u2014 $USER WILL be expanded.', diff: 'easy' },
+  { cmd: "echo '$USER'", hl: [6, 10], expands: false, explanation: "$USER is inside single quotes. Single-quoted segments are fully literal \u2014 $USER will NOT be expanded. It stays as the literal string $USER.", diff: 'easy' },
+  { cmd: 'echo $HOME/bin', hl: [5, 9], expands: true, explanation: '$HOME is in an unquoted segment. It WILL be expanded. The /bin part is just appended to the result.', diff: 'easy' },
+  { cmd: 'echo "$HOME"/bin', hl: [6, 10], expands: true, explanation: '$HOME is inside double quotes \u2014 it WILL be expanded. The /bin after the closing quote is unquoted and appended.', diff: 'medium' },
+  { cmd: "echo '$HOME'/bin", hl: [6, 10], expands: false, explanation: "$HOME is inside single quotes \u2014 it will NOT be expanded. The /bin after the closing quote is unquoted.", diff: 'medium' },
+  { cmd: 'echo "$USER"is\'$HOME\'', hl: [6, 10], expands: true, explanation: 'This $USER is inside double quotes. Double-quoted segments expand \u2014 so YES, it will be expanded.', diff: 'medium' },
+  { cmd: 'echo "$USER"is\'$HOME\'', hl: [15, 19], expands: false, explanation: "This $HOME is inside single quotes. Single-quoted segments are literal \u2014 it will NOT be expanded.", diff: 'medium' },
+  { cmd: 'echo "\\$USER"', hl: [7, 11], expands: false, explanation: 'The $ is preceded by a backslash inside double quotes. Since $ is one of the escapable characters, \\$ produces a literal $. The $USER will NOT be expanded.', diff: 'hard' },
+  { cmd: "echo '\\$USER'", hl: [7, 11], expands: false, explanation: "Inside single quotes, everything is literal \u2014 both the backslash and the $ are just characters. $USER will NOT be expanded.", diff: 'medium' },
+  { cmd: 'echo \\$USER', hl: [6, 10], expands: false, explanation: 'The backslash escapes the $, making it literal. Without the $ acting as a trigger, $USER will NOT be expanded \u2014 it stays as literal $USER.', diff: 'hard' },
+  { cmd: 'echo $?', hl: [5, 6], expands: true, explanation: '$? is a special variable (last exit status). It is in an unquoted segment and WILL be expanded.', diff: 'medium' },
+  { cmd: 'echo "$?"', hl: [6, 7], expands: true, explanation: '$? inside double quotes \u2014 double-quoted segments expand $, so YES.', diff: 'medium' },
+  { cmd: "echo '$?'", hl: [6, 7], expands: false, explanation: "$? inside single quotes \u2014 single quotes block all expansion. NO.", diff: 'medium' },
+  { cmd: 'echo hel"$USER"lo', hl: [9, 13], expands: true, explanation: '$USER is inside the double-quoted segment of a multi-segment token. Double-quoted segments expand \u2014 YES.', diff: 'hard' },
+  { cmd: "echo hel'$USER'lo", hl: [9, 13], expands: false, explanation: "$USER is inside the single-quoted segment of a multi-segment token. Single quotes block expansion \u2014 NO.", diff: 'hard' },
+  { cmd: 'echo $USER$HOME', hl: [5, 9], expands: true, explanation: '$USER is unquoted. It WILL be expanded. (So will $HOME \u2014 they are separate expansions in the same unquoted segment.)', diff: 'medium' },
+  { cmd: 'echo $USER$HOME', hl: [10, 14], expands: true, explanation: '$HOME is also unquoted. It WILL be expanded.', diff: 'medium' },
+  { cmd: 'echo "$USER$HOME"', hl: [6, 10], expands: true, explanation: '$USER inside double quotes \u2014 both $USER and $HOME will be expanded.', diff: 'medium' },
+  { cmd: 'echo "$USER"\'$HOME\'', hl: [6, 10], expands: true, explanation: 'This $USER is in the double-quoted segment \u2014 YES, it will expand.', diff: 'hard' },
+  { cmd: 'echo "$USER"\'$HOME\'', hl: [14, 18], expands: false, explanation: "This $HOME is in the single-quoted segment \u2014 NO, it will not expand.", diff: 'hard' },
+  { cmd: 'echo $', hl: [5, 5], expands: false, explanation: 'A lone $ with nothing after it is not a variable reference \u2014 it stays as a literal $ character. No expansion.', diff: 'hard' },
+  { cmd: 'echo "$"', hl: [6, 6], expands: false, explanation: 'A lone $ inside double quotes \u2014 still not a variable reference. No expansion. It\'s just a literal $.', diff: 'hard' },
+];
+
+// =========================================================================
+//  EXERCISE DATA - PARSER
+// =========================================================================
+
+const parserValidExercises = [
+  { cmd: 'ls', valid: true, reason: 'A single command with no arguments. Perfectly valid.', diff: 'easy' },
+  { cmd: 'echo hello world', valid: true, reason: 'A command with two arguments. Valid.', diff: 'easy' },
+  { cmd: 'ls -l | wc', valid: true, reason: 'A pipeline of two commands. Valid.', diff: 'easy' },
+  { cmd: 'ls > out.txt', valid: true, reason: 'A command with stdout redirection. Valid.', diff: 'easy' },
+  { cmd: 'cat < in.txt', valid: true, reason: 'A command with stdin redirection. Valid.', diff: 'easy' },
+  { cmd: '| ls', valid: false, reason: 'A pipe at the start \u2014 there is no command on the left side to pipe from. Syntax error.', diff: 'medium' },
+  { cmd: 'ls |', valid: false, reason: 'A pipe at the end \u2014 there is no command on the right side to pipe to. Syntax error.', diff: 'medium' },
+  { cmd: 'ls > ', valid: false, reason: 'Redirect operator with no target filename. Syntax error \u2014 > needs a word after it.', diff: 'medium' },
+  { cmd: '> out.txt ls', valid: true, reason: 'Redirection before the command name \u2014 unusual but valid. The shell handles redirections regardless of position.', diff: 'medium' },
+  { cmd: 'cat < in.txt > out.txt', valid: true, reason: 'Both input and output redirections on the same command. Valid.', diff: 'medium' },
+  { cmd: '<< EOF cat', valid: true, reason: 'Heredoc before the command name. Valid \u2014 redirection position does not matter.', diff: 'medium' },
+  { cmd: 'ls > out1.txt > out2.txt', valid: true, reason: 'Two output redirections. Valid \u2014 the second overrides the first (last one wins).', diff: 'medium' },
+  { cmd: 'ls | | wc', valid: false, reason: 'Two consecutive pipes with no command between them. Syntax error.', diff: 'hard' },
+  { cmd: '> out.txt', valid: true, reason: 'Just a redirection with no command. Valid in bash \u2014 it creates/truncates the file. Some shells may handle this differently.', diff: 'hard' },
+  { cmd: 'ls > out.txt | wc', valid: true, reason: 'Redirect stdout then pipe. Valid but tricky \u2014 the > redirects ls stdout to the file, so nothing flows through the pipe. The result may surprise you but the syntax is valid.', diff: 'hard' },
+  { cmd: 'echo hello | | | wc', valid: false, reason: 'Multiple consecutive pipes. Syntax error \u2014 each pipe needs a command on both sides.', diff: 'hard' },
+  { cmd: 'ls | wc | cat | head', valid: true, reason: 'A four-command pipeline. Valid \u2014 commands are chained left to right.', diff: 'medium' },
+  { cmd: 'echo > > file', valid: false, reason: 'The first > expects a filename but finds another >. Syntax error.', diff: 'hard' },
+  { cmd: '< in cat | wc > out', valid: true, reason: 'Redirection before command, pipe, then redirection after command. Valid.', diff: 'hard' },
+  { cmd: 'ls >> | wc', valid: false, reason: '>> expects a filename but finds |. Syntax error.', diff: 'hard' },
+];
+
+const cmdCountExercises = [
+  { cmd: 'ls', count: 1, diff: 'easy' },
+  { cmd: 'echo hello world', count: 1, diff: 'easy' },
+  { cmd: 'ls | wc', count: 2, diff: 'easy' },
+  { cmd: 'echo hello | grep h | wc -l', count: 3, diff: 'easy' },
+  { cmd: 'cat < file.txt', count: 1, diff: 'easy' },
+  { cmd: 'echo hello > out.txt', count: 1, diff: 'easy' },
+  { cmd: 'ls | cat | wc | head', count: 4, diff: 'medium' },
+  { cmd: 'cat << EOF | wc -l', count: 2, diff: 'medium' },
+  { cmd: '< in cat | wc > out', count: 2, diff: 'medium' },
+  { cmd: 'ls | cat | cat | cat | wc', count: 5, diff: 'medium' },
+  { cmd: 'echo a | echo b | echo c', count: 3, diff: 'easy' },
+  { cmd: 'cat < a > b', count: 1, diff: 'medium' },
+  { cmd: '> out.txt', count: 1, diff: 'hard' },
+  { cmd: 'ls -l -a | grep txt | wc -l | cat', count: 4, diff: 'medium' },
+];
+
+const redirectExercises = [
+  { cmd: 'ls', answer: 'stdin: terminal, stdout: terminal', options: ['stdin: terminal, stdout: terminal', 'stdin: terminal, stdout: pipe', 'stdin: pipe, stdout: terminal'], explanation: 'No redirections and no pipe \u2014 both stdin and stdout are the terminal.', diff: 'easy' },
+  { cmd: 'ls > out.txt', answer: 'stdin: terminal, stdout: out.txt', options: ['stdin: terminal, stdout: out.txt', 'stdin: out.txt, stdout: terminal', 'stdin: terminal, stdout: terminal'], explanation: '> redirects stdout to out.txt. Stdin remains the terminal.', diff: 'easy' },
+  { cmd: 'cat < in.txt', answer: 'stdin: in.txt, stdout: terminal', options: ['stdin: in.txt, stdout: terminal', 'stdin: terminal, stdout: in.txt', 'stdin: terminal, stdout: terminal'], explanation: '< redirects stdin from in.txt. Stdout remains the terminal.', diff: 'easy' },
+  { cmd: 'cat < in.txt > out.txt', answer: 'stdin: in.txt, stdout: out.txt', options: ['stdin: in.txt, stdout: out.txt', 'stdin: terminal, stdout: out.txt', 'stdin: in.txt, stdout: terminal'], explanation: '< sets stdin from in.txt, > sets stdout to out.txt.', diff: 'medium' },
+  { cmd: 'cat << EOF', answer: 'stdin: heredoc, stdout: terminal', options: ['stdin: heredoc, stdout: terminal', 'stdin: terminal, stdout: heredoc', 'stdin: terminal, stdout: terminal'], explanation: '<< sets stdin to the heredoc body. Stdout remains the terminal.', diff: 'medium' },
+  { cmd: 'cat << EOF > out.txt', answer: 'stdin: heredoc, stdout: out.txt', options: ['stdin: heredoc, stdout: out.txt', 'stdin: terminal, stdout: out.txt', 'stdin: heredoc, stdout: terminal'], explanation: '<< sets stdin to heredoc, > sets stdout to out.txt.', diff: 'medium' },
+  { cmd: 'echo hello >> log.txt', answer: 'stdin: terminal, stdout: log.txt (append)', options: ['stdin: terminal, stdout: log.txt (append)', 'stdin: terminal, stdout: log.txt (truncate)', 'stdin: log.txt, stdout: terminal'], explanation: '>> redirects stdout to log.txt in append mode. Stdin is terminal.', diff: 'medium' },
+  { cmd: '> out.txt echo hello', answer: 'stdin: terminal, stdout: out.txt', options: ['stdin: terminal, stdout: out.txt', 'stdin: out.txt, stdout: terminal', 'stdin: terminal, stdout: terminal'], explanation: 'Redirection before the command \u2014 same effect. > sets stdout to out.txt.', diff: 'hard' },
+  { cmd: 'cat < a > b', answer: 'stdin: a, stdout: b', options: ['stdin: a, stdout: b', 'stdin: b, stdout: a', 'stdin: terminal, stdout: b'], explanation: '< sets stdin from file a, > sets stdout to file b.', diff: 'medium' },
+  { cmd: 'ls > a > b', answer: 'stdin: terminal, stdout: b', options: ['stdin: terminal, stdout: b', 'stdin: terminal, stdout: a', 'stdin: terminal, stdout: a and b'], explanation: 'Two > redirections \u2014 the last one wins. stdout goes to b. File a may be created/truncated but nothing is written to it.', diff: 'hard' },
+  // Pipe exercises
+  { cmd: 'ls | wc', highlight: 'ls', answer: 'stdin: terminal, stdout: pipe', options: ['stdin: terminal, stdout: pipe', 'stdin: terminal, stdout: terminal', 'stdin: pipe, stdout: terminal'], explanation: 'ls is the left side of the pipe. Its stdout is connected to the pipe (flowing to wc). Its stdin is still the terminal.', diff: 'medium' },
+  { cmd: 'ls | wc', highlight: 'wc', answer: 'stdin: pipe, stdout: terminal', options: ['stdin: pipe, stdout: terminal', 'stdin: terminal, stdout: terminal', 'stdin: terminal, stdout: pipe'], explanation: 'wc is the right side of the pipe. Its stdin comes from the pipe (from ls). Its stdout goes to the terminal.', diff: 'medium' },
+  { cmd: 'cat < in | wc > out', highlight: 'cat', answer: 'stdin: in, stdout: pipe', options: ['stdin: in, stdout: pipe', 'stdin: terminal, stdout: pipe', 'stdin: in, stdout: terminal'], explanation: 'cat has < in (stdin from file) and is left of pipe (stdout to pipe).', diff: 'hard' },
+  { cmd: 'cat < in | wc > out', highlight: 'wc', answer: 'stdin: pipe, stdout: out', options: ['stdin: pipe, stdout: out', 'stdin: pipe, stdout: terminal', 'stdin: terminal, stdout: out'], explanation: 'wc is right of pipe (stdin from pipe) and has > out (stdout to file).', diff: 'hard' },
+  { cmd: 'echo hi | cat | wc', highlight: 'cat', answer: 'stdin: pipe, stdout: pipe', options: ['stdin: pipe, stdout: pipe', 'stdin: terminal, stdout: pipe', 'stdin: pipe, stdout: terminal'], explanation: 'cat is in the middle of the pipeline. It reads from the left pipe and writes to the right pipe.', diff: 'hard' },
+];
+
+// =========================================================================
+//  EXERCISE DATA - EXPANDER
+// =========================================================================
+
+const ENV_DISPLAY = 'ENV: USER=admin  HOME=/Users/admin  PATH=/usr/bin:/bin  ?=0  EMPTY=  SPACES=hello world  GREETING=hello';
+
+const expandItExercises = [
+  { input: '$USER', result: 'admin', explanation: 'Unquoted $USER \u2014 expanded to its value.', diff: 'easy' },
+  { input: '"$USER"', result: 'admin', explanation: 'Double-quoted $USER \u2014 expansion happens inside double quotes.', diff: 'easy' },
+  { input: "'$USER'", result: '$USER', explanation: "Single-quoted $USER \u2014 no expansion inside single quotes. Literal.", diff: 'easy' },
+  { input: '$HOME', result: '/Users/admin', explanation: 'Unquoted $HOME \u2014 expanded.', diff: 'easy' },
+  { input: '$?', result: '0', explanation: '$? is the last exit status \u2014 expanded to 0.', diff: 'easy' },
+  { input: '$HOME/bin', result: '/Users/admin/bin', explanation: '$HOME is expanded, /bin is literal and appended.', diff: 'medium' },
+  { input: '"$HOME/bin"', result: '/Users/admin/bin', explanation: 'Inside double quotes, $HOME is expanded. /bin is literal.', diff: 'medium' },
+  { input: "'$HOME/bin'", result: '$HOME/bin', explanation: 'Inside single quotes, everything is literal.', diff: 'medium' },
+  { input: '"hello $USER"', result: 'hello admin', explanation: '$USER expanded inside double quotes. Spaces preserved.', diff: 'medium' },
+  { input: '$USER$HOME', result: 'admin/Users/admin', explanation: 'Two consecutive variables \u2014 both expanded and concatenated.', diff: 'medium' },
+  { input: '"$USER is home"', result: 'admin is home', explanation: '$USER expanded, rest is literal. All inside double quotes.', diff: 'medium' },
+  { input: '$NONEXISTENT', result: '', explanation: 'Undefined variable expands to empty string.', diff: 'medium' },
+  { input: '"$USER"\'$HOME\'', result: 'admin$HOME', explanation: 'Two segments: "$USER" (double-quoted, expanded to admin) + \'$HOME\' (single-quoted, literal). Concatenated.', diff: 'hard' },
+  { input: '\'$USER\'"$HOME"', result: '$USER/Users/admin', explanation: 'Two segments: \'$USER\' (single-quoted, literal) + "$HOME" (double-quoted, expanded). Concatenated.', diff: 'hard' },
+  { input: '"\\$USER"', result: '$USER', explanation: 'Backslash escapes $ inside double quotes. The $ is literal \u2014 no expansion.', diff: 'hard' },
+  { input: '$EMPTY', result: '', explanation: 'EMPTY is defined but has empty value. Expands to empty string (and may be removed by word splitting in unquoted context).', diff: 'hard' },
+  { input: '"$EMPTY"', result: '', explanation: 'EMPTY expands to empty string inside double quotes. The quotes preserve it as an empty argument (not removed).', diff: 'hard' },
+  { input: 'hello"$USER"world', result: 'helloadminworld', explanation: 'Three segments: hello (unquoted) + "$USER" (double-quoted, expanded to admin) + world (unquoted). Concatenated into one word.', diff: 'hard' },
+];
+
+const wordCountExercises = [
+  { input: 'echo hello', count: 2, explanation: 'No expansion needed. Two words: echo, hello.', diff: 'easy' },
+  { input: 'echo $USER', count: 2, explanation: '$USER=admin (single word). Two words: echo, admin.', diff: 'easy' },
+  { input: 'echo "$USER"', count: 2, explanation: '"$USER" expands to "admin" (quoted, single word). Two words: echo, admin.', diff: 'easy' },
+  { input: "echo '$USER'", count: 2, explanation: "'$USER' is literal. Two words: echo, $USER.", diff: 'easy' },
+  { input: 'echo $SPACES', count: 3, explanation: '$SPACES=hello world. Unquoted, so word splitting occurs: echo, hello, world. Three words.', diff: 'medium' },
+  { input: 'echo "$SPACES"', count: 2, explanation: '"$SPACES" expands to "hello world" but double quotes prevent word splitting. Two words: echo, hello world.', diff: 'medium' },
+  { input: 'echo $EMPTY', count: 1, explanation: '$EMPTY expands to empty string. Unquoted empty expansion is removed entirely. One word: echo.', diff: 'hard' },
+  { input: 'echo "$EMPTY"', count: 2, explanation: '"$EMPTY" expands to empty string but quotes preserve it as an empty argument. Two words: echo, (empty string).', diff: 'hard' },
+  { input: 'echo $NONEXISTENT', count: 1, explanation: '$NONEXISTENT is undefined \u2014 expands to nothing. Unquoted, so it vanishes. One word: echo.', diff: 'medium' },
+  { input: 'echo "$NONEXISTENT"', count: 2, explanation: 'Undefined var expands to empty, but quotes keep it. Two words: echo, (empty string).', diff: 'hard' },
+  { input: 'echo $USER$HOME', count: 2, explanation: '$USER$HOME expands to admin/Users/admin (no space, one word). Two words: echo, admin/Users/admin.', diff: 'medium' },
+  { input: 'echo $SPACES world', count: 4, explanation: '$SPACES=hello world (splits into two), plus literal world. Four words: echo, hello, world, world.', diff: 'hard' },
+  { input: '$EMPTY', count: 0, explanation: '$EMPTY expands to nothing and is removed. Zero words \u2014 nothing to execute.', diff: 'hard' },
+  { input: '"$EMPTY"', count: 1, explanation: 'Quoted empty string is preserved as one empty word. One word: (empty string).', diff: 'hard' },
+];
+
+const quoteRemovalExercises = [
+  { input: '"hello"', result: 'hello', explanation: 'Double quotes are stripped. Value: hello.', diff: 'easy' },
+  { input: "'hello'", result: 'hello', explanation: 'Single quotes are stripped. Value: hello.', diff: 'easy' },
+  { input: 'hello', result: 'hello', explanation: 'No quotes to remove. Value unchanged: hello.', diff: 'easy' },
+  { input: '""', result: '(empty string)', explanation: 'Empty double quotes \u2014 quotes removed, leaving an empty string argument.', diff: 'medium' },
+  { input: "''", result: '(empty string)', explanation: 'Empty single quotes \u2014 quotes removed, leaving an empty string argument.', diff: 'medium' },
+  { input: '"hello world"', result: 'hello world', explanation: 'Quotes removed, space preserved. Value: hello world.', diff: 'easy' },
+  { input: '"hello"world', result: 'helloworld', explanation: 'Quote removed from "hello", concatenated with unquoted world. Value: helloworld.', diff: 'medium' },
+  { input: 'hel"lo wo"rld', result: 'hello world', explanation: 'Quotes around lo wo removed. All segments merge: hello world.', diff: 'medium' },
+  { input: "'hello'\"world\"", result: 'helloworld', explanation: 'Both sets of quotes removed. Segments merge: helloworld.', diff: 'hard' },
+  { input: 'a"b"c\'d\'e', result: 'abcde', explanation: 'All quotes removed. Five segments merge into: abcde.', diff: 'hard' },
+  { input: '"it\'s"', result: "it's", explanation: "Single quote inside double quotes is literal. Quotes removed: it's.", diff: 'hard' },
+  { input: "'he said \"hi\"'", result: 'he said "hi"', explanation: 'Double quotes inside single quotes are literal. Quotes removed: he said "hi".', diff: 'hard' },
+];
+
+// =========================================================================
+//  EXERCISE DATA - EXECUTOR
+// =========================================================================
+
+const forkCountExercises = [
+  { cmd: 'ls', count: 1, explanation: 'ls is external \u2014 1 fork to create a child process that runs execve.', diff: 'easy' },
+  { cmd: 'echo hello', count: 0, explanation: 'echo is a builtin. When it is the only command (no pipe), it runs in the parent \u2014 0 forks.', diff: 'easy' },
+  { cmd: 'cd /tmp', count: 0, explanation: 'cd is a builtin and must run in the parent (it changes the parent\'s cwd). 0 forks.', diff: 'easy' },
+  { cmd: 'pwd', count: 0, explanation: 'pwd is a builtin. No pipe \u2014 runs in parent. 0 forks.', diff: 'easy' },
+  { cmd: 'ls | wc', count: 2, explanation: 'A two-command pipeline. Each command forks: one for ls, one for wc. 2 forks.', diff: 'easy' },
+  { cmd: 'echo hello | wc', count: 2, explanation: 'Even though echo is a builtin, it is in a pipeline \u2014 it must fork. Both commands fork. 2 forks.', diff: 'medium' },
+  { cmd: 'ls | cat | wc', count: 3, explanation: 'Three-command pipeline. Each forks: ls, cat, wc. 3 forks.', diff: 'easy' },
+  { cmd: 'echo hello | cat | wc -l', count: 3, explanation: 'Three commands in pipeline. Even echo forks because it is in a pipe. 3 forks.', diff: 'medium' },
+  { cmd: 'export VAR=hello', count: 0, explanation: 'export is a builtin, no pipe. Runs in parent. 0 forks.', diff: 'easy' },
+  { cmd: 'ls > out.txt', count: 1, explanation: 'ls is external (1 fork). Redirection does not change the fork count \u2014 it is set up in the child.', diff: 'medium' },
+  { cmd: 'echo hello > out.txt', count: 0, explanation: 'echo is a builtin, no pipe. Runs in parent. 0 forks. The redirect is handled by the parent.', diff: 'medium' },
+  { cmd: 'cat < in.txt | wc > out.txt', count: 2, explanation: 'Two-command pipeline. Each forks. Redirections are set up inside the children. 2 forks.', diff: 'medium' },
+  { cmd: 'ls | cat | cat | cat | wc', count: 5, explanation: 'Five-command pipeline. Each forks. 5 forks.', diff: 'medium' },
+  { cmd: 'echo a | echo b | echo c', count: 3, explanation: 'Three builtins in a pipeline \u2014 all must fork. 3 forks.', diff: 'hard' },
+];
+
+const exitStatusExercises = [
+  { cmd: 'ls (on existing directory)', status: 0, explanation: 'ls succeeds \u2014 exit status 0.', diff: 'easy' },
+  { cmd: 'ls nonexistent_file', status: 2, explanation: 'ls fails with "No such file or directory" \u2014 exit status 2 (or 1 depending on system).', diff: 'medium', note: 'Accept 1 or 2', altStatus: [1] },
+  { cmd: 'echo hello', status: 0, explanation: 'echo always succeeds \u2014 exit status 0.', diff: 'easy' },
+  { cmd: 'cat nonexistent | wc', status: 0, explanation: 'In a pipeline, $? is the exit status of the LAST command. wc succeeds (even with empty input) \u2014 exit status 0.', diff: 'hard' },
+  { cmd: 'ls | cat | wc', status: 0, explanation: 'Last command in pipeline is wc, which succeeds \u2014 exit status 0.', diff: 'medium' },
+  { cmd: 'false', status: 1, explanation: 'The false command always exits with status 1.', diff: 'easy' },
+  { cmd: 'true', status: 0, explanation: 'The true command always exits with status 0.', diff: 'easy' },
+  { cmd: '/nonexistent/command', status: 127, explanation: 'Command not found \u2014 convention is exit status 127.', diff: 'medium' },
+  { cmd: 'sleep (killed by SIGINT, signal 2)', status: 130, explanation: 'Process killed by signal: exit status = 128 + signal_number. SIGINT=2, so 128+2=130.', diff: 'hard' },
+  { cmd: 'sleep (killed by SIGQUIT, signal 3)', status: 131, explanation: 'Killed by SIGQUIT: 128 + 3 = 131.', diff: 'hard' },
+];
+
+// =========================================================================
+//  EXERCISE DATA - FULL PIPELINE
+// =========================================================================
+
+const predictOutputExercises = [
+  { cmd: 'echo hello', output: 'hello', explanation: 'echo prints its arguments. Output: hello', diff: 'easy' },
+  { cmd: 'echo $USER', output: 'admin', explanation: '$USER is expanded to admin. echo prints: admin', diff: 'easy' },
+  { cmd: 'echo "$USER"', output: 'admin', explanation: '$USER expanded inside double quotes. Output: admin', diff: 'easy' },
+  { cmd: "echo '$USER'", output: '$USER', explanation: 'Single quotes prevent expansion. Output: $USER (literal)', diff: 'easy' },
+  { cmd: 'echo $HOME/bin', output: '/Users/admin/bin', explanation: '$HOME expanded, /bin appended. Output: /Users/admin/bin', diff: 'medium' },
+  { cmd: 'echo "$GREETING $USER"', output: 'hello admin', explanation: 'Both vars expanded inside double quotes. Output: hello admin', diff: 'medium' },
+  { cmd: "echo '$GREETING $USER'", output: '$GREETING $USER', explanation: 'Single quotes \u2014 everything literal. Output: $GREETING $USER', diff: 'medium' },
+  { cmd: 'echo "$USER"\'$HOME\'', output: 'admin$HOME', explanation: '"$USER" expands to admin. \'$HOME\' is literal. Concatenated: admin$HOME', diff: 'hard' },
+  { cmd: 'echo hel"lo wo"rld', output: 'hello world', explanation: 'Segments merge after quote removal: hello world', diff: 'medium' },
+  { cmd: 'echo "hello   world"', output: 'hello   world', explanation: 'Spaces inside quotes are preserved. Output: hello   world', diff: 'medium' },
+  { cmd: 'echo "|"', output: '|', explanation: 'Pipe inside quotes is literal. echo prints: |', diff: 'hard' },
+  { cmd: 'echo "$USER is in $HOME"', output: 'admin is in /Users/admin', explanation: 'Both variables expanded inside double quotes.', diff: 'medium' },
+];
+
+const whichStageExercises = [
+  { question: 'Breaking the input into tokens like WORD, PIPE, REDIRECT', answer: 'Lexer', explanation: 'The lexer (tokenizer) breaks raw input text into a stream of typed tokens.', diff: 'easy' },
+  { question: 'Checking that a pipe has commands on both sides', answer: 'Parser', explanation: 'The parser validates syntax \u2014 it rejects things like "| ls" or "ls |".', diff: 'easy' },
+  { question: 'Replacing $USER with admin', answer: 'Expander', explanation: 'Variable expansion ($VAR \u2192 value) is the expander\'s job.', diff: 'easy' },
+  { question: 'Calling fork() and execve()', answer: 'Executor', explanation: 'Creating child processes and loading programs is the executor\'s job.', diff: 'easy' },
+  { question: 'Building the AST (abstract syntax tree)', answer: 'Parser', explanation: 'The parser takes tokens and builds a tree structure representing the command.', diff: 'easy' },
+  { question: 'Stripping quotes from "hello" to produce hello', answer: 'Expander', explanation: 'Quote removal happens during expansion \u2014 quotes are syntax, not content.', diff: 'medium' },
+  { question: 'Recognizing that << is a heredoc operator', answer: 'Lexer', explanation: 'The lexer recognizes << as a two-character operator token.', diff: 'medium' },
+  { question: 'Setting up pipes between commands with dup2()', answer: 'Executor', explanation: 'The executor creates pipes and wires file descriptors using dup2.', diff: 'medium' },
+  { question: 'Deciding that echo is a builtin and should not fork', answer: 'Executor', explanation: 'The executor decides whether to fork (external) or run directly (builtin).', diff: 'medium' },
+  { question: 'Reading the heredoc body lines until the delimiter', answer: 'Parser', explanation: 'The parser reads heredoc body lines after tokenizing the command line.', diff: 'hard' },
+  { question: 'Tracking whether we are inside single quotes or double quotes', answer: 'Lexer', explanation: 'The lexer\'s state machine tracks quoting contexts (IN_SQUOTE, IN_DQUOTE).', diff: 'medium' },
+  { question: 'Splitting "hello world" into two words after $VAR expansion', answer: 'Expander', explanation: 'Word splitting on expanded values is done by the expander.', diff: 'hard' },
+  { question: 'Connecting a child\'s stdin to a file for < redirection', answer: 'Executor', explanation: 'File redirection is set up by the executor using open() + dup2().', diff: 'medium' },
+  { question: 'Deciding that hel"lo" is one token, not two', answer: 'Lexer', explanation: 'The lexer merges adjacent quoted/unquoted segments into a single token.', diff: 'hard' },
+  { question: 'Calling waitpid() to collect the child\'s exit status', answer: 'Executor', explanation: 'The executor waits for children and collects their exit status.', diff: 'medium' },
+];
+
+// =========================================================================
+//  STAGE AND EXERCISE TYPE DEFINITIONS
+// =========================================================================
+
+const stageLabels = ['DELIMITER', 'IN_WORD', 'IN_SQUOTE', 'IN_DQUOTE', 'ESCAPE', 'DQUOTE_ESCAPE', 'IN_OPERATOR'];
+const pipelineStageLabels = ['Lexer', 'Parser', 'Expander', 'Executor'];
+
+const stages = [
+  {
+    id: 'lexer', label: '\ud83d\udd24 Lexer',
+    types: [
+      { id: 'tokenize', label: 'Tokenize It', kind: 'text_input', data: tokenizeExercises },
+      { id: 'count', label: 'Token Count', kind: 'number_choice', data: countExercises },
+      { id: 'spot', label: 'Spot Error', kind: 'binary', data: spotExercises },
+      { id: 'boundary', label: 'Token Boundary', kind: 'binary', data: boundaryExercises },
+      { id: 'state', label: 'Lexer State', kind: 'label_choice', data: stateExercises },
+      { id: 'transition', label: 'State Transition', kind: 'label_choice', data: transitionExercises },
+      { id: 'segment', label: 'Segment Spotter', kind: 'text_input', data: segmentExercises },
+      { id: 'segcount', label: 'Segment Count', kind: 'number_choice', data: segCountExercises },
+      { id: 'expand', label: 'Will It Expand?', kind: 'binary', data: expandExercises },
+    ]
+  },
+  {
+    id: 'parser', label: '\ud83c\udf33 Parser',
+    types: [
+      { id: 'pvalid', label: 'Valid Syntax?', kind: 'binary', data: parserValidExercises },
+      { id: 'cmdcount', label: 'How Many Commands?', kind: 'number_choice', data: cmdCountExercises },
+      { id: 'redirect', label: 'Redirect Target', kind: 'label_choice', data: redirectExercises },
+    ]
+  },
+  {
+    id: 'expander', label: '\ud83d\udd04 Expander',
+    types: [
+      { id: 'expandit', label: 'Expand It', kind: 'text_input', data: expandItExercises },
+      { id: 'wordcount', label: 'How Many Words?', kind: 'number_choice', data: wordCountExercises },
+      { id: 'quoterem', label: 'Quote Removal', kind: 'text_input', data: quoteRemovalExercises },
+    ]
+  },
+  {
+    id: 'executor', label: '\u26a1 Executor',
+    types: [
+      { id: 'forkcount', label: 'How Many Forks?', kind: 'number_choice', data: forkCountExercises },
+      { id: 'fdwiring', label: 'FD Wiring', kind: 'label_choice', data: redirectExercises },
+      { id: 'exitstatus', label: 'Exit Status', kind: 'number_choice', data: exitStatusExercises },
+    ]
+  },
+  {
+    id: 'pipeline', label: '\ud83d\udd17 Pipeline',
+    types: [
+      { id: 'predict', label: 'Predict Output', kind: 'text_input', data: predictOutputExercises },
+      { id: 'whichstage', label: 'Which Stage?', kind: 'label_choice', data: whichStageExercises },
+    ]
+  },
+];
+
+// =========================================================================
+//  ENGINE STATE
+// =========================================================================
+let currentStage = 0;
+let currentType = 0;
+const engineState = {}; // keyed by type id
+
+function getState(typeId) {
+  if (!engineState[typeId]) {
+    const typeDef = findTypeDef(typeId);
+    engineState[typeId] = {
+      exercises: shuffle(typeDef.data),
+      idx: 0,
+      correct: 0,
+      wrong: 0,
+    };
+  }
+  return engineState[typeId];
+}
+
+function resetState(typeId) {
+  const typeDef = findTypeDef(typeId);
+  engineState[typeId] = {
+    exercises: shuffle(typeDef.data),
+    idx: 0,
+    correct: 0,
+    wrong: 0,
+  };
+}
+
+function findTypeDef(typeId) {
+  for (const s of stages) {
+    for (const t of s.types) {
+      if (t.id === typeId) return t;
+    }
+  }
+  return null;
+}
+
+function findStageForType(typeId) {
+  for (const s of stages) {
+    for (const t of s.types) {
+      if (t.id === typeId) return s;
+    }
+  }
+  return null;
+}
+
+// =========================================================================
+//  NAVIGATION
+// =========================================================================
+
+function buildStageBar() {
+  const bar = document.getElementById('stage-bar');
+  bar.innerHTML = stages.map((s, i) =>
+    `<button class="stage-pill${i === currentStage ? ' active' : ''}" onclick="selectStage(${i})">${s.label}</button>`
+  ).join('');
+}
+
+function buildSubBar() {
+  const bar = document.getElementById('sub-bar');
+  const stage = stages[currentStage];
+  bar.innerHTML = stage.types.map((t, i) =>
+    `<button class="sub-tab${i === currentType ? ' active' : ''}" onclick="selectType(${i})">${t.label}</button>`
+  ).join('');
+}
+
+function selectStage(idx) {
+  currentStage = idx;
+  currentType = 0;
+  buildStageBar();
+  buildSubBar();
+  renderExercise();
+}
+
+function selectType(idx) {
+  currentType = idx;
+  buildSubBar();
+  renderExercise();
+}
+
+// =========================================================================
+//  RENDER ENGINE
+// =========================================================================
+
+function renderExercise() {
+  const stage = stages[currentStage];
+  const typeDef = stage.types[currentType];
+  const state = getState(typeDef.id);
+  const area = document.getElementById('content-area');
+
+  if (state.idx >= state.exercises.length) {
+    area.innerHTML = `
+      <div class="card" style="text-align:center">
+        <h3 style="color:#3fb950;margin-bottom:1rem">Done!</h3>
+        <p>Score: ${state.correct}/${state.exercises.length}</p>
+        <br><button class="btn btn-primary" onclick="doReset()">Restart</button>
+      </div>`;
+    return;
+  }
+
+  const ex = state.exercises[state.idx];
+  const total = state.exercises.length;
+  const progress = (state.idx / total * 100);
+  const isExpander = stage.id === 'expander' || typeDef.id === 'predict';
+
+  let html = '';
+
+  // Env bar for expander stage and predict output
+  if (isExpander) {
+    html += `<div class="env-bar"><strong>ENV:</strong> <span class="env-key">USER</span>=<span class="env-val">admin</span> &nbsp; <span class="env-key">HOME</span>=<span class="env-val">/Users/admin</span> &nbsp; <span class="env-key">PATH</span>=<span class="env-val">/usr/bin:/bin</span> &nbsp; <span class="env-key">?</span>=<span class="env-val">0</span> &nbsp; <span class="env-key">EMPTY</span>=<span class="env-val"></span> &nbsp; <span class="env-key">SPACES</span>=<span class="env-val">hello world</span> &nbsp; <span class="env-key">GREETING</span>=<span class="env-val">hello</span></div>`;
+  }
+
+  // Stats bar
+  html += `<div class="stats">
+    <span><span class="stat-label">Exercise </span><span class="stat-val">${state.idx + 1}</span><span class="stat-label"> / </span><span class="stat-val">${total}</span></span>
+    <span><span class="stat-label">Correct: </span><span class="stat-val good">${state.correct}</span></span>
+    <span><span class="stat-label">Wrong: </span><span class="stat-val bad">${state.wrong}</span></span>
+  </div>`;
+
+  // Progress bar
+  html += `<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>`;
+
+  // Card
+  html += `<div class="card"><div class="card-header"><span class="prompt-label">${getPromptLabel(typeDef, ex)}</span><span class="difficulty ${ex.diff || 'medium'}">${(ex.diff || 'medium').toUpperCase()}</span></div>`;
+
+  // Content based on type
+  html += renderExerciseContent(typeDef, ex, state);
+
+  // Feedback
+  html += `<div class="feedback" id="feedback"></div>`;
+
+  // Buttons
+  html += `<div class="btn-group">`;
+  if (needsSubmitButton(typeDef)) {
+    html += `<button class="btn btn-primary" id="submit-btn" onclick="doCheck()">Check</button>`;
+  }
+  html += `<button class="btn" id="next-btn" onclick="doNext()" style="display:none">Next &rarr;</button>`;
+  html += `<button class="btn" onclick="doReset()">Shuffle &amp; Reset</button>`;
+  html += `</div></div>`;
+
+  area.innerHTML = html;
+
+  // Focus input if needed
+  const inp = document.getElementById('answer-input');
+  if (inp) {
+    inp.focus();
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        if (!inp.disabled) doCheck();
+        else doNext();
+      }
+    });
+  }
+}
+
+function getPromptLabel(typeDef, ex) {
+  const labels = {
+    tokenize: 'TOKENIZE THIS COMMAND',
+    count: 'HOW MANY TOKENS?',
+    spot: 'CAN THE LEXER TOKENIZE THIS?',
+    boundary: 'SAME TOKEN OR DIFFERENT TOKENS?',
+    state: 'WHAT STATE IS THE LEXER IN AT THE ARROW?',
+    transition: 'WHAT STATE DOES THE LEXER TRANSITION TO?',
+    segment: 'IDENTIFY THE SEGMENTS',
+    segcount: 'HOW MANY SEGMENTS IN THE HIGHLIGHTED TOKEN?',
+    expand: 'WILL THE HIGHLIGHTED $VAR BE EXPANDED?',
+    pvalid: 'IS THIS SYNTAX VALID?',
+    cmdcount: 'HOW MANY SIMPLE COMMANDS?',
+    redirect: ex.highlight ? `WHERE IS ${ex.highlight.toUpperCase()}'S STDIN AND STDOUT?` : 'WHERE ARE STDIN AND STDOUT?',
+    expandit: 'WHAT IS THE EXPANDED VALUE?',
+    wordcount: 'HOW MANY WORDS AFTER EXPANSION?',
+    quoterem: 'WHAT IS THE VALUE AFTER QUOTE REMOVAL?',
+    forkcount: 'HOW MANY FORKS?',
+    fdwiring: ex.highlight ? `WHERE IS ${ex.highlight.toUpperCase()}'S STDIN AND STDOUT?` : 'WHERE ARE STDIN AND STDOUT?',
+    exitstatus: 'WHAT IS $? AFTER THIS COMMAND?',
+    predict: 'WHAT IS THE OUTPUT?',
+    whichstage: 'AT WHICH STAGE DOES THIS HAPPEN?',
+  };
+  return labels[typeDef.id] || typeDef.label.toUpperCase();
+}
+
+function needsSubmitButton(typeDef) {
+  return typeDef.kind === 'text_input';
+}
+
+function renderExerciseContent(typeDef, ex, state) {
+  let html = '';
+  const tid = typeDef.id;
+
+  // === TOKENIZE ===
+  if (tid === 'tokenize') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">List the tokens separated by commas. Use the token value only (quotes are consumed by the lexer, not part of the token value). Operators are literal: <code>|</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;&lt;</code> <code>&gt;&gt;</code></p>`;
+    html += `<p class="hint-text">Example: for <code>echo hello</code> type: <code>echo, hello</code></p>`;
+    html += `<input class="token-input" id="answer-input" placeholder="token1, token2, token3, ..." autocomplete="off">`;
+  }
+  // === TOKEN COUNT ===
+  else if (tid === 'count') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    const opts = generateNumberChoices(ex.count, 1, 20);
+    html += `<div class="choices">${opts.map(n => `<button class="choice-btn" onclick="doChoiceCheck(this,${n})">${n}</button>`).join('')}</div>`;
+  }
+  // === SPOT ERROR (lexer) ===
+  else if (tid === 'spot') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">Is this input valid for the lexer to fully tokenize, or does it contain a lexer-level error (like unclosed quotes)?</p>`;
+    html += `<div class="choices">
+      <button class="choice-btn" onclick="doBinaryCheck(this,true)">Valid \u2014 lexer can tokenize this</button>
+      <button class="choice-btn" onclick="doBinaryCheck(this,false)">Error \u2014 lexer cannot fully tokenize this</button>
+    </div>`;
+  }
+  // === TOKEN BOUNDARY ===
+  else if (tid === 'boundary') {
+    html += `<p class="instruction" style="margin-bottom:1rem">Do the highlighted characters belong to the <strong>same single token</strong>, or are they <strong>separate tokens</strong>?</p>`;
+    const colors = ['#58a6ff','#f0883e','#bc8cff'];
+    let cmdHtml = '';
+    for (let i = 0; i < ex.cmd.length; i++) {
+      let inHl = false, hIdx = -1;
+      for (let h = 0; h < ex.highlight.length; h++) {
+        if (i >= ex.highlight[h][0] && i <= ex.highlight[h][1]) { inHl = true; hIdx = h; break; }
+      }
+      const ch = escapeHtml(ex.cmd[i]);
+      if (inHl) {
+        const c = colors[hIdx % colors.length];
+        cmdHtml += `<span style="background:${c}33;color:${c};border-bottom:2px solid ${c};font-weight:bold">${ch}</span>`;
+      } else {
+        cmdHtml += `<span style="color:#484f58">${ch}</span>`;
+      }
+    }
+    html += `<div class="command-line">${cmdHtml}</div>`;
+    html += `<div class="choices">
+      <button class="choice-btn" onclick="doBinaryCheck(this,'same')">Same token \u2014 they merge together</button>
+      <button class="choice-btn" onclick="doBinaryCheck(this,'separate')">Separate tokens \u2014 there is a boundary</button>
+    </div>`;
+  }
+  // === LEXER STATE ===
+  else if (tid === 'state') {
+    let cmdHtml = '';
+    for (let i = 0; i < ex.cmd.length; i++) {
+      const ch = escapeHtml(ex.cmd[i]);
+      if (i === ex.pos) {
+        cmdHtml += `<span style="background:#58a6ff33;color:#58a6ff;border-bottom:2px solid #58a6ff;font-weight:bold">${ch}</span>`;
+      } else {
+        cmdHtml += ch;
+      }
+    }
+    html += `<div class="command-line">${cmdHtml}</div>`;
+    let arrow = '';
+    for (let i = 0; i < ex.pos; i++) arrow += ' ';
+    arrow += '\u2191';
+    html += `<div class="cursor-row">${arrow}</div>`;
+    html += `<p class="instruction">The arrow points at a character position. What state is the lexer in when it reaches that character?</p>`;
+    html += `<div class="choices">${stageLabels.map(s => `<button class="choice-btn" onclick="doLabelCheck(this,'${s}')">${s}</button>`).join('')}</div>`;
+  }
+  // === STATE TRANSITION ===
+  else if (tid === 'transition') {
+    let charDisplay = ex.char === ' ' ? '(space)' : ex.char === '\\' ? '\\' : escapeHtml(ex.char);
+    let scenario = `Current state: <strong>${ex.from}</strong><br>Character read: <strong>${charDisplay}</strong>`;
+    if (ex.charAfter) {
+      let afterDisplay = ex.charAfter === '\\' ? '\\\\' : escapeHtml(ex.charAfter);
+      scenario += `<br><span style="color:#8b949e;font-size:0.85rem">Next char (peek): <strong>${afterDisplay}</strong></span>`;
+    }
+    if (ex.charContext) {
+      scenario += `<br><span style="color:#8b949e;font-size:0.85rem">Context: ${escapeHtml(ex.charContext)}</span>`;
+    }
+    html += `<div class="command-line">${scenario}</div>`;
+    html += `<div class="choices">${stageLabels.map(s => `<button class="choice-btn" onclick="doLabelCheck(this,'${s}')">${s}</button>`).join('')}</div>`;
+  }
+  // === SEGMENT SPOTTER ===
+  else if (tid === 'segment') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<div class="seg-legend">
+      <span><span class="seg-legend-swatch" style="background:#304a6e"></span> unquoted</span>
+      <span><span class="seg-legend-swatch" style="background:#238636"></span> single-quoted</span>
+      <span><span class="seg-legend-swatch" style="background:#9e6a03"></span> double-quoted</span>
+    </div>`;
+    html += `<p class="instruction">For each token, list its segments with their types. Format: <code>type:value</code> separated by <code>+</code> for segments within a token, and <code>,</code> between tokens. Types: <code>u</code> (unquoted), <code>s</code> (single-quoted), <code>d</code> (double-quoted).</p>`;
+    html += `<p class="hint-text">Example: <code>hel"lo wo"rld</code> &rarr; <code>u:hel + d:lo wo + u:rld</code></p>`;
+    html += `<input class="token-input" id="answer-input" placeholder="u:echo, u:hel + d:lo wo + u:rld" autocomplete="off">`;
+  }
+  // === SEGMENT COUNT ===
+  else if (tid === 'segcount') {
+    html += `<div class="command-line">${highlightCmd(ex.cmd, [[ex.hl[0], ex.hl[1]]], '#58a6ff')}</div>`;
+    html += `<p class="instruction">The highlighted portion is one token. How many distinct segments (unquoted, single-quoted, double-quoted) make it up?</p>`;
+    const opts = generateNumberChoices(ex.count, 1, 7);
+    html += `<div class="choices">${opts.map(n => `<button class="choice-btn" onclick="doChoiceCheck(this,${n})">${n}</button>`).join('')}</div>`;
+  }
+  // === WILL IT EXPAND? ===
+  else if (tid === 'expand') {
+    html += `<div class="command-line">${highlightCmd(ex.cmd, [[ex.hl[0], ex.hl[1]]], '#d29922')}</div>`;
+    html += `<p class="instruction">The expander processes tokens after the lexer. It expands <code>$VAR</code> in <strong>unquoted</strong> and <strong>double-quoted</strong> segments, but NOT in <strong>single-quoted</strong> segments. Will the highlighted <code>$VAR</code> be expanded?</p>`;
+    html += `<div class="choices">
+      <button class="choice-btn" onclick="doBinaryCheck(this,true)">Yes \u2014 it will be expanded</button>
+      <button class="choice-btn" onclick="doBinaryCheck(this,false)">No \u2014 it stays literal</button>
+    </div>`;
+  }
+  // === PARSER VALID? ===
+  else if (tid === 'pvalid') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">After the lexer produces tokens, does the parser accept this command as syntactically valid?</p>`;
+    html += `<div class="choices">
+      <button class="choice-btn" onclick="doBinaryCheck(this,true)">Valid \u2014 parser accepts this</button>
+      <button class="choice-btn" onclick="doBinaryCheck(this,false)">Invalid \u2014 syntax error</button>
+    </div>`;
+  }
+  // === CMD COUNT ===
+  else if (tid === 'cmdcount') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">How many simple commands (executable units separated by pipes) are in this pipeline?</p>`;
+    const opts = generateNumberChoices(ex.count, 1, 10);
+    html += `<div class="choices">${opts.map(n => `<button class="choice-btn" onclick="doChoiceCheck(this,${n})">${n}</button>`).join('')}</div>`;
+  }
+  // === REDIRECT TARGET / FD WIRING ===
+  else if (tid === 'redirect' || tid === 'fdwiring') {
+    if (ex.highlight) {
+      html += `<div class="command-line">${highlightWord(ex.cmd, ex.highlight)}</div>`;
+      html += `<p class="instruction">For the highlighted command <strong>${escapeHtml(ex.highlight)}</strong>, where are stdin and stdout connected?</p>`;
+    } else {
+      html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+      html += `<p class="instruction">Where are stdin and stdout connected for this command?</p>`;
+    }
+    const opts = ex.options.map(o => `<button class="choice-btn" onclick="doLabelCheck(this,'${escapeHtml(o)}')">${escapeHtml(o)}</button>`).join('');
+    html += `<div class="choices">${opts}</div>`;
+  }
+  // === EXPAND IT ===
+  else if (tid === 'expandit') {
+    html += `<div class="command-line">${escapeHtml(ex.input)}</div>`;
+    html += `<p class="instruction">Given the environment variables above, what is the expanded value of this token? (Type the result after expansion. For empty string, type nothing.)</p>`;
+    html += `<input class="token-input" id="answer-input" placeholder="expanded value..." autocomplete="off">`;
+  }
+  // === WORD COUNT ===
+  else if (tid === 'wordcount') {
+    html += `<div class="command-line">${escapeHtml(ex.input)}</div>`;
+    html += `<p class="instruction">After variable expansion and word splitting, how many words does this produce?</p>`;
+    const opts = generateNumberChoices(ex.count, 0, 10);
+    html += `<div class="choices">${opts.map(n => `<button class="choice-btn" onclick="doChoiceCheck(this,${n})">${n}</button>`).join('')}</div>`;
+  }
+  // === QUOTE REMOVAL ===
+  else if (tid === 'quoterem') {
+    html += `<div class="command-line">${escapeHtml(ex.input)}</div>`;
+    html += `<p class="instruction">After quote removal, what is the final value? (For empty string, type <code>(empty string)</code>.)</p>`;
+    html += `<input class="token-input" id="answer-input" placeholder="value after quote removal..." autocomplete="off">`;
+  }
+  // === FORK COUNT ===
+  else if (tid === 'forkcount') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">How many child processes (forks) does the shell create? Builtins (echo, cd, pwd, export, unset, env, exit) do NOT fork unless they are in a pipeline.</p>`;
+    const opts = generateNumberChoices(ex.count, 0, 10);
+    html += `<div class="choices">${opts.map(n => `<button class="choice-btn" onclick="doChoiceCheck(this,${n})">${n}</button>`).join('')}</div>`;
+  }
+  // === EXIT STATUS ===
+  else if (tid === 'exitstatus') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">What is the value of $? (exit status) after this command finishes?</p>`;
+    const opts = generateNumberChoices(ex.status, 0, 255);
+    html += `<div class="choices">${opts.map(n => `<button class="choice-btn" onclick="doChoiceCheck(this,${n})">${n}</button>`).join('')}</div>`;
+  }
+  // === PREDICT OUTPUT ===
+  else if (tid === 'predict') {
+    html += `<div class="command-line">${escapeHtml(ex.cmd)}</div>`;
+    html += `<p class="instruction">Given the environment variables above, what is the exact output printed to stdout?</p>`;
+    html += `<input class="token-input" id="answer-input" placeholder="expected output..." autocomplete="off">`;
+  }
+  // === WHICH STAGE ===
+  else if (tid === 'whichstage') {
+    html += `<div class="command-line" style="font-size:0.95rem;color:#c9d1d9">${escapeHtml(ex.question)}</div>`;
+    html += `<p class="instruction">At which stage of the shell pipeline does this happen?</p>`;
+    html += `<div class="choices">${pipelineStageLabels.map(s => `<button class="choice-btn" onclick="doLabelCheck(this,'${s}')">${s}</button>`).join('')}</div>`;
+  }
+
+  return html;
+}
+
+// =========================================================================
+//  CHECK FUNCTIONS
+// =========================================================================
+
+function getCurrentTypeDef() {
+  return stages[currentStage].types[currentType];
+}
+
+function getCurrentState() {
+  return getState(getCurrentTypeDef().id);
+}
+
+function showFeedback(correct, message) {
+  const fb = document.getElementById('feedback');
+  fb.className = correct ? 'feedback show correct' : 'feedback show wrong';
+  fb.innerHTML = message;
+}
+
+function disableAllChoices() {
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.add('disabled'));
+}
+
+function showNext() {
+  const sb = document.getElementById('submit-btn');
+  if (sb) sb.style.display = 'none';
+  document.getElementById('next-btn').style.display = '';
+}
+
+function doCheck() {
+  const typeDef = getCurrentTypeDef();
+  const state = getCurrentState();
+  const ex = state.exercises[state.idx];
+  const inp = document.getElementById('answer-input');
+  const val = inp.value;
+
+  let correct = false;
+  let feedbackMsg = '';
+
+  if (typeDef.id === 'tokenize') {
+    const userTokens = val.split(',').map(s => s.trim());
+    correct = userTokens.length === ex.tokens.length && userTokens.every((t, i) => t === ex.tokens[i]);
+    if (correct) {
+      feedbackMsg = 'Correct!';
+    } else {
+      feedbackMsg = `Wrong.<div class="expected"><strong>Expected ${ex.tokens.length} token(s):</strong><div class="token-list">${renderTokenPills(ex.tokens)}</div></div>`;
+    }
+  }
+  else if (typeDef.id === 'segment') {
+    const userParsed = parseSegmentInput(val);
+    correct = segmentsEqual(userParsed, ex.tokens);
+    if (correct) {
+      feedbackMsg = `Correct! ${formatSegments(ex.tokens)}`;
+    } else {
+      feedbackMsg = `Wrong.<div class="expected"><strong>Expected:</strong><div style="margin-top:0.4rem">${formatSegments(ex.tokens)}</div></div>`;
+    }
+  }
+  else if (typeDef.id === 'expandit') {
+    correct = val === ex.result;
+    feedbackMsg = correct ? `Correct! ${escapeHtml(ex.explanation)}` : `Wrong. Expected: <strong>${escapeHtml(ex.result || '(empty)')}</strong>. ${escapeHtml(ex.explanation)}`;
+  }
+  else if (typeDef.id === 'quoterem') {
+    const expected = ex.result;
+    correct = val === expected || (expected === '(empty string)' && val === '');
+    feedbackMsg = correct ? `Correct! ${escapeHtml(ex.explanation)}` : `Wrong. Expected: <strong>${escapeHtml(expected)}</strong>. ${escapeHtml(ex.explanation)}`;
+  }
+  else if (typeDef.id === 'predict') {
+    correct = val === ex.output;
+    feedbackMsg = correct ? `Correct! ${escapeHtml(ex.explanation)}` : `Wrong. Expected: <strong>${escapeHtml(ex.output)}</strong>. ${escapeHtml(ex.explanation)}`;
+  }
+
+  if (correct) state.correct++; else state.wrong++;
+  inp.disabled = true;
+  showFeedback(correct, feedbackMsg);
+  showNext();
+}
+
+function doChoiceCheck(btn, chosen) {
+  const typeDef = getCurrentTypeDef();
+  const state = getCurrentState();
+  const ex = state.exercises[state.idx];
+  disableAllChoices();
+
+  let correctVal;
+  let explanation = '';
+  let correct = false;
+
+  if (typeDef.id === 'count') {
+    correctVal = ex.count; explanation = '';
+  } else if (typeDef.id === 'segcount') {
+    correctVal = ex.count; explanation = ex.explanation;
+  } else if (typeDef.id === 'cmdcount') {
+    correctVal = ex.count; explanation = '';
+  } else if (typeDef.id === 'wordcount') {
+    correctVal = ex.count; explanation = ex.explanation;
+  } else if (typeDef.id === 'forkcount') {
+    correctVal = ex.count; explanation = ex.explanation;
+  } else if (typeDef.id === 'exitstatus') {
+    correctVal = ex.status; explanation = ex.explanation;
+    if (ex.altStatus && ex.altStatus.includes(chosen)) {
+      correct = true;
+    }
+  }
+
+  if (chosen === correctVal) correct = true;
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    const bVal = parseInt(b.textContent);
+    if (bVal === correctVal) b.classList.add('correct');
+  });
+
+  if (correct) {
+    state.correct++;
+    btn.classList.add('correct');
+    showFeedback(true, explanation ? `Correct! ${escapeHtml(explanation)}` : 'Correct!');
+  } else {
+    state.wrong++;
+    btn.classList.add('wrong');
+    showFeedback(false, explanation ? `Wrong \u2014 the answer is ${correctVal}. ${escapeHtml(explanation)}` : `Wrong \u2014 the answer is ${correctVal}.`);
+  }
+  showNext();
+}
+
+function doBinaryCheck(btn, chosen) {
+  const typeDef = getCurrentTypeDef();
+  const state = getCurrentState();
+  const ex = state.exercises[state.idx];
+  disableAllChoices();
+
+  let correctVal, explanation;
+
+  if (typeDef.id === 'spot') {
+    correctVal = ex.valid; explanation = ex.reason;
+  } else if (typeDef.id === 'boundary') {
+    correctVal = ex.answer; explanation = ex.explanation;
+  } else if (typeDef.id === 'expand') {
+    correctVal = ex.expands; explanation = ex.explanation;
+  } else if (typeDef.id === 'pvalid') {
+    correctVal = ex.valid; explanation = ex.reason;
+  }
+
+  const correct = chosen === correctVal;
+  if (correct) state.correct++; else state.wrong++;
+
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(b => {
+    if (typeDef.id === 'spot' || typeDef.id === 'pvalid') {
+      const bVal = b.textContent.includes('Valid') || b.textContent.includes('accepts');
+      if (bVal === correctVal) b.classList.add(correct ? 'correct' : 'reveal');
+    } else if (typeDef.id === 'boundary') {
+      const bVal = b.textContent.startsWith('Same') ? 'same' : 'separate';
+      if (bVal === correctVal) b.classList.add(correct ? 'correct' : 'reveal');
+    } else if (typeDef.id === 'expand') {
+      const bVal = b.textContent.startsWith('Yes');
+      if (bVal === correctVal) b.classList.add(correct ? 'correct' : 'reveal');
+    }
+  });
+
+  if (correct) {
+    btn.classList.add('correct');
+    showFeedback(true, `Correct! ${escapeHtml(explanation)}`);
+  } else {
+    btn.classList.add('wrong');
+    showFeedback(false, `Wrong. ${escapeHtml(explanation)}`);
+  }
+  showNext();
+}
+
+function doLabelCheck(btn, chosen) {
+  const typeDef = getCurrentTypeDef();
+  const state = getCurrentState();
+  const ex = state.exercises[state.idx];
+  disableAllChoices();
+
+  let correctVal, explanation;
+
+  if (typeDef.id === 'state') {
+    correctVal = ex.state; explanation = ex.explanation;
+  } else if (typeDef.id === 'transition') {
+    correctVal = ex.to; explanation = ex.explanation;
+  } else if (typeDef.id === 'redirect' || typeDef.id === 'fdwiring') {
+    correctVal = ex.answer; explanation = ex.explanation;
+  } else if (typeDef.id === 'whichstage') {
+    correctVal = ex.answer; explanation = ex.explanation;
+  }
+
+  const correct = chosen === correctVal;
+  if (correct) state.correct++; else state.wrong++;
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    if (b.textContent === correctVal || b.textContent === escapeHtml(correctVal) ||
+        escapeHtml(b.textContent) === escapeHtml(correctVal)) {
+      b.classList.add('correct');
+    }
+  });
+
+  if (correct) {
+    btn.classList.add('correct');
+    showFeedback(true, `Correct! ${escapeHtml(explanation)}`);
+  } else {
+    btn.classList.add('wrong');
+    showFeedback(false, `Wrong. ${escapeHtml(explanation)}`);
+  }
+  showNext();
+}
+
+function doNext() {
+  const state = getCurrentState();
+  state.idx++;
+  renderExercise();
+}
+
+function doReset() {
+  const typeDef = getCurrentTypeDef();
+  resetState(typeDef.id);
+  renderExercise();
+}
+
+// =========================================================================
+//  INIT
+// =========================================================================
+buildStageBar();
+buildSubBar();
+renderExercise();
+</script>
+</body>
+</html>

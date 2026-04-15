@@ -5,28 +5,18 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/04/15 23:46:42 by admin            ###   ########.fr       */
+/*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
+/*   Updated: 2026/04/15 18:22:19 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "tests.h"
+
+int	tests_run;
+int	tests_passed;
 
 int	main(void)
 {
-	char	*prompt;
-
-	while (1)
-	{
-		prompt = readline("minishell>>> ");
-		printf("[%s]\n", prompt);
-		if (!prompt)
-			break ;
-		if (*prompt)
-			add_history(prompt);
-		free(prompt);
-	}
-	printf("%s\n", "minishell>>> exit");
-	rl_clear_history();
-	return (0);
+	printf("%s", "--------------TEST PROMPT DISPLAY--------------\n\n");
+	test_map_name();
 }

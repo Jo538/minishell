@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strtrim.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 16:35:23 by jchartie          #+#    #+#             */
-/*   Updated: 2025/11/21 11:23:37 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/04/15 14:22:14 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static size_t	ft_start(char const *s1, char const *set)
 {
 	size_t	start;
 
-		start = 0;
+	start = 0;
 	while (s1[start] && ft_strchr(set, s1[start]))
 		start++;
 	return (start);

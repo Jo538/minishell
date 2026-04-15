@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/04/15 00:17:56 by benji            ###   ########.fr       */
+/*   Updated: 2026/04/15 00:49:06 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ int	main(void)
 
 	while (1)
 	{
-		prompt = readline("minishell>>> ");
+		prompt = prompt_minishell();
 		if (!prompt)
 			break ;
 		add_history(prompt);

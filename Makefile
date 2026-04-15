@@ -6,7 +6,7 @@
 #    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/15 00:25:00 by benji            ###   ########.fr        #
+#    Updated: 2026/04/15 00:51:22 by benji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ LIBFT_DIR = libft
 TEST_DIR = tests
 
 # Sources and Objects
-SRC = main.c
+SRC = main.c prompt.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 

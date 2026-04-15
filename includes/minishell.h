@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/15 00:16:32 by benji            ###   ########.fr       */
+/*   Updated: 2026/04/15 00:44:20 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,5 +22,6 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
+char	*prompt_minishell(void);
 
 #endif

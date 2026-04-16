@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/04/16 10:45:30 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/16 10:48:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ int	main(void)
 	while (1)
 	{
 		prompt = readline("minishell>>> ");
-		printf("[%s]\n", prompt);
 		if (!prompt)
 			break ;
 		if (*prompt)

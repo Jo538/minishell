@@ -6,19 +6,19 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/15 23:24:16 by admin            ###   ########.fr        #
+#    Updated: 2026/04/16 10:45:08 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Compiler
 CC = cc
-CFLAGS = 
-ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline # to remove the macos part when pushing to main
+CFLAGS = -Wall -Wextra -Werror
+ADDITIONAL_FLAGS = -lreadline
 NAME = minishell
 TEST_NAME = test_minishell
 
 # Directories
-INCLUDES = -Iincludes -Ilibft -I/opt/homebrew/opt/readline/include # to remove the macos part when pushing to main
+INCLUDES = -Iincludes -Ilibft 
 SRC_DIR = src
 OBJ_DIR = build
 TEST_DIR = tests

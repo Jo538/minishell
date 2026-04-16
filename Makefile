@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
+#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/15 14:33:29 by benji            ###   ########.fr        #
+#    Updated: 2026/04/16 10:45:08 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,18 +15,20 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 ADDITIONAL_FLAGS = -lreadline
 NAME = minishell
+TEST_NAME = test_minishell
 
 # Directories
-INCLUDES = includes
+INCLUDES = -Iincludes -Ilibft 
 SRC_DIR = src
 OBJ_DIR = build
-LIBFT_DIR = libft
 TEST_DIR = tests
+LIBFT_DIR = libft
 
 # Sources and Objects
-SRC = main.c prompt.c \
-		$(addprefix benjamin/, parsing.c) \
+SRC = main.c prompt.c
+TEST_SRC = $(addprefix $(TEST_DIR)/, $(SRC:.c=.o))
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
+TEST_OBJ = $(addprefix $(OBJ_DIR)/, $(TEST_SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 
 # Default rule
@@ -38,7 +40,7 @@ $(NAME): $(OBJ) $(LIBFT_ARCHIVE)
 
 # Object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(INCLUDES) $(ADDITIONAL_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Create libft archive
 $(LIBFT_ARCHIVE):
@@ -49,7 +51,7 @@ $(OBJ_DIR):
 	@mkdir $(OBJ_DIR)
 
 # Phony targets declaration
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re test
 
 # Clean project's object files
 clean:
@@ -64,3 +66,7 @@ fclean: clean
 # Recompile all files
 re: fclean
 	$(MAKE) all
+
+# Create test binary
+test: $(TEST_OBJ) $(OBJ)
+	$(CC) $(TEST_OBJ) $(filter-out $(OBJ_DIR)/main.o, ) $(LIBFT_ARCHIVE) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)

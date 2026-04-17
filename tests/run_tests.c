@@ -1,18 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   prompt.c                                           :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/15 18:22:37 by admin             #+#    #+#             */
-/*   Updated: 2026/04/15 18:24:24 by admin            ###   ########.fr       */
+/*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
+/*   Updated: 2026/04/17 19:34:20 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tests.h"
 
-void	test_prompt_minishell(void)
+int	tests_run;
+int	tests_passed;
+
+int	main(void)
 {
-	TEST_ASSERT(prompt_minishell())
+	printf("%s", "--------------IDENTIFY QUOTING OF THE CURRENT STATE--------------\n\n");
+	test_find_quoting();
 }

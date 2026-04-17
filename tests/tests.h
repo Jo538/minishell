@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/04/15 18:20:08 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/17 20:58:37 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,7 @@ extern int	tests_passed;
       }                                           \
   } while(0)
 
+void test_find_quoting(void);
+t_quoting	find_quoting(char c, t_state *previous_state);
 
 #endif

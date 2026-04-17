@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/17 12:20:01 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/17 15:24:32 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ typedef enum e_error
 }	t_error;
 
 // ENUM - Lexer states
-typedef enum e_state
+typedef enum e_quoting
 {
 	UNQUOTED = 1,
 	S_QUOTED,
 	D_QUOTED,
 }	t_quoting;
 
-typedef enum e_state
+typedef enum e_char_type
 {
 	ON_SPACE = 1,
 	ON_OPERATOR,

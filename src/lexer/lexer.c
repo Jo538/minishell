@@ -6,13 +6,17 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 11:05:50 by admin             #+#    #+#             */
-/*   Updated: 2026/04/17 12:30:41 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/17 20:56:49 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+#ifdef TESTING
+	t_quoting	find_quoting(char c, t_state *previous_state)
+#else
 static t_quoting	find_quoting(char c, t_state *previous_state)
+#endif
 {
 	if (!previous_state && c == '\'')
 		return (S_QUOTED);

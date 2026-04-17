@@ -30,32 +30,34 @@
     {
         int              type;
         t_segment        *segments;
+        struct s_token   *before;
         struct s_token   *next;
     } t_token;
 
 ### Example: echo "$USER"'!'
 
-    Token 1                          Token 2
-    +------------+                   +------------+
-    | type: WORD |                   | type: WORD |
-    | segments:  |                   | segments:  |
-    | next: -----+------------------>| next: NULL |
-    +-----+------+                   +-----+------+
-          |                                |
-          v                                v
-    +--------------+          +---------------+   +--------------+
-    | val: "echo"  |          | val: "$USER"  |   | val: "!"     |
-    | qt: UNQUOTED |          | qt: D_QUOTED  |-->| qt: S_QUOTED |
-    | next: NULL   |          | next: --------|   | next: NULL   |
-    +--------------+          +---------------+   +--------------+
+    Token 1                              Token 2
+    +----------------+                   +----------------+
+    | type: WORD     |    next           | type: WORD     |
+    | segments:      +------------------>| segments:      |
+    | before: NULL   |<------------------+ before:        |
+    | next:          |    before         | next: NULL     |
+    +-------+--------+                   +--------+-------+
+            |                                     |
+            v                                     v
+    +--------------+               +---------------+   +--------------+
+    | val: "echo"  |               | val: "$USER"  |   | val: "!"     |
+    | qt: UNQUOTED |               | qt: D_QUOTED  |   | qt: S_QUOTED |
+    | next: NULL   |               | next: --------|-->| next: NULL   |
+    +--------------+               +---------------+   +--------------+
 
 ### Example: ls -l > out.txt | wc
 
-    Token 1    Token 2    Token 3      Token 4      Token 5    Token 6
-    +------+   +------+   +---------+  +----------+ +------+   +------+
-    | WORD |-->| WORD |-->|REDIR_OUT|->| WORD     |>| PIPE |-->| WORD |-->NULL
-    | "ls" |   | "-l" |   | ">"     |  | "out.txt"|  | "|"  |   | "wc" |
-    +------+   +------+   +---------+  +----------+ +------+   +------+
+       Token 1    Token 2    Token 3        Token 4       Token 5    Token 6
+       +------+   +------+   +---------+   +----------+   +------+   +------+
+NULL<--| WORD |-->| WORD |-->|REDIR_OUT|-->| WORD     |-->| PIPE |-->| WORD |-->NULL
+       | "ls" |<--| "-l" |<--| ">"     |<--| "out.txt"|<--| "|"  |<--| "wc" |
+       +------+   +------+   +---------+   +----------+   +------+   +------+
 
 ---
 

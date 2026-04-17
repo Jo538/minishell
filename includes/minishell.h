@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/15 23:23:19 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/17 12:20:01 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,52 @@
 # include <readline/history.h>
 # include "libft.h"
 
+// ENUM - ERRORS
+typedef enum e_error
+{
+	ERR_MALLOC = 1,
+}	t_error;
+
+// ENUM - Lexer states
+typedef enum e_state
+{
+	UNQUOTED = 1,
+	S_QUOTED,
+	D_QUOTED,
+}	t_quoting;
+
+typedef enum e_state
+{
+	ON_SPACE = 1,
+	ON_OPERATOR,
+	ON_WORD
+}	t_char_type;
+
+typedef enum e_token
+{
+	WORD = 1,
+	PIPE,
+	IN_DIR,
+	OUT_DIR,
+	HEREDOC,
+	APPEND_OUT_DIR
+}	t_token_type;
+
 // STRUCT
+typedef struct s_state
+{
+	char	c;
+	int		quoting;
+	int		char_type;
+	int		repeat;
+}	t_state;
 
 typedef struct s_segment
 {
-    char				*value;
-    int					quote_type;
-    struct s_segment	*next;
-} t_segment;
+	char				*value;
+	t_quoting			quote_type;
+	struct s_segment	*next;
+}	t_segment;
 
 typedef struct s_token
 {
@@ -38,14 +76,14 @@ typedef struct s_token
 	int				type;
 	t_segment		*segments;
 	struct s_token	*next;
-} t_token;
+}	t_token;
 
 typedef struct s_redir
 {
 	int				type;
 	char			*file;
 	struct s_redir	*next;
-} t_redir;
+}	t_redir;
 
 typedef struct s_tree
 {
@@ -54,7 +92,7 @@ typedef struct s_tree
 	t_redir			*redirections;
 	struct s_tree	*left;
 	struct s_tree	*right;
-} t_tree;
+}	t_tree;
 
 // FUNCT
 char	*prompt_minishell(void);

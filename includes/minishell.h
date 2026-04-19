@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/17 15:24:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/19 13:30:46 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,6 @@ typedef struct s_tree
 }	t_tree;
 
 // FUNCT
-char	*prompt_minishell(void);
+t_state	*create_current_state(char c, t_state *previous_state, t_error *err);
 
 #endif

@@ -6,13 +6,13 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/17 21:07:58 by admin            ###   ########.fr        #
+#    Updated: 2026/04/19 22:40:44 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Compiler
 CC = cc
-CFLAGS = 
+CFLAGS = -g3 -O0
 VPATH = src:src/lexer:src/executor:tests
 ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline # to remove the macos part when pushing to main
 NAME = minishell
@@ -26,7 +26,7 @@ TEST_DIR = tests
 LIBFT_DIR = libft
 
 # Sources and Objects
-SRC = main.c signals.c lexer.c
+SRC = main.c signals.c lexer.c token.c
 TEST_SRC = run_tests.c test_lexer.c
 OBJ = $(SRC:.c=.o)
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a

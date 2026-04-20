@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/04/20 15:53:30 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/20 19:31:10 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,20 @@ static void	create_segment(t_state current_state, t_token *new_token, t_error *e
 		*err = ERR_MALLOC;
 		return ;
 	}
-	new_token->segment->value = &current_state.c;
+	if (current_state.c == '\'' || current_state.c == '"')
+		new_token->segment->value = ft_calloc(1, 1);
+	else
+		new_token->segment->value = ft_calloc(1, 2);
+	if (!new_token->segment->value)
+	{
+		free(new_token->segment);
+		*err = ERR_MALLOC;
+		return ;
+	}
+	if (current_state.c == '\'' || current_state.c == '"')
+		return ;
+	new_token->segment->value[0] = current_state.c;
+	new_token->segment->value[1] = '\0';
 	new_token->segment->quote_type = current_state.quoting;
 	new_token->segment->next = NULL;
 }
@@ -90,5 +103,10 @@ t_token	*create_token(t_state current_state, t_token *tail, t_error *err)
 	create_node(new_token, tail);
 	new_token->type = find_token_type(current_state);
 	create_segment(current_state, new_token, err);
+	if (err)
+	{
+		free(new_token);
+		return (NULL);
+	}
 	return (new_token);
 }

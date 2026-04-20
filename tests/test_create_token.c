@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 12:03:47 by admin             #+#    #+#             */
-/*   Updated: 2026/04/20 16:02:30 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/20 19:11:50 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,10 @@ void	test_check_new_token(void)
 	TEST_ASSERT(check_new_token(previous_array[10], current_array[10]), 1, "-");
 }
 
+
 void	test_create_token(void)
 {
+	t_error err = 0;
 	t_state array[] = {
 		{'e', UNQUOTED, ON_WORD, 0},
 		{'e', UNQUOTED, ON_WORD, 0},
@@ -111,7 +113,33 @@ void	test_create_token(void)
 		{'"', D_QUOTED, ON_WORD, 0},
 		{'e', UNQUOTED, ON_WORD, 0}
 	};
-
+	
+	t_token previous_token = {NULL, PIPE, NULL, NULL};
+	
+	t_token *new_token = create_token(array[0], NULL, &err);
+	printf("before: %p\n", new_token->before);
+	printf("next: %p\n", new_token->next);
+	printf("token type: %d\n", new_token->type);
+	printf("segment value: %s\n", new_token->segment->value);
+	printf("segment quoting type: %d\n", new_token->segment->quote_type);
+	printf("segment next: %p\n", new_token->segment->next);
+	free(new_token->segment);
+	free(new_token);
+	
+	int i = 1;
+	while (i < 5)
+	{
+		new_token = create_token(array[i], &previous_token, &err);
+		printf("before: %p\n", new_token->before);
+		printf("next: %p\n", new_token->next);
+		printf("token type: %d\n", new_token->type);
+		printf("segment value: %s\n", new_token->segment->value);
+		printf("segment quoting type: %d\n", new_token->segment->quote_type);
+		printf("segment next: %p\n", new_token->segment->next);
+		free(new_token->segment);
+		free(new_token);
+		i++;
+	}
 	// Check first token gets created
 	// Check second token gets created
 	// Check Unquoted segment gets created

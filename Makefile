@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/20 12:26:21 by admin            ###   ########.fr        #
+#    Updated: 2026/04/20 19:33:50 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ TEST_DIR = tests
 LIBFT_DIR = libft
 
 # Sources and Objects
-SRC = main.c signals.c lexer.c create_token.c
+SRC = main.c signals.c lexer.c create_token.c append_to_token.c
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c
 OBJ = $(SRC:.c=.o)
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/19 13:30:46 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/20 12:25:20 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ typedef struct s_token
 {
 	struct s_token	*before;
 	int				type;
-	t_segment		*segments;
+	t_segment		*segment;
 	struct s_token	*next;
 }	t_token;
 
@@ -96,5 +96,7 @@ typedef struct s_tree
 
 // FUNCT
 t_state	*create_current_state(char c, t_state *previous_state, t_error *err);
+t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
+int		check_new_token(t_state previous_state, t_state current_state);
 
 #endif

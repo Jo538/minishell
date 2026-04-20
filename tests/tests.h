@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/04/19 14:09:11 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/20 12:24:46 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,9 @@ extern int	tests_passed;
   } while(0)
 
 void test_create_current_state(void);
+void test_find_token_type(void);
+
+// Static functions
+t_token_type	find_token_type(t_state current_state);
 
 #endif

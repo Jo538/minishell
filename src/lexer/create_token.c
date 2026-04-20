@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   token.c                                            :+:      :+:    :+:   */
+/*   create_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/04/19 23:41:17 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/20 12:32:02 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,23 @@ int	check_new_token(t_state previous_state, t_state current_state)
 	return (0);
 }
 
-t_token_type	find_token_type(t_state current_state)
+#ifdef TESTING
+	t_token_type	find_token_type(t_state current_state)
+#else
+	static t_token_type	find_token_type(t_state current_state)
+#endif
 {
 	if (current_state.quoting == UNQUOTED)
 	{
 		if (current_state.c == '|')
 			return (PIPE);
-		if (current_state.c == '<' && current_state.repeat % 2 == 0)
+		if (current_state.c == '<' && current_state.repeat > 0 
+			&& current_state.repeat % 2 == 0)
 			return (HEREDOC);
 		if (current_state.c == '<')
 			return (IN_DIR);
-		if (current_state.c == '>' && current_state.repeat % 2 == 0)
+		if (current_state.c == '>' && current_state.repeat > 0 
+			&& current_state.repeat % 2 == 0)
 			return (APPEND_OUT_DIR);
 		if (current_state.c == '>')
 			return (OUT_DIR);
@@ -41,37 +47,38 @@ t_token_type	find_token_type(t_state current_state)
 	return (WORD);
 }
 
-t_token	*create_first_token(t_state current_state, t_error *err)
+static void	create_node(t_token *new_token, t_token *tail)
 {
-	t_token	*head;
-	t_token	*tail;
-
-	head = ft_calloc(1, sizeof (t_token));
-	if (!head)
+	if (!tail)
 	{
-		*err = ERR_MALLOC;
-		return (NULL);
+		new_token->before = NULL;
+		new_token->next = NULL;
+		return ;
 	}
-	head->before = NULL;
-	head->next = NULL;
-	head->type = find_token_type(current_state);
-	head->segments = create_segment();
-	return (head);
+	new_token->before = tail;
+	new_token->next = NULL;
+	tail->next = new_token;
+}
+
+static void	create_segment(t_state current_state, t_token *new_token)
+{
+	new_token->segment->value = &current_state.c;
+	new_token->segment->quote_type = current_state.quoting;
+	new_token->segment->next = NULL;
 }
 
 t_token	*create_token(t_state current_state, t_token *tail, t_error *err)
 {
-	t_token	*new_tail;
+	t_token	*new_token;
 
-	new_tail = ft_calloc(1, sizeof (t_token));
-	if (!new_tail)
+	new_token = ft_calloc(1, sizeof (t_token));
+	if (!new_token)
 	{
 		*err = ERR_MALLOC;
 		return (NULL);
 	}
-	new_tail->before = tail;
-	new_tail->next = NULL;
-	new_tail->type = find_token_type(current_state);
-	new_tail->segments = create_segment();
-	return (new_tail);
+	create_node(new_token, tail);
+	new_token->type = find_token_type(current_state);
+	create_segment(current_state, new_token);
+	return (new_token);
 }

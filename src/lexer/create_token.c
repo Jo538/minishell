@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   create_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/04/20 19:31:10 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/21 13:44:12 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	check_new_token(t_state previous_state, t_state current_state)
 	{
 		if (current_state.c == '|')
 			return (PIPE);
-		if (current_state.c == '<' && current_state.repeat > 0 
+		if (current_state.c == '<' && current_state.repeat > 0
 			&& current_state.repeat % 2 == 0)
 			return (HEREDOC);
 		if (current_state.c == '<')
@@ -85,7 +85,6 @@ static void	create_segment(t_state current_state, t_token *new_token, t_error *e
 	if (current_state.c == '\'' || current_state.c == '"')
 		return ;
 	new_token->segment->value[0] = current_state.c;
-	new_token->segment->value[1] = '\0';
 	new_token->segment->quote_type = current_state.quoting;
 	new_token->segment->next = NULL;
 }

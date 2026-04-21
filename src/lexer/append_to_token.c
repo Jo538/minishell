@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   append_to_token.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 19:33:16 by admin             #+#    #+#             */
-/*   Updated: 2026/04/21 14:30:08 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/04/21 19:57:47 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	add_new_segment(t_state current_state, t_segment *segment, t_error *err)
 	}
 	if (current_state.c == '\'' || current_state.c == '"')
 		return ;
-	segment->value[0] = current_state.c;
+	new_segment->value[0] = current_state.c;
 }
 
 void	append_to_segment(t_state current_state, t_segment *segment, t_error *err)
@@ -65,7 +65,7 @@ void	append_to_segment(t_state current_state, t_segment *segment, t_error *err)
 	new_value[len] = current_state.c;
 	while (segment->next)
 		segment = segment->next;
-	free(segment->value);
+	//free(segment->value);
 	segment->value = new_value;
 }
 

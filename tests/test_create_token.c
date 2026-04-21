@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 12:03:47 by admin             #+#    #+#             */
-/*   Updated: 2026/04/20 19:11:50 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/21 20:38:00 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,7 @@ void	test_create_token(void)
 	printf("segment value: %s\n", new_token->segment->value);
 	printf("segment quoting type: %d\n", new_token->segment->quote_type);
 	printf("segment next: %p\n", new_token->segment->next);
+	free(new_token->segment->value);
 	free(new_token->segment);
 	free(new_token);
 	
@@ -136,6 +137,7 @@ void	test_create_token(void)
 		printf("segment value: %s\n", new_token->segment->value);
 		printf("segment quoting type: %d\n", new_token->segment->quote_type);
 		printf("segment next: %p\n", new_token->segment->next);
+		free(new_token->segment->value);
 		free(new_token->segment);
 		free(new_token);
 		i++;

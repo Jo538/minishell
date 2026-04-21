@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   create_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/04/21 13:44:12 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/04/21 19:22:35 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ t_token	*create_token(t_state current_state, t_token *tail, t_error *err)
 	create_node(new_token, tail);
 	new_token->type = find_token_type(current_state);
 	create_segment(current_state, new_token, err);
-	if (err)
+	if (*err)
 	{
 		free(new_token);
 		return (NULL);

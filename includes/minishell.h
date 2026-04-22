@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/22 13:04:17 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/22 15:00:08 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ typedef enum e_key_items
 {
 	FIRST_TOKEN,
 	LAST_TOKEN,
-	LAST_SEGMENT_LAST_TOKEN,
+	LAST_SEGMENT,
 }	t_enum_key_items;
 
 typedef enum e_quoting

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/21 20:02:56 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/22 13:04:17 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,26 @@
 # include <readline/history.h>
 # include "libft.h"
 
-// ENUM - ERRORS
+// ENUMS - ERRORS
 typedef enum e_error
 {
 	ERR_MALLOC = 1,
 }	t_error;
 
-// ENUM - Lexer states
+// ENUMS - Lexer
+typedef enum e_state
+{
+	PREVIOUS_STATE,
+	CURRENT_STATE,
+}	t_enum_state;
+
+typedef enum e_key_items
+{
+	FIRST_TOKEN,
+	LAST_TOKEN,
+	LAST_SEGMENT_LAST_TOKEN,
+}	t_enum_key_items;
+
 typedef enum e_quoting
 {
 	UNQUOTED = 1,
@@ -54,7 +67,7 @@ typedef enum e_token
 	APPEND_OUT_DIR
 }	t_token_type;
 
-// STRUCT
+// STRUCTS that live throughout project
 typedef struct s_state
 {
 	char	c;
@@ -95,11 +108,11 @@ typedef struct s_tree
 }	t_tree;
 
 // FUNCT
-t_state	*create_current_state(char c, t_state *previous_state, t_error *err);
+t_state	create_current_state(char c, int i, t_state previous_state);
 t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
 int		check_new_token(t_state previous_state, t_state current_state);
 void	add_new_segment(t_state current_state, t_segment *segment, t_error *err);
 void	append_to_segment(t_state current_state, t_segment *segment, t_error *err);
 void	change_token_type(t_state current_state, t_token *last_token, t_error *err);
-
+void	segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
 #endif

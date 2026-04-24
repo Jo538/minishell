@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/22 15:00:08 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/24 10:29:19 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,6 @@ typedef enum e_state
 	PREVIOUS_STATE,
 	CURRENT_STATE,
 }	t_enum_state;
-
-typedef enum e_key_items
-{
-	FIRST_TOKEN,
-	LAST_TOKEN,
-	LAST_SEGMENT,
-}	t_enum_key_items;
 
 typedef enum e_quoting
 {
@@ -91,6 +84,13 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
+typedef struct s_key_items
+{
+	t_token		*first_token;
+	t_token		*last_token;
+	t_segment	*last_segment;
+}	t_key_items;
+
 typedef struct s_redir
 {
 	int				type;
@@ -111,8 +111,7 @@ typedef struct s_tree
 t_state	create_current_state(char c, int i, t_state previous_state);
 t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
 int		check_new_token(t_state previous_state, t_state current_state);
-void	add_new_segment(t_state current_state, t_segment *segment, t_error *err);
-void	append_to_segment(t_state current_state, t_segment *segment, t_error *err);
 void	change_token_type(t_state current_state, t_token *last_token, t_error *err);
-void	segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
+t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
+void	free_token_list(t_token *token_list_head);
 #endif

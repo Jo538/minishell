@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 19:33:16 by admin             #+#    #+#             */
-/*   Updated: 2026/04/22 14:33:12 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/24 10:34:16 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,11 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 	return (0);
 }
 
-static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err)
+#ifdef TESTING
+	t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err)
+#else
+	static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err)
+#endif
 {
 	t_segment	*new_segment;
 	
@@ -43,7 +47,11 @@ static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment
 	return (new_segment);
 }
 
-static void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err)
+#ifdef TESTING
+	void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err)
+#else
+	static void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err)
+#endif
 {
 	int		len;
 	char	*new_value;
@@ -57,7 +65,7 @@ static void	append_to_segment(t_state current_state, t_segment *last_segment, t_
 	}
 	ft_strlcpy(new_value, last_segment->value, len + 2);
 	new_value[len] = current_state.c;
-	free(last_segment->value);
+	//free(last_segment->value);
 	last_segment->value = new_value;
 }
 

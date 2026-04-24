@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/22 10:47:59 by admin            ###   ########.fr        #
+#    Updated: 2026/04/24 11:52:50 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,8 +28,9 @@ LIBFT_DIR = libft
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c
-TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c
-OBJ = $(SRC:.c=.o)
+TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
+	test_orchestrator.c
+OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 
 # Default rule

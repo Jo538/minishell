@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 19:35:33 by admin             #+#    #+#             */
-/*   Updated: 2026/04/19 18:11:57 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/24 10:05:15 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,22 +30,21 @@ static void	helper_create_current_state_1(char *cmd, t_state array[])
 	t_error	err;
 	int len = strlen(cmd);
 	int i = 0;
-	t_state	*current_state;
+	t_state	current_state;
 	int		pass_or_fail;
 
 	while (i < len)
 	{
-		current_state = create_current_state(cmd[i], &array[i], &err);
-		pass_or_fail = helper_create_current_state_2(*current_state, array[i + 1]);
+		current_state = create_current_state(cmd[i], i, array[i]);
+		pass_or_fail = helper_create_current_state_2(current_state, array[i + 1]);
 		if (pass_or_fail == PASS)
 			printf("[%d] %c: %s\n", i, cmd[i], "SUCCESS");
 		else
 		{
 			printf("[%d] %c: %s\n", i, cmd[i],  "FAILURE");		
-			printf("Actual --> %c (char), %d (quoting), %d (char_type), %d (repeat)\n", current_state->c,current_state->quoting, current_state->char_type, current_state->repeat);	
+			printf("Actual --> %c (char), %d (quoting), %d (char_type), %d (repeat)\n", current_state.c,current_state.quoting, current_state.char_type, current_state.repeat);	
 			printf("Expected --> %c (char), %d (quoting), %d (char_type), %d (repeat)\n", array[i + 1].c, array[i + 1].quoting, array[i + 1].char_type, array[i + 1].repeat);
 		}
-		free(current_state);
 		i++;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/04/24 11:46:08 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/24 22:54:30 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err)
 	int			flag;
 	t_state		state[2];
 	t_key_items	key_items;
-
+	
+	i = 0;
 	while (prompt[i])
 	{
 		state[CURRENT_STATE] = create_current_state(prompt[i], i, state[PREVIOUS_STATE]);

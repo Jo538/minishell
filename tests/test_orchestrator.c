@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 09:43:08 by admin             #+#    #+#             */
-/*   Updated: 2026/04/24 12:23:19 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/24 22:55:56 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,38 @@ void	test_free_token_list(void)
 	free_token_list(head);
 }
 
-void	helper_test_lexer_orchestrator(t_token *expected, t_token *actual)
+static void	helper_test_lexer_orchestrator(t_token *actual, t_test_token *expected)
 {
-	
+	if (actual->type != expected[0].token_type)
+		printf("--FAIL--\nactual: %d\nexpected: %d\n", actual->type, expected->token_type);
+	if (strcmp(actual->segment->value, expected->segment->value) != 0)
+		printf("--FAIL--\nactual: %s\nexpected: %s\n", actual->segment->value, expected->segment->value);
+	if (actual->segment->quote_type != expected->segment->quoting_type)
+		printf("--FAIL--\nactual: %d\nexpected: %d\n", actual->segment->quote_type, expected->segment->quoting_type);
+
+	actual = actual->next;
+	expected = expected + 1;
+
+	if (actual->type != expected->token_type)
+		printf("--FAIL--\nactual: %d\nexpected: %d\n", actual->type, expected->token_type);
+	if (strcmp(actual->segment->value, expected->segment->value) != 0)
+		printf("--FAIL--\nactual: %s\nexpected: %s\n", actual->segment->value, expected->segment->value);
+	if (actual->segment->quote_type != expected->segment->quoting_type)
+		printf("--FAIL--\nactual: %d\nexpected: %d\n", actual->segment->quote_type, expected->segment->quoting_type);	
 }
+
 void	test_lexer_orchestrator(void)
 {
+	t_error err;
 	t_token *actual;
-	t_token *expected[] = {
-		{NULL, ON_WORD, &(t_segment){"echo", UNQUOTED, NULL}, &(t_token){NULL, ON_WORD, &(t_segment){"hello", UNQUOTED, &(t_segment){"world", D_QUOTED, NULL}}}}
+	char *prompt[] = {
+		"echo hello"
+	};
+	t_test_token expected[] = {
+		{WORD, 1, &(t_test_segment){"echo", UNQUOTED}},
+		{WORD, 1, &(t_test_segment){"hello", UNQUOTED}}
 	};
 	
-	helper_test_lexer_orchestrator()
+	actual = lexer_orchestrator(prompt[0], &err);
+	helper_test_lexer_orchestrator(actual, expected);
 }

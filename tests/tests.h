@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/04/24 22:52:30 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/25 11:39:27 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,12 @@ typedef struct s_test_token
     int count_segment;
     t_test_segment *segment;
 } t_test_token;
+
+typedef struct s_test_case
+{
+    int num_token;
+    t_test_token *expected_tokens;
+} t_test_case;
 
 # define TEST_ASSERT(actual, expected, msg) do {        \
       tests_run++;                                \

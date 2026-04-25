@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 12:03:47 by admin             #+#    #+#             */
-/*   Updated: 2026/04/21 20:38:00 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/25 10:14:17 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void	test_create_token(void)
 	
 	t_token previous_token = {NULL, PIPE, NULL, NULL};
 	
-	t_token *new_token = create_token(array[0], NULL, &err);
+	t_token *new_token = create_token(0, array[0], NULL, &err);
 	printf("before: %p\n", new_token->before);
 	printf("next: %p\n", new_token->next);
 	printf("token type: %d\n", new_token->type);
@@ -130,7 +130,7 @@ void	test_create_token(void)
 	int i = 1;
 	while (i < 5)
 	{
-		new_token = create_token(array[i], &previous_token, &err);
+		new_token = create_token(i, array[i], &previous_token, &err);
 		printf("before: %p\n", new_token->before);
 		printf("next: %p\n", new_token->next);
 		printf("token type: %d\n", new_token->type);

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/24 22:31:21 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/25 10:11:50 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ typedef struct s_tree
 
 // FUNCT
 t_state	create_current_state(char c, int i, t_state previous_state);
-t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
+t_token	*create_token(int i, t_state current_state, t_token *tail, t_error *err);
 int		check_new_token(t_state previous_state, t_state current_state);
 void	change_token_type(t_state current_state, t_token *last_token, t_error *err);
 t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);

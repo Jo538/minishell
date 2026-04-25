@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/04/22 11:37:18 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/25 11:07:35 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ int	check_new_token(t_state previous_state, t_state current_state)
 		if (current_state.char_type != ON_SPACE
 			&& current_state.char_type != previous_state.char_type)
 			return (1);
+		if (current_state.char_type == ON_SPACE)
+			return (3);
 		if (current_state.repeat > 0 && current_state.repeat % 2 == 0)
 			return (2);
 		if (current_state.repeat > 0 && current_state.repeat % 2 == 1)
@@ -51,17 +53,17 @@ int	check_new_token(t_state previous_state, t_state current_state)
 	return (WORD);
 }
 
-static void	create_node(t_token *new_token, t_token *tail)
+static void	create_node(int i, t_token *new_token, t_token *last_token)
 {
-	if (!tail)
+	if (i == 0)
 	{
 		new_token->before = NULL;
 		new_token->next = NULL;
 		return ;
 	}
-	new_token->before = tail;
+	new_token->before = last_token;
 	new_token->next = NULL;
-	tail->next = new_token;
+	last_token->next = new_token;
 }
 
 static void	create_segment(t_state current_state, t_token *new_token, t_error *err)
@@ -89,7 +91,7 @@ static void	create_segment(t_state current_state, t_token *new_token, t_error *e
 	new_token->segment->next = NULL;
 }
 
-t_token	*create_token(t_state current_state, t_token *last_token, t_error *err)
+t_token	*create_token(int i, t_state current_state, t_token *last_token, t_error *err)
 {
 	t_token	*new_token;
 
@@ -99,7 +101,7 @@ t_token	*create_token(t_state current_state, t_token *last_token, t_error *err)
 		*err = ERR_MALLOC;
 		return (NULL);
 	}
-	create_node(new_token, last_token);
+	create_node(i, new_token, last_token);
 	new_token->type = find_token_type(current_state);
 	create_segment(current_state, new_token, err);
 	if (*err)

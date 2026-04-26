@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 09:43:08 by admin             #+#    #+#             */
-/*   Updated: 2026/04/25 16:24:17 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/27 01:16:43 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,29 @@ static void	helper_test_lexer_orchestrator(char *prompt, t_token *actual, t_test
 	int i = 0;
 	int j = 0;
 	t_test_token *token = test_case.expected_tokens;
+	t_segment *segment;
 	
+	if (actual)
+		segment = actual->segment;
 	while (i < test_case.num_token)
 	{
+		if (test_case.num_token == 0 && !actual)
+			break ;
 		if (actual->type != test_case.expected_tokens[i].token_type)
-			printf("--FAIL-- %s\nactual: %d\nexpected: %d\n", prompt, actual->type, test_case.expected_tokens[i].token_type);
+			printf("--FAIL TYPE-- %s\nactual: %d\nexpected: %d\n", prompt, actual->type, test_case.expected_tokens[i].token_type);
 		j = 0;
 		while (j < test_case.expected_tokens[i].count_segment)
 		{
-			if (strcmp(actual->segment->value, test_case.expected_tokens[i].segment[j].value) != 0)
-				printf("--FAIL-- %s\nactual: %s\nexpected: %s\n", prompt, actual->segment->value, test_case.expected_tokens[i].segment[j].value);
-			if (actual->segment->quote_type != test_case.expected_tokens[i].segment[j].quoting_type)
-				printf("--FAIL-- %s\nactual: %d\nexpected: %d\n", prompt, actual->segment->quote_type, test_case.expected_tokens[i].segment[j].quoting_type);
-			actual->segment = actual->segment->next;
+			if (strcmp(segment->value, test_case.expected_tokens[i].segment[j].value) != 0)
+				printf("--FAIL VALUE-- %s\nactual: %s\nexpected: %s\n", prompt, segment->value, test_case.expected_tokens[i].segment[j].value);
+			if (segment->quote_type != test_case.expected_tokens[i].segment[j].quoting_type)
+				printf("--FAIL QUOTE-- %s\nactual: %d\nexpected: %d\n", prompt, segment->quote_type, test_case.expected_tokens[i].segment[j].quoting_type);
+			segment = segment->next;
 			j++;	
 		}
 		actual = actual->next;
+		if (actual)
+			segment = actual->segment;
 		i++;	
 	}
 	printf("--SUCCESS-- %s\n", prompt);
@@ -97,7 +104,22 @@ void	test_lexer_orchestrator(void)
 		"echo >>> in.txt",
 		"echo>>> in.txt",
 		"hel'lo wo'rld",
-		"echo|hi"
+		"echo|hi",
+		"\"\"",
+		"",
+		"     ",
+		"\'\'",
+		" ''",
+		"\"<\"",
+		"|",
+		"<<",
+		">\"file\"",
+		"\"echo\"|cat",
+		"\"hello\"'world'",
+		"'hello'\"world\"",
+		"hello'world'",
+		"'hello'world",
+		"'hi\"Bob'"
 	};
 
 	t_test_case test_case[] = {
@@ -111,9 +133,27 @@ void	test_lexer_orchestrator(void)
 		{4, (t_test_token[]){{WORD, 1, &(t_test_segment){"echo", UNQUOTED}}, {APPEND_OUT_DIR, 1, &(t_test_segment){">>", UNQUOTED}}, {OUT_DIR, 1, &(t_test_segment){">", UNQUOTED}},{WORD, 1, &(t_test_segment){"in.txt", UNQUOTED}}}},
 		{1, (t_test_token[]){WORD, 3, (t_test_segment[]){{"hel", UNQUOTED}, {"lo wo", S_QUOTED}, {"rld", UNQUOTED}}}},
 		{3, (t_test_token[]){{WORD, 1, (t_test_segment[]){"echo", UNQUOTED}}, {PIPE, 1, (t_test_segment[]){"|", UNQUOTED}}, {WORD, 1, (t_test_segment[]){"hi", UNQUOTED}}}},
+		{1, (t_test_token[]){{WORD, 1, &(t_test_segment){"", D_QUOTED}}}},
+		{0, NULL},
+		{0, NULL},
+		{1, (t_test_token[]){{WORD, 1, &(t_test_segment){"", S_QUOTED}}}},
+		{1, (t_test_token[]){{WORD, 1, &(t_test_segment){"", S_QUOTED}}}},
+		{1, (t_test_token[]){{WORD, 1, &(t_test_segment){"<", D_QUOTED}}}},
+		{1, (t_test_token[]){{PIPE, 1, &(t_test_segment){"|", UNQUOTED}}}},
+		{1, (t_test_token[]){{HEREDOC, 1, &(t_test_segment){"<<", UNQUOTED}}}},
+		{2, (t_test_token[]){{OUT_DIR, 1, &(t_test_segment){">", UNQUOTED}}, {WORD, 1, &(t_test_segment){"file", D_QUOTED}}}},
+		{3, (t_test_token[]){{WORD, 1, &(t_test_segment){"echo", D_QUOTED}}, {PIPE, 1, &(t_test_segment){"|", UNQUOTED}}, {WORD, 1, &(t_test_segment){"cat", UNQUOTED}}}},		
+		{1, (t_test_token[]){WORD, 2, (t_test_segment[]){{"hello", D_QUOTED}, {"world", S_QUOTED}}}},
+		{1, (t_test_token[]){WORD, 2, (t_test_segment[]){{"hello", S_QUOTED}, {"world", D_QUOTED}}}},
+		{1, (t_test_token[]){WORD, 2, (t_test_segment[]){{"hello", UNQUOTED}, {"world", S_QUOTED}}}},
+		{1, (t_test_token[]){WORD, 2, (t_test_segment[]){{"hello", S_QUOTED}, {"world", UNQUOTED}}}},
+		{1, (t_test_token[]){WORD, 1, (t_test_segment[]){"hi\"Bob", S_QUOTED}}},
+
+
+
 	};
-	
-	while (i < 10)
+
+	while (i < 25)
 	{
 		actual = lexer_orchestrator(prompt[i], &err);
 		helper_test_lexer_orchestrator(prompt[i], actual, test_case[i]);

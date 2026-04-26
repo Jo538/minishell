@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 12:03:47 by admin             #+#    #+#             */
-/*   Updated: 2026/04/25 10:14:17 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/26 16:21:50 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,17 +89,17 @@ void	test_check_new_token(void)
 		{'<', UNQUOTED, ON_OPERATOR, 3},
 	};
 
-	TEST_ASSERT(check_new_token(previous_array[0], current_array[0]), 0, "-");
-	TEST_ASSERT(check_new_token(previous_array[1], current_array[1]), 1, "-");
-	TEST_ASSERT(check_new_token(previous_array[2], current_array[2]), 1, "-");
-	TEST_ASSERT(check_new_token(previous_array[3], current_array[3]), 0, "-");
-	TEST_ASSERT(check_new_token(previous_array[4], current_array[4]), 1, "-");
-	TEST_ASSERT(check_new_token(previous_array[5], current_array[5]), 0, "-");
-	TEST_ASSERT(check_new_token(previous_array[6], current_array[6]), 1, "-");
-	TEST_ASSERT(check_new_token(previous_array[7], current_array[7]), 0, "-");
-	TEST_ASSERT(check_new_token(previous_array[8], current_array[8]), 0, "-");
-	TEST_ASSERT(check_new_token(previous_array[9], current_array[9]), 2, "-");
-	TEST_ASSERT(check_new_token(previous_array[10], current_array[10]), 1, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[0], current_array[0]), 0, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[1], current_array[1]), 1, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[2], current_array[2]), 1, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[3], current_array[3]), 0, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[4], current_array[4]), 1, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[5], current_array[5]), 0, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[6], current_array[6]), 1, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[7], current_array[7]), 0, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[8], current_array[8]), 0, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[9], current_array[9]), 2, "-");
+	TEST_ASSERT(check_new_token(1, previous_array[10], current_array[10]), 1, "-");
 }
 
 
@@ -116,7 +116,7 @@ void	test_create_token(void)
 	
 	t_token previous_token = {NULL, PIPE, NULL, NULL};
 	
-	t_token *new_token = create_token(0, array[0], NULL, &err);
+	t_token *new_token = create_token(array[0], NULL, &err);
 	printf("before: %p\n", new_token->before);
 	printf("next: %p\n", new_token->next);
 	printf("token type: %d\n", new_token->type);
@@ -130,7 +130,7 @@ void	test_create_token(void)
 	int i = 1;
 	while (i < 5)
 	{
-		new_token = create_token(i, array[i], &previous_token, &err);
+		new_token = create_token(array[i], &previous_token, &err);
 		printf("before: %p\n", new_token->before);
 		printf("next: %p\n", new_token->next);
 		printf("token type: %d\n", new_token->type);

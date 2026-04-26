@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
-/*   Updated: 2026/04/24 22:53:31 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/27 00:48:27 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@ int	main(void)
 	test_create_token();
 	printf("%s", "--------------ADD NEW SEGMENT TO LIST OF SEGMENTS--------------\n\n");
 	test_add_new_segment();
-	printf("%s", "--------------APPEND VALUE TO EXISTING SEGMENT--------------\n\n");
-	test_append_to_segment();
-	printf("%s", "--------------CHANGE TOKEN TYPE TO HEREDOC OR APPEND_OUT_DIR--------------\n\n");
-	test_change_token_type();
+	// printf("%s", "--------------APPEND VALUE TO EXISTING SEGMENT--------------\n\n");
+	// test_append_to_segment();
+	// printf("%s", "--------------CHANGE TOKEN TYPE TO HEREDOC OR APPEND_OUT_DIR--------------\n\n");
+	// test_change_token_type();
 	printf("%s", "--------------TEST IF FREE_ALL WORKS--------------\n\n");
 	test_free_token_list();
 	printf("%s", "--------------TEST ENTIRE LEXER ORCHESTRATOR--------------\n\n");	

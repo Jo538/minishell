@@ -6,13 +6,13 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/04/25 11:07:35 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/26 16:08:12 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	check_new_token(t_state previous_state, t_state current_state)
+int	check_new_token(int i, t_state previous_state, t_state current_state)
 {
 	if (current_state.quoting == UNQUOTED)
 	{
@@ -26,6 +26,14 @@ int	check_new_token(t_state previous_state, t_state current_state)
 		if (current_state.repeat > 0 && current_state.repeat % 2 == 1)
 			return (1);
 	}
+	if (previous_state.quoting == UNQUOTED 
+		&& (current_state.quoting == D_QUOTED || current_state.quoting == S_QUOTED))
+	{
+		if (previous_state.char_type == ON_SPACE || previous_state.char_type == ON_OPERATOR)
+			return (1);
+	}
+	if (i == 0)
+		return (1);
 	return (0);
 }
 
@@ -53,9 +61,9 @@ int	check_new_token(t_state previous_state, t_state current_state)
 	return (WORD);
 }
 
-static void	create_node(int i, t_token *new_token, t_token *last_token)
+static void	create_node(t_token *new_token, t_token *last_token)
 {
-	if (i == 0)
+	if (!last_token)
 	{
 		new_token->before = NULL;
 		new_token->next = NULL;
@@ -84,14 +92,14 @@ static void	create_segment(t_state current_state, t_token *new_token, t_error *e
 		*err = ERR_MALLOC;
 		return ;
 	}
+	new_token->segment->quote_type = current_state.quoting;
 	if (current_state.c == '\'' || current_state.c == '"')
 		return ;
 	new_token->segment->value[0] = current_state.c;
-	new_token->segment->quote_type = current_state.quoting;
 	new_token->segment->next = NULL;
 }
 
-t_token	*create_token(int i, t_state current_state, t_token *last_token, t_error *err)
+t_token	*create_token(t_state current_state, t_token *last_token, t_error *err)
 {
 	t_token	*new_token;
 
@@ -101,7 +109,7 @@ t_token	*create_token(int i, t_state current_state, t_token *last_token, t_error
 		*err = ERR_MALLOC;
 		return (NULL);
 	}
-	create_node(i, new_token, last_token);
+	create_node(new_token, last_token);
 	new_token->type = find_token_type(current_state);
 	create_segment(current_state, new_token, err);
 	if (*err)

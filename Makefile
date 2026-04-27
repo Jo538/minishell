@@ -14,12 +14,12 @@
 CC = cc
 CFLAGS = -g3 -O0
 VPATH = src:src/lexer:src/executor:tests
-ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline # to remove the macos part when pushing to main
+ADDITIONAL_FLAGS = -lreadline # to remove the macos part when pushing to main
 NAME = minishell
 TEST_NAME = test_minishell
 
 # Directories
-INCLUDES = -Iincludes -Ilibft -I/opt/homebrew/opt/readline/include # to remove the macos part when pushing to main
+INCLUDES = -Iincludes -Ilibft # to remove the macos part when pushing to main
 SRC_DIR = src
 OBJ_DIR = build
 TEST_DIR = tests

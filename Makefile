@@ -6,29 +6,31 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/16 10:45:08 by admin            ###   ########.fr        #
+#    Updated: 2026/04/27 01:17:19 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Compiler
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
-ADDITIONAL_FLAGS = -lreadline
+CFLAGS = -g3 -O0
+VPATH = src:src/lexer:src/executor:tests
+ADDITIONAL_FLAGS = -lreadline # to remove the macos part when pushing to main
 NAME = minishell
 TEST_NAME = test_minishell
 
 # Directories
-INCLUDES = -Iincludes -Ilibft 
+INCLUDES = -Iincludes -Ilibft # to remove the macos part when pushing to main
 SRC_DIR = src
 OBJ_DIR = build
 TEST_DIR = tests
 LIBFT_DIR = libft
 
 # Sources and Objects
-SRC = main.c prompt.c
-TEST_SRC = $(addprefix $(TEST_DIR)/, $(SRC:.c=.o))
+SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
+	orchestrator.c
+TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
+	test_orchestrator.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
-TEST_OBJ = $(addprefix $(OBJ_DIR)/, $(TEST_SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 
 # Default rule
@@ -39,24 +41,20 @@ $(NAME): $(OBJ) $(LIBFT_ARCHIVE)
 	$(CC) $(OBJ) $(LIBFT_ARCHIVE) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(NAME)
 
 # Object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Create libft archive
 $(LIBFT_ARCHIVE):
 	$(MAKE) -C $(LIBFT_DIR)
 
-# Create object directory
-$(OBJ_DIR):
-	@mkdir $(OBJ_DIR)
-
 # Phony targets declaration
 .PHONY: all clean fclean re test
 
 # Clean project's object files
 clean:
-	@rm -f $(OBJ)
-	@if [ -d $(OBJ_DIR) ]; then rmdir $(OBJ_DIR); fi
+	@rm -rf $(OBJ_DIR)
 
 # Clean minishell executable and clean libraries
 fclean: clean
@@ -68,5 +66,6 @@ re: fclean
 	$(MAKE) all
 
 # Create test binary
-test: $(TEST_OBJ) $(OBJ)
-	$(CC) $(TEST_OBJ) $(filter-out $(OBJ_DIR)/main.o, ) $(LIBFT_ARCHIVE) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)
+test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
+	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)
+	./test_minishell

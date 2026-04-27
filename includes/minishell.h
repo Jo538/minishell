@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/26 16:21:16 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/27 23:16:19 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <fcntl.h>
 # include <signal.h>
 # include <sys/ioctl.h>
 # include <sys/wait.h>
@@ -29,18 +30,30 @@ typedef enum e_error
 	ERR_MALLOC = 1,
 }	t_error;
 
-// ENUMS - Lexer
+// ENUMS
+typedef enum e_node_type
+{
+	PIPE,
+	CMD
+}	t_node_type;
+
+typedef enum e_cmd_type
+{
+	LITERAL,
+	PATH
+}	t_cmd_type;
+
 typedef enum e_state
 {
 	PREVIOUS_STATE,
-	CURRENT_STATE,
+	CURRENT_STATE
 }	t_enum_state;
 
 typedef enum e_quoting
 {
 	UNQUOTED = 1,
 	S_QUOTED,
-	D_QUOTED,
+	D_QUOTED
 }	t_quoting;
 
 typedef enum e_char_type

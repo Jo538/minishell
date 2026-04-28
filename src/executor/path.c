@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/04/28 16:47:27 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 20:01:22 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,6 @@ char	*path_orchestrator(char *cmd, char **env, t_error *err)
 		if (access(path, F_OK | X_OK))
 		{
 			*err = errno;
-			perror("access");
 			free(path);
 			path = NULL;	
 		}
@@ -130,6 +129,8 @@ char	*path_orchestrator(char *cmd, char **env, t_error *err)
 	{
 		path_tab = extract_paths(env, err);
 		path = find_and_check_path(cmd, path_tab, err);
+		if (!path)
+			*err = 127;
 	}
 	if (path_tab)
 		free_tab(path_tab);

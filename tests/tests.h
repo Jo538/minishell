@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/04/28 15:55:52 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 19:12:54 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void	test_lexer_orchestrator(void);
 void	test_extract_paths(void);
 void test_find_and_check_path(void);
 void test_path_orchestrator(void);
+void	test_parent_orchestrator(void);
 
 // Static functions
 t_token_type	find_token_type(t_state current_state);

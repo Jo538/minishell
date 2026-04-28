@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/28 13:28:13 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 18:56:01 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,5 +126,6 @@ void	free_token_list(t_token *token_list_head);
 t_token	*lexer_orchestrator(char *prompt, t_error *err);
 char	*path_orchestrator(char *cmd, char **env, t_error *err);
 void	free_tab(char **tab);
+int	parent_orchestrator(t_tree node, char **env, t_error *err);
 
 #endif

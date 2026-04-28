@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/28 16:48:23 by admin            ###   ########.fr        #
+#    Updated: 2026/04/28 19:24:30 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,22 +14,26 @@
 CC = cc
 CFLAGS = -g3 -O0
 VPATH = src:src/lexer:src/executor:tests
-ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline # to remove the macos part when pushing to main
-NAME = minishell
 TEST_NAME = test_minishell
+ifeq ($(shell uname), Darwin)
+	ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline
+else
+	ADDITIONAL_FLAGS = -lreadline
+endif
 
 # Directories
-INCLUDES = -Iincludes -Ilibft -I/opt/homebrew/opt/readline/include # to remove the macos part when pushing to main
-SRC_DIR = src
-OBJ_DIR = build
-TEST_DIR = tests
+ifeq ($(shell uname), Darwin)
+	INCLUDES = -Iincludes -Ilibft -I/opt/homebrew/opt/readline/include
+else
+	INCLUDES = -Iincludes -Ilibft
+endif
 LIBFT_DIR = libft
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
-	orchestrator.c path.c
+	orchestrator.c path.c child.c
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
-	test_orchestrator.c test_path.c
+	test_orchestrator.c test_path.c test_child.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 

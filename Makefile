@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/27 01:17:19 by admin            ###   ########.fr        #
+#    Updated: 2026/04/28 16:48:23 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,9 +27,9 @@ LIBFT_DIR = libft
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
-	orchestrator.c
+	orchestrator.c path.c
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
-	test_orchestrator.c
+	test_orchestrator.c test_path.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 
@@ -68,4 +68,3 @@ re: fclean
 # Create test binary
 test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
 	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)
-	./test_minishell

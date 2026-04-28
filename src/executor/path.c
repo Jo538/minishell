@@ -6,21 +6,37 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 22:53:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 16:47:27 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-
-int	check_absolute_or_relative_path(char *str)
+void	free_tab(char **tab)
 {
-	if (ft_strchr(str, '/') == NULL)
+	int	i;
+	
+	i = 0;
+	while (tab[i])
+	{
+		free(tab[i]);
+		i++;
+	}
+	free(tab);
+}
+
+static int	check_absolute_or_relative_path(char *str)
+{
+	if (!ft_strchr(str, '/'))
 		return (LITERAL);
 	return (PATH);
 }
 
-char	**extract_paths(char **env, t_error *err)
+#ifdef TESTING
+	char	**extract_paths(char **env, t_error *err)
+#else
+	static char	**extract_paths(char **env, t_error *err)
+#endif
 {
 	int		i;
 	int		len;
@@ -31,6 +47,8 @@ char	**extract_paths(char **env, t_error *err)
 	len = 0;
 	path_var = NULL;
 	path_tab = NULL;
+	if (!env)
+		return (NULL);
 	while (env[i])
 	{
 		if (!ft_strncmp(env[i], "PATH=", 5))
@@ -50,7 +68,11 @@ char	**extract_paths(char **env, t_error *err)
 	return (path_tab);
 }
 
-char	*find_and_check_path(char *cmd, char **path_tab, t_error *err)
+#ifdef TESTING
+	char	*find_and_check_path(char *cmd, char **path_tab, t_error *err)
+#else
+	static char	*find_and_check_path(char *cmd, char **path_tab, t_error *err)
+#endif
 {
 	int		i;
 	char	*path;
@@ -58,7 +80,9 @@ char	*find_and_check_path(char *cmd, char **path_tab, t_error *err)
 	
 	i = 0;
 	path = NULL;
-	new_cmd = ft_strjoin(cmd, "/");
+	if (!cmd || !*cmd || !path_tab)
+		return (NULL);
+	new_cmd = ft_strjoin("/", cmd);
 	if (!new_cmd)
 		return (*err = ERR_MALLOC, NULL);
 	while (path_tab[i])
@@ -70,14 +94,44 @@ char	*find_and_check_path(char *cmd, char **path_tab, t_error *err)
 			*err = ERR_MALLOC;
 			return (NULL);
 		}
-		if (access(path, F_OK | X_OK))
+		if (!access(path, F_OK | X_OK))
 			break ;
 		free(path);
 		path = NULL;
 		i++;
 	}
+	free(new_cmd);
 	return (path);
 }
 
+char	*path_orchestrator(char *cmd, char **env, t_error *err)
+{
+	char	*path;
+	char	**path_tab;
 
-
+	path = NULL;
+	path_tab = NULL;
+	if (!cmd || !env)
+		return (NULL);
+	if (check_absolute_or_relative_path(cmd) == PATH)
+	{
+		path = ft_strdup(cmd);
+		if (!path)
+			return (*err = ERR_MALLOC, NULL);
+		if (access(path, F_OK | X_OK))
+		{
+			*err = errno;
+			perror("access");
+			free(path);
+			path = NULL;	
+		}
+	}
+	else
+	{
+		path_tab = extract_paths(env, err);
+		path = find_and_check_path(cmd, path_tab, err);
+	}
+	if (path_tab)
+		free_tab(path_tab);
+	return (path);
+}

@@ -6,39 +6,53 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 23:20:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 11:06:32 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	inspect_child_status(int status)
+void	child_process(t_tree node, char **env, t_error *err)
 {
-	if (WIFEXITED(status))
-		printf("child exited normally with code %d\n", WEXITSTATUS(status));
-	if (WIFSIGNALED(status))
-		printf("child was killed by signal with code %d\n", WTERMSIG(status));			
+	char	*path;
+	
+	path = NULL;
+	path = path_orchestrator(node.argv[0], env, err);
+	execve(path, node.argv, env);
 }
 
-int	child_orchestrator(t_tree node)
+int	inspect_child_status(pid_t child, int status)
+{
+	waitpid(child, &status, 0);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+		return (WTERMSIG(status));			
+}
+
+int	parent_orchestrator(t_tree node, char **env, t_error *err)
 {
 	int	fd[2];
-	t_error	err;
 	int		status;
-	pid_t	parent;
 	pid_t	child;
 	
-	err = 0;
+	child = -1;
+	status = -1;
 	ft_bzero(fd, 2 * sizeof(int));
 	if (pipe(fd) == -1)
-		perror("pipe");
+	{
+		*err = errno;
+		perror("pipe");		
+	}
 	child = fork();
 	if (child == -1)
-		perror("fork");
+	{
+		*err = errno;
+		perror("fork");		
+	}
 	if (child == 0)
-		child_process(node, &err);
+		child_process(node, env, err);
 	close(fd[0]);
 	close(fd[1]);
-	waitpid(child, &status, 0);
-	return (inspect_child_status(status));
+	return (inspect_child_status(child, status));
 }

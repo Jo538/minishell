@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 23:16:19 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 13:28:13 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <signal.h>
+# include <errno.h>
 # include <sys/ioctl.h>
 # include <sys/wait.h>
 # include <readline/readline.h>
@@ -31,11 +32,6 @@ typedef enum e_error
 }	t_error;
 
 // ENUMS
-typedef enum e_node_type
-{
-	PIPE,
-	CMD
-}	t_node_type;
 
 typedef enum e_cmd_type
 {
@@ -128,5 +124,7 @@ void	change_token_type(t_state current_state, t_token *last_token, t_error *err)
 t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
 void	free_token_list(t_token *token_list_head);
 t_token	*lexer_orchestrator(char *prompt, t_error *err);
+char	*path_orchestrator(char *cmd, char **env, t_error *err);
+void	free_tab(char **tab);
 
 #endif

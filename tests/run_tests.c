@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 00:48:27 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 15:56:25 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,10 @@ int	main(void)
 	test_free_token_list();
 	printf("%s", "--------------TEST ENTIRE LEXER ORCHESTRATOR--------------\n\n");	
 	test_lexer_orchestrator();
+	printf("%s", "--------------TEST PATH EXTRACTION EXECUTION--------------\n\n");	
+	test_extract_paths();
+	printf("%s", "--------------TEST PATH EXTRACTION EXECUTION--------------\n\n");	
+	test_find_and_check_path();
+	printf("%s", "--------------TEST PATH ORCHESTRATOR-------------\n\n");	
+	test_path_orchestrator();
 }

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/04/25 11:39:27 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/28 15:55:52 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,12 @@ typedef struct s_test_case
     t_test_token *expected_tokens;
 } t_test_case;
 
+typedef struct s_test_path
+{
+    char *cmd;
+    char **path_tab;
+} t_test_path;
+
 # define TEST_ASSERT(actual, expected, msg) do {        \
       tests_run++;                                \
       if (actual == expected) {                            \
@@ -60,11 +66,15 @@ void test_add_new_segment(void);
 void test_append_to_segment(void);
 void test_change_token_type(void);
 void test_free_token_list(void);
+void	test_lexer_orchestrator(void);
+void	test_extract_paths(void);
+void test_find_and_check_path(void);
+void test_path_orchestrator(void);
 
 // Static functions
 t_token_type	find_token_type(t_state current_state);
 t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err);
 void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err);
-void	test_lexer_orchestrator(void);
-
+char	**extract_paths(char **env, t_error *err);
+char	*find_and_check_path(char *cmd, char **path_tab, t_error *err);
 #endif

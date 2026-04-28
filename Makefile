@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
+#    By: bribot <bribot@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/27 01:17:19 by admin            ###   ########.fr        #
+#    Updated: 2026/04/27 18:59:38 by bribot           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Compiler
 CC = cc
 CFLAGS = -g3 -O0
-VPATH = src:src/lexer:src/executor:tests
+VPATH = src:src/lexer:src/parsing:tests
 ADDITIONAL_FLAGS = -lreadline # to remove the macos part when pushing to main
 NAME = minishell
 TEST_NAME = test_minishell
@@ -27,7 +27,9 @@ LIBFT_DIR = libft
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
-	orchestrator.c
+	orchestrator.c parsing.c parsing_utils.c parsing_right_part.c \
+	parsing_pipes.c parsing_expand.c
+	
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
 	test_orchestrator.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))

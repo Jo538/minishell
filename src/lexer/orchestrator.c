@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   orchestrator.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/04/26 18:37:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/27 15:53:21 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err)
 	int			len;
 	t_state		state[2];
 	t_key_items	key_items;
-	
+
 	i = 0;
 	len = ft_strlen(prompt);
 	ft_bzero(&key_items, sizeof(t_key_items));
@@ -74,11 +74,11 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err)
 	{
 		state[CURRENT_STATE] = create_current_state(prompt[i], i, state[PREVIOUS_STATE]);
 		flag = check_new_token(i, state[PREVIOUS_STATE], state[CURRENT_STATE]);
-			helper(flag, state, &key_items, err);
+		helper(flag, state, &key_items, err);
 		if (*err)
 		{
 			free_token_list(key_items.first_token);
-			return NULL;
+			return (NULL);
 		}
 		state[PREVIOUS_STATE] = state[CURRENT_STATE];
 		i++;

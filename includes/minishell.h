@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/26 16:21:16 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/27 18:41:33 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ typedef struct s_tree
 	int				type;
 	char			**argv;
 	t_redir			*redirections;
+	t_token			*token_ref;
 	struct s_tree	*left;
 	struct s_tree	*right;
 }	t_tree;
@@ -115,5 +116,22 @@ void	change_token_type(t_state current_state, t_token *last_token, t_error *err)
 t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
 void	free_token_list(t_token *token_list_head);
 t_token	*lexer_orchestrator(char *prompt, t_error *err);
+
+/// PARSING
+
+t_token	*find_last_pipe(t_token *token);
+t_token	*gt_pipe_left(t_token *tok);
+t_tree	*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
+t_tree	*make_right_part(t_token *token, t_tree *tree);
+t_tree	*put_right_part(t_tree *tree);
+t_tree	*fill_right_part(t_tree *tree);
+t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token);
+t_tree	*create_pipe_part(t_token *token);
+t_token	*find_last_pipe(t_token *token);
+t_tree	*create_tree(t_token *token);
+int		have_a_token_left(t_token *token);
+t_token	*go_to_pipe_left(t_token *token);
+int		get_size_of_tokens(t_token *token);
+t_tree	*parsing_main(t_token *token);
 
 #endif

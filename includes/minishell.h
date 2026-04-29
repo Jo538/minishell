@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/28 18:56:01 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/29 13:19:06 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,16 @@ typedef enum e_token
 }	t_token_type;
 
 // STRUCTS that live throughout project
+
+# define OPEN_OPE 1
+# define CMD_OPE 2
+
+typedef struct	s_error_exec
+{
+	int	err;
+	int	operation;	
+}	t_error_exec;
+
 typedef struct s_state
 {
 	char	c;
@@ -124,8 +134,8 @@ void	change_token_type(t_state current_state, t_token *last_token, t_error *err)
 t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
 void	free_token_list(t_token *token_list_head);
 t_token	*lexer_orchestrator(char *prompt, t_error *err);
-char	*path_orchestrator(char *cmd, char **env, t_error *err);
+char	*path_orchestrator(char *cmd, char **env, t_error_exec *err);
 void	free_tab(char **tab);
-int	parent_orchestrator(t_tree node, char **env, t_error *err);
+int	parent_orchestrator(t_tree node, char **env, t_error_exec *err);
 
 #endif

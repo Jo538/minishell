@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 11:12:25 by admin             #+#    #+#             */
-/*   Updated: 2026/04/28 16:40:08 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/29 13:19:44 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static void	helper_test_extract_paths(char **actual, char **expected)
 
 void	test_extract_paths(void)
 {
-	t_error err = 0;
+	t_error_exec err = {0};
 	char **path_tab = NULL;
 
 	char **env[] = {
@@ -90,7 +90,7 @@ static void	helper_test_find_and_check_path(char *actual, char *expected)
 
 void test_find_and_check_path(void)
 {
-	t_error err = 0;
+	t_error_exec err = {0};
 	char *path = NULL;
 	
 	t_test_path pairs[] = {
@@ -147,7 +147,7 @@ static void	helper_test_path_orchestrator(char *actual, char *expected)
 
 void test_path_orchestrator(void)
 {
-	t_error err = 0;
+	t_error_exec err = {0};
 	char *path = NULL;
 
 	t_test_path pairs[] = {

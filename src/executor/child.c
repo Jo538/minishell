@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/04/29 13:10:27 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/01 13:30:40 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,48 +32,12 @@ static void	errors(t_error_exec *err)
 	exit(err->err);
 }
 
-static void	redirections(int *pipefd, t_redir *redirections, t_error_exec *err)
-{
-	int	fd;
-
-	if (redirections == NULL)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		return ;
-	}
-	if (redirections->type == IN_DIR)
-		fd = open(redirections->file, O_RDONLY);
-	if (redirections->type == OUT_DIR)
-		fd = open(redirections->file, O_CREAT | O_TRUNC | O_WRONLY, 0644);		
-	if (fd == -1)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		err->err = errno;
-		err->operation = OPEN_OPE;
-		return ;
-	}
-	if (redirections->type == IN_DIR)
-	{
-		dup2(fd, 0);
-		close(fd);
-		close(pipefd[0]);
-	}
-	if (redirections->type == OUT_DIR)
-	{
-		dup2(fd, 1);
-		close(fd);
-		close(pipefd[1]);
-	}
-}
-
 static void	child_process(int *pipefd, t_tree node, char **env, t_error_exec *err)
 {
 	char	*path;
 	
 	path = NULL;
-	redirections(pipefd, node.redirections, err);
+	redirections_orchestrator(pipefd, node.redirections, err);
 	if (err->err)
 		errors(err);
 	path = path_orchestrator(node.argv[0], env, err);

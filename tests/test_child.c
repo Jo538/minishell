@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/04/29 13:14:53 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/01 15:27:54 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,4 +77,30 @@ void	test_parent_orchestrator(void)
 	t_tree node11 = {CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/unwritable_file.txt", NULL}, NULL, NULL};	
 	actual = parent_orchestrator(node11, env, &err);
 	test_helper(actual, 1, "echo hello with OUT_DIR from unwritable_file.txt");
+
+	t_tree node12 = {CMD, (char *[]){"cat", "Makefile", NULL}, &(t_redir){OUT_DIR, "tests/files/out.txt", &(t_redir){OUT_DIR, "tests/files/out1.txt", NULL}}, NULL, NULL};	
+	actual = parent_orchestrator(node12, env, &err);
+	test_helper(actual, 0, "cat Makefile with 2 OUT_DIR to out1.txt");
+	unlink("tests/files/out1.txt");
+	
+	t_tree node13 = {CMD, (char *[]){"cat", "Makefile", NULL}, &(t_redir){OUT_DIR, "tests/files/out1.txt", &(t_redir){OUT_DIR, "tests/files/out2.txt", NULL}}, NULL, NULL};	
+	actual = parent_orchestrator(node13, env, &err);
+	test_helper(actual, 0, "cat Makefile with 2 OUT_DIR to out2.txt, out1.txt doesn't exist");
+
+	t_tree node14 = {CMD, (char *[]){"cat", "Makefile", NULL}, &(t_redir){OUT_DIR, "tests/files/unwritable_file.txt", &(t_redir){OUT_DIR, "tests/files/out3.txt", NULL}}, NULL, NULL};	
+	actual = parent_orchestrator(node14, env, &err);
+	test_helper(actual, 1, "cat Makefile with 2 OUT_DIR to out3.txt, with transition through unwritable_file.txt");
+
+	t_tree node15 = {CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){IN_DIR, "Makefile", &(t_redir){OUT_DIR, "tests/files/out4.txt", NULL}}}, NULL, NULL};	
+	actual = parent_orchestrator(node15, env, &err);
+	test_helper(actual, 0, "cat Makefile with 2 IN_DIR to out4.txt");
+
+	t_tree node16 = {CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){OUT_DIR, "tests/files/out5.txt", &(t_redir){IN_DIR, "Makefile", NULL}}}, NULL, NULL};	
+	actual = parent_orchestrator(node16, env, &err);
+	test_helper(actual, 0, "cat Makefile with 1 IN_DIR, then 1 OUT_DIR, then 1 IN_DIR, out5.txt created");
+
+	// unlink("out1.txt");
+	// unlink("out2.txt");
+	// unlink("out4.txt");
+	// unlink("out5.txt");	
 }

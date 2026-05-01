@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/29 13:19:06 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/01 13:26:15 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,5 +137,6 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err);
 char	*path_orchestrator(char *cmd, char **env, t_error_exec *err);
 void	free_tab(char **tab);
 int	parent_orchestrator(t_tree node, char **env, t_error_exec *err);
+void	redirections_orchestrator(int *pipefd, t_redir *redirections, t_error_exec *err);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/01 15:39:09 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/01 21:56:13 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,13 +62,23 @@ static int	check_same_redirection_later(t_redir *redir)
 {
 	int	type;
 
-	
+	type = redir->type;
+	redir = redir->next;
+	while (redir)
+	{
+		if (redir-> type == type)
+			return (1);
+		redir = redir->next;
+	}
+	return (0);
 }
 
 void	redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err)
 {
 	int	fd;
+	int	flag;
 
+	flag = 0;
 	if (!check_for_redirections(pipefd, redir))
 		return ;
 	
@@ -82,10 +92,12 @@ void	redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err)
 			run_redirection(fd, pipefd, redir);
 			return ;
 		}
-		else if (redir->next && redir->next->type != redir->type)
+		flag = check_same_redirection_later(redir);
+		if (!flag)
 			run_redirection(fd, pipefd, redir);
 		else
 			close(fd);
+		flag = 0;
 		redir = redir->next;
 	}
 }

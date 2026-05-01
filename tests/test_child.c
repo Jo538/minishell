@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/01 15:27:54 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/01 22:04:13 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,8 @@ void	test_parent_orchestrator(void)
 	actual = parent_orchestrator(node16, env, &err);
 	test_helper(actual, 0, "cat Makefile with 1 IN_DIR, then 1 OUT_DIR, then 1 IN_DIR, out5.txt created");
 
-	// unlink("out1.txt");
-	// unlink("out2.txt");
-	// unlink("out4.txt");
-	// unlink("out5.txt");	
+	unlink("tests/files/out1.txt");
+	unlink("tests/files/out2.txt");
+	unlink("tests/files/out4.txt");
+	unlink("tests/files/out5.txt");	
 }

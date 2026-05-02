@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/01 13:31:37 by admin            ###   ########.fr        #
+#    Updated: 2026/05/02 23:55:18 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,7 @@ LIBFT_DIR = libft
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
-	orchestrator.c path.c child.c redirections.c
+	orchestrator.c path.c child.c redirections.c pipe.c
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
 	test_orchestrator.c test_path.c test_child.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))

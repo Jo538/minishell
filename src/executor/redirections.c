@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/02 14:10:28 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/02 22:54:26 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,16 @@
 
 static void	redirection_error(int *pipefd, t_redir *redir, t_error_exec *err)
 {
-	close(pipefd[0]);
-	close(pipefd[1]);
+	if (pipefd)
+	{
+		close(pipefd[0]);
+		close(pipefd[1]);		
+	}
 	err->err = errno;
 	err->operation = OPEN_OPE;
 }
 
-static int	check_for_redirections(int *pipefd, t_redir *redir)
-{
-	if (redir == NULL)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		return (0);
-	}
-	return (1);
-}
-
-static int	open_redirection_file(int *pipefd, t_redir *redir, t_error_exec *err)
+static int	open_redirection_file(t_redir *redir, t_error_exec *err)
 {
 	int	fd;
 	int	len;
@@ -55,19 +47,17 @@ static int	open_redirection_file(int *pipefd, t_redir *redir, t_error_exec *err)
 	return (fd);
 }
 
-static void	run_redirection(int fd, int *pipefd, t_redir *redir)
+static void	run_redirection(int fd, t_redir *redir)
 {
 	if (redir->type == IN_DIR || redir->type == HEREDOC)
 	{
 		dup2(fd, 0);
 		close(fd);
-		close(pipefd[0]);
 	}
 	if (redir->type == OUT_DIR || redir->type == APPEND_OUT_DIR)
 	{
 		dup2(fd, 1);
 		close(fd);
-		close(pipefd[1]);
 	}
 }
 
@@ -86,28 +76,27 @@ static int	check_same_redirection_later(t_redir *redir)
 	return (0);
 }
 
-void	redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err)
+void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err)
 {
 	int	fd;
 	int	flag;
 
 	flag = 0;
-	if (!check_for_redirections(pipefd, redir))
+	if (!redir)
 		return ;
-	
 	while (redir)
 	{
-		fd = open_redirection_file(pipefd, redir, err);
+		fd = open_redirection_file(redir, err);
 		if (fd == -1)
 			return (redirection_error(pipefd, redir, err));
 		if (!redir->next)
 		{
-			run_redirection(fd, pipefd, redir);
+			run_redirection(fd, redir);
 			return ;
 		}
 		flag = check_same_redirection_later(redir);
 		if (!flag)
-			run_redirection(fd, pipefd, redir);
+			run_redirection(fd, redir);
 		else
 			close(fd);
 		flag = 0;

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/02 14:33:56 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/03 00:07:57 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,37 @@ static void	errors(t_error_exec *err)
 	exit(err->err);
 }
 
-static void	child_process(int *pipefd, t_tree node, char **env, t_error_exec *err)
+void	pipe_redirections(char direction, int *pipefd)
+{
+	if (direction == 'L')
+	{
+		dup2(pipefd[1], 1);
+		close(pipefd[0]);
+		close(pipefd[1]);
+	}
+	if (direction == 'R')
+	{
+		dup2(pipefd[0], 0);
+		close(pipefd[0]);
+		close(pipefd[1]);
+	}
+}
+
+void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err)
 {
 	char	*path;
 	
 	path = NULL;
-	redirections_orchestrator(pipefd, node.redirections, err);
+	files_redirections_orchestrator(pipefd, node->redirections, err);
 	if (err->err)
 		errors(err);
-	path = path_orchestrator(node.argv[0], env, err);
+	path = path_orchestrator(node->argv[0], env, err);
 	if (!path)
 		errors(err);
-	execve(path, node.argv, env);
+	execve(path, node->argv, env);
 }
 
-static int	inspect_child_status(pid_t child, int status)
+int	inspect_child_status(pid_t child, int status)
 {
 	waitpid(child, &status, 0);
 	if (WIFEXITED(status))
@@ -59,20 +75,13 @@ static int	inspect_child_status(pid_t child, int status)
 	return (0);	
 }
 
-int	parent_orchestrator(t_tree node, char **env, t_error_exec *err)
+int	cmd_orchestrator(t_tree *node, char **env, t_error_exec *err)
 {
-	int	pipefd[2];
 	int		status;
 	pid_t	child;
 	
 	child = -1;
 	status = -1;
-	ft_bzero(pipefd, 2 * sizeof(int));
-	if (pipe(pipefd) == -1)
-	{
-		err->err = errno;
-		perror("pipe");		
-	}
 	child = fork();
 	if (child == -1)
 	{
@@ -80,8 +89,6 @@ int	parent_orchestrator(t_tree node, char **env, t_error_exec *err)
 		perror("fork");		
 	}
 	if (child == 0)
-		child_process(pipefd, node, env, err);
-	close(pipefd[0]);
-	close(pipefd[1]);
+		child_process(NULL, node, env, err);
 	return (inspect_child_status(child, status));
 }

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/01 13:30:40 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/02 14:33:56 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ static void	errors(t_error_exec *err)
 	if (err->err == ENOENT)
 	{
 		printf("%s\n", "No such file or directory");
-		exit(127);		
+		if (err->operation == CMD_OPE)
+			exit(127);	
+		if (err->operation == OPEN_OPE)
+			exit(1);		
 	}
 	if (err->err == EACCES)
 	{

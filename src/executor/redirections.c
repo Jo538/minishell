@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/01 21:56:13 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/02 14:10:28 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,23 +34,36 @@ static int	check_for_redirections(int *pipefd, t_redir *redir)
 static int	open_redirection_file(int *pipefd, t_redir *redir, t_error_exec *err)
 {
 	int	fd;
+	int	len;
 
+	len = 0;
 	if (redir->type == IN_DIR)
 		fd = open(redir->file, O_RDONLY);
 	if (redir->type == OUT_DIR)
 		fd = open(redir->file, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+	if (redir->type == APPEND_OUT_DIR)
+		fd = open(redir->file, O_CREAT | O_APPEND | O_WRONLY, 0644);
+	if (redir->type == HEREDOC)
+	{
+		len = ft_strlen(redir->file);
+		fd = open("temp_heredoc.txt", O_CREAT | O_RDWR, 0644);
+		write(fd, redir->file, len);
+		close(fd);
+		fd = open("temp_heredoc.txt", O_RDWR);
+		unlink("temp_heredoc.txt");	
+	}
 	return (fd);
 }
 
 static void	run_redirection(int fd, int *pipefd, t_redir *redir)
 {
-	if (redir->type == IN_DIR)
+	if (redir->type == IN_DIR || redir->type == HEREDOC)
 	{
 		dup2(fd, 0);
 		close(fd);
 		close(pipefd[0]);
 	}
-	if (redir->type == OUT_DIR)
+	if (redir->type == OUT_DIR || redir->type == APPEND_OUT_DIR)
 	{
 		dup2(fd, 1);
 		close(fd);

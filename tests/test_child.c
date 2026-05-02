@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/01 22:04:13 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/02 14:19:58 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,22 @@ void	test_parent_orchestrator(void)
 	t_tree node16 = {CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){OUT_DIR, "tests/files/out5.txt", &(t_redir){IN_DIR, "Makefile", NULL}}}, NULL, NULL};	
 	actual = parent_orchestrator(node16, env, &err);
 	test_helper(actual, 0, "cat Makefile with 1 IN_DIR, then 1 OUT_DIR, then 1 IN_DIR, out5.txt created");
+
+	t_tree node17 = {CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/tirade_2.txt", &(t_redir){APPEND_OUT_DIR, "tests/files/tirade_1.txt", NULL}}, NULL, NULL};	
+	actual = parent_orchestrator(node17, env, &err);
+	test_helper(actual, 0, "cat tirade_2.txt with APPEND_OUT_DIR to tirade_1.txt");
+
+	t_tree node18 = {CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "hello jo\n", NULL}, NULL, NULL};	
+	actual = parent_orchestrator(node18, env, &err);
+	test_helper(actual, 0, "cat \"hello jo\" with HEREDOC");
+
+	t_tree node19 = {CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "test 1\ntest 2\n", &(t_redir){OUT_DIR, "tests/files/out.txt", NULL}}, NULL, NULL};	
+	actual = parent_orchestrator(node19, env, &err);
+	test_helper(actual, 0, "cat test 1 test 2 with HEREDOC and OUT_DIR to out.txt");
+
+	t_tree node20 = {CMD, (char *[]){"cat", "Makefile", NULL}, &(t_redir){OUT_DIR, "", NULL}, NULL, NULL};	
+	actual = parent_orchestrator(node20, env, &err);
+	test_helper(actual, 1, "cat Makefile with OUT_DIR to \"\"");
 
 	unlink("tests/files/out1.txt");
 	unlink("tests/files/out2.txt");

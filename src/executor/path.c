@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/04/29 13:13:59 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/02 14:39:35 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ static int	check_absolute_or_relative_path(char *str)
 	if (!path_var)
 	{
 		err->err = ENOENT;
+		err->operation = CMD_OPE;
 		return (NULL);
 	}
 	path_tab = ft_split(path_var, ':');

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/05/02 23:43:00 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 15:31:55 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,11 +72,12 @@ void test_find_and_check_path(void);
 void test_path_orchestrator(void);
 void	test_parent_orchestrator(void);
 void test_pipe_orchestrator(void);
+void test_orchestrator(void);
 
 // Static functions
 t_token_type	find_token_type(t_state current_state);
 t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err);
 void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err);
-char	**extract_paths(char **env, t_error_exec *err);
+char	**extract_paths(char *cmd, char **env, t_error_exec *err);
 char	*find_and_check_path(char *cmd, char **path_tab, t_error_exec *err);
 #endif

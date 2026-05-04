@@ -6,21 +6,58 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/03 00:24:41 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 15:48:15 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tests.h"
 
-#define CMD 0
-#define PIPE 1
+#define CMD 1
+#define PIPE 2
 
-static void test_helper(int actual, int expected, char *cmd)
+static int helper_exit_code(int actual, int expected)
 {
 	if (actual != expected)
-		printf("--FAIL-- %s\nactual: %d\nexpected: %d\n", cmd, actual, expected);
+		printf("--FAIL-- %s\nactual: %d\nexpected: %d\n",actual, expected);
 	else
 		printf("--SUCCESS-- %s\n", cmd);
+}
+
+static int helper_output(char *actual, char *expected)
+{
+	if (strcmp(actual, expected))
+		printf("--FAIL-- %s\nactual: %s\nexpected: %s\n", actual, expected);	
+}
+
+static void helper_orchestrator(int test_num, char *cmd, char *actual_output, char *expected_output, int actual_exit_code, int expected_exit_code)
+{
+	printf("TEST %d\n");
+	
+		printf("--SUCCESS-- %s\n", cmd);	
+}
+
+void test_improved_version_executor(void)
+{
+	char *env[] = {"HOME=admin", "PATH=/local/sbin:/local/bin:/bin", NULL};
+	t_error_exec err = {0};
+	int copy_fd1;
+	int fd;
+	int actual;
+	char buffer[4096] = {0};
+
+	//create temp folder and test_outputs folder
+	system("mkdir -p tests/temp/test_outputs");
+	
+	// Test 1: echo hello
+	fd = open("tests/temp/test_outputs/test_1.txt", O_CREAT | O_RDWR, 0644);
+	t_tree node = {CMD, &(char *[]){"echo", "hello", NULL}, NULL, NULL, NULL};
+	copy_fd1 = dup(1);
+	dup2(fd, 1);
+	actual = execute(&node, env);
+	helper_exit_code(actual, 0, "echo hello");
+	read(fd, buffer, sizeof(buffer) - 1);
+	
+		
 }
 
 void	test_parent_orchestrator(void)
@@ -115,6 +152,14 @@ void	test_parent_orchestrator(void)
 	actual = cmd_orchestrator(&node20, env, &err);
 	test_helper(actual, 1, "cat Makefile with OUT_DIR to \"\"");
 
+	t_tree node21 = {CMD, (char *[]){"cat", "", NULL}, NULL, NULL, NULL};	
+	actual = cmd_orchestrator(&node21, env, &err);
+	test_helper(actual, 1, "cat \"\"");
+
+	t_tree node22 = {CMD, (char *[]){"cat", NULL}, &(t_redir){APPEND_OUT_DIR, "", NULL}, NULL, NULL};	
+	actual = cmd_orchestrator(&node22, env, &err);
+	test_helper(actual, 1, "cat >> \"\"");
+
 	unlink("tests/files/out1.txt");
 	unlink("tests/files/out2.txt");
 	unlink("tests/files/out4.txt");
@@ -162,4 +207,20 @@ void test_pipe_orchestrator(void)
 	t_tree pipe_node5 = {PIPE, NULL, NULL, &node10, &node11};
 	actual = pipe_orchestrator(&pipe_node5, env_with_no_path, &err);
 	test_helper(actual, 127, "cat Makefile | wc -l with no PATH var in environment");
+}
+
+void test_orchestrator(void)
+{
+	char *env[] = {"HOME=admin", "PATH=/local/sbin:/local/bin:/bin:/usr/bin", NULL};
+	t_error_exec err = {0};
+
+	t_tree inner_pipe_left_node = {CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL};
+	t_tree inner_pipe_right_node = {CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL};
+	t_tree inner_pipe = {PIPE, NULL, NULL, &inner_pipe_left_node, &inner_pipe_right_node};
+	
+	t_tree outer_pipe_right_node = {CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL};
+	t_tree outer_pipe = {PIPE, NULL, NULL, &inner_pipe, &outer_pipe_right_node};
+
+	int actual = execute(&outer_pipe, env);
+	test_helper(actual, 0, "cat Makefile | cat | cat");	
 }

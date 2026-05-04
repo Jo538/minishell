@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/03 00:08:13 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 11:13:01 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,10 +74,14 @@ typedef enum e_token
 # define OPEN_OPE 1
 # define CMD_OPE 2
 
+# define NODE_CMD 1
+# define NODE_PIPE 2
+
 typedef struct	s_error_exec
 {
-	int	err;
-	int	operation;	
+	int		err;
+	int		operation;
+	char	*cmd;
 }	t_error_exec;
 
 typedef struct s_state
@@ -137,10 +141,11 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err);
 char	*path_orchestrator(char *cmd, char **env, t_error_exec *err);
 void	free_tab(char **tab);
 int	cmd_orchestrator(t_tree *current_node, char **env, t_error_exec *err);
-void	files_redirections_orchestrator(int *pipefd, t_redir *redirections, t_error_exec *err);
+void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err);
 int	pipe_orchestrator(t_tree *node, char **env, t_error_exec *err);
-void	pipe_redirections(char direction, int *pipefd);
 void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err);
 int	inspect_child_status(pid_t child, int status);
+int	execute(t_tree *node, char **env);
+void	errors(int *pipefd, t_error_exec *err);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/02 14:39:35 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/03 12:18:49 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ static int	check_absolute_or_relative_path(char *str)
 }
 
 #ifdef TESTING
-	char	**extract_paths(char **env, t_error_exec *err)
+	char	**extract_paths(char *cmd, char **env, t_error_exec *err)
 #else
-	static char	**extract_paths(char **env, t_error_exec *err)
+	static char	**extract_paths(char *cmd, char **env, t_error_exec *err)
 #endif
 {
 	int		i;
@@ -65,6 +65,7 @@ static int	check_absolute_or_relative_path(char *str)
 	{
 		err->err = ENOENT;
 		err->operation = CMD_OPE;
+		err->cmd = cmd;
 		return (NULL);
 	}
 	path_tab = ft_split(path_var, ':');
@@ -104,6 +105,7 @@ static int	check_absolute_or_relative_path(char *str)
 		{
 			err->err = EACCES;
 			err->operation = CMD_OPE;
+			err->cmd = cmd;
 			break ;
 		}
 		free(path);
@@ -132,16 +134,20 @@ char	*path_orchestrator(char *cmd, char **env, t_error_exec *err)
 		{
 			err->err = errno;
 			err->operation = CMD_OPE;
+			err->cmd = cmd;
 			free(path);
 			path = NULL;	
 		}
 	}
 	else
 	{
-		path_tab = extract_paths(env, err);
+		path_tab = extract_paths(cmd, env, err);
 		path = find_and_check_path(cmd, path_tab, err);
 		if (!path && !err->err)
+		{
 			err->err = 127;
+			err->cmd = cmd;		
+		}
 	}
 	if (path_tab)
 		free_tab(path_tab);

@@ -6,19 +6,25 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/03 00:07:57 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 11:07:08 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	errors(t_error_exec *err)
+void	errors(int *pipefd, t_error_exec *err)
 {
+	if (pipefd)
+	{
+		close(pipefd[0]);
+		close(pipefd[1]);
+	}
+	ft_putstr_fd(err->cmd, 2);
 	if (err->err == 127)
-		printf("%s\n", "command not found");
+		ft_putendl_fd(": Command not found", 2);
 	if (err->err == ENOENT)
 	{
-		printf("%s\n", "No such file or directory");
+		ft_putendl_fd(": No such file or directory", 2);
 		if (err->operation == CMD_OPE)
 			exit(127);	
 		if (err->operation == OPEN_OPE)
@@ -26,29 +32,13 @@ static void	errors(t_error_exec *err)
 	}
 	if (err->err == EACCES)
 	{
-		printf("%s\n", "Permission denied");
+		ft_putendl_fd(": Permission denied", 2);
 		if (err->operation == CMD_OPE)
 			exit(126);	
 		if (err->operation == OPEN_OPE)
 			exit(1);	
 	}
 	exit(err->err);
-}
-
-void	pipe_redirections(char direction, int *pipefd)
-{
-	if (direction == 'L')
-	{
-		dup2(pipefd[1], 1);
-		close(pipefd[0]);
-		close(pipefd[1]);
-	}
-	if (direction == 'R')
-	{
-		dup2(pipefd[0], 0);
-		close(pipefd[0]);
-		close(pipefd[1]);
-	}
 }
 
 void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err)
@@ -58,10 +48,10 @@ void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err)
 	path = NULL;
 	files_redirections_orchestrator(pipefd, node->redirections, err);
 	if (err->err)
-		errors(err);
+		errors(pipefd, err);
 	path = path_orchestrator(node->argv[0], env, err);
 	if (!path)
-		errors(err);
+		errors(pipefd, err);
 	execve(path, node->argv, env);
 }
 

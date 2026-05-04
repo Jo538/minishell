@@ -1,25 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   orchestrator.c                                     :+:      :+:    :+:   */
+/*   exec_orchestrator.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 14:41:44 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 10:29:08 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	execute(t_tree *node)
+int	execute(t_tree *node, char **env)
 {
-	if (node->type == PIPE)
-	{
-			
-	}
-	if (node->type == CMD)
-	{
-		child_orchestrator();
-	}
+	t_error_exec	err;
+
+	ft_bzero(&err, sizeof(t_error_exec));
+	if (node->type == NODE_CMD)
+		return (cmd_orchestrator(node, env, &err));
+	return (pipe_orchestrator(node, env, &err));
 }

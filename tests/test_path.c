@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 11:12:25 by admin             #+#    #+#             */
-/*   Updated: 2026/04/29 13:19:44 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/03 12:14:20 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	test_extract_paths(void)
 {
 	t_error_exec err = {0};
 	char **path_tab = NULL;
+	char *cmd = "cat";
 
 	char **env[] = {
 		NULL,
@@ -61,7 +62,7 @@ void	test_extract_paths(void)
 
 	while (i < 5)
 	{
-		path_tab = extract_paths(env[i], &err);
+		path_tab = extract_paths(cmd, env[i], &err);
 		helper_test_extract_paths(path_tab, expected[i]);
 		i++;		
 	}

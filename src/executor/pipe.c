@@ -6,14 +6,33 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/05/03 00:06:18 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 10:37:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+static void	pipe_redirections(char direction, int *pipefd)
+{
+	if (direction == 'L')
+	{
+		dup2(pipefd[1], 1);
+		close(pipefd[0]);
+		close(pipefd[1]);
+	}
+	if (direction == 'R')
+	{
+		dup2(pipefd[0], 0);
+		close(pipefd[0]);
+		close(pipefd[1]);
+	}
+}
+
 static void left_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_error_exec *err)
 {
+	char	*path;
+	
+	path = NULL;
 	*child = fork();
 	if (*child == -1)
 	{
@@ -22,13 +41,30 @@ static void left_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_er
 	}
 	if (*child == 0)
 	{
-		pipe_redirections('L', pipefd);
-		child_process(pipefd, node, env, err);		
+		if (node->type == NODE_CMD)
+		{
+			files_redirections_orchestrator(pipefd, node->redirections, err);
+			if (err->err)
+				errors(pipefd, err);
+			path = path_orchestrator(node->argv[0], env, err);
+			if (!path)
+				errors(pipefd, err);
+			pipe_redirections('L', pipefd);
+			execve(path, node->argv, env);				
+		}
+		if (node->type == NODE_PIPE)
+		{
+			pipe_redirections('L', pipefd);
+			exit(pipe_orchestrator(node, env, err));			
+		}
 	}
 }
 
 static void right_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_error_exec *err)
 {
+	char	*path;
+	
+	path = NULL;
 	*child = fork();
 	if (*child == -1)
 	{
@@ -37,8 +73,14 @@ static void right_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_e
 	}
 	if (*child == 0)
 	{
+		files_redirections_orchestrator(pipefd, node->redirections, err);
+		if (err->err)
+			errors(pipefd, err);
+		path = path_orchestrator(node->argv[0], env, err);
+		if (!path)
+			errors(pipefd, err);
 		pipe_redirections('R', pipefd);
-		child_process(pipefd, node, env, err);		
+		execve(path, node->argv, env);	
 	}
 }
 

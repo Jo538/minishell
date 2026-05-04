@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/02 22:54:26 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/03 12:33:11 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ static void	redirection_error(int *pipefd, t_redir *redir, t_error_exec *err)
 	}
 	err->err = errno;
 	err->operation = OPEN_OPE;
+	err->cmd = redir->file;
 }
 
 static int	open_redirection_file(t_redir *redir, t_error_exec *err)

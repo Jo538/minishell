@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/05/04 15:31:55 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 20:48:17 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define TESTS_H
 
 # include "minishell.h"
+# include <glob.h>
 
 extern int	tests_run;
 extern int	tests_passed;
@@ -70,9 +71,10 @@ void	test_lexer_orchestrator(void);
 void	test_extract_paths(void);
 void test_find_and_check_path(void);
 void test_path_orchestrator(void);
-void	test_parent_orchestrator(void);
-void test_pipe_orchestrator(void);
-void test_orchestrator(void);
+// void	test_parent_orchestrator(void);
+// void test_pipe_orchestrator(void);
+// void test_orchestrator(void);
+void test_improved_version_executor(void);
 
 // Static functions
 t_token_type	find_token_type(t_state current_state);

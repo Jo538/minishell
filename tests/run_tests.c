@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
-/*   Updated: 2026/05/04 12:12:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/04 19:16:14 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,11 @@ int	main(void)
 	printf("%s", "--------------TEST PATH ORCHESTRATOR-------------\n\n");	
 	test_path_orchestrator();
 	printf("%s", "--------------TEST CMD ORCHESTRATOR-------------\n\n");	
-	test_parent_orchestrator();
-	printf("%s", "--------------TEST PIPE ORCHESTRATOR-------------\n\n");	
-	test_pipe_orchestrator();
-	printf("%s", "--------------TEST MULTIPLE PIPES-------------\n\n");	
-	test_orchestrator();	
+	// test_parent_orchestrator();
+	// printf("%s", "--------------TEST PIPE ORCHESTRATOR-------------\n\n");	
+	// test_pipe_orchestrator();
+	// printf("%s", "--------------TEST MULTIPLE PIPES-------------\n\n");	
+	// test_orchestrator();	
+	printf("%s", "--------------TEST EXECUTOR-------------\n\n");	
+	test_improved_version_executor();	
 }

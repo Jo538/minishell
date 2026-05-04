@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/04 10:28:47 by admin            ###   ########.fr        #
+#    Updated: 2026/05/04 21:46:59 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -71,4 +71,5 @@ re: fclean
 
 # Create test binary
 test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
+	rm -f vg-*.log
 	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)

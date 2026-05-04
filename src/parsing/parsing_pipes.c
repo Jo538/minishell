@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:21:11 by bribot            #+#    #+#             */
-/*   Updated: 2026/04/22 15:18:52 by benji            ###   ########.fr       */
+/*   Updated: 2026/04/30 15:50:29 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token)
 	t_tree	*created;
 	t_tree	*trot;
 
+	if (!tree)
+		return (NULL);
 	trot = tree;
 	while (trot->left)
 		trot = trot->left;
@@ -25,6 +27,8 @@ t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token)
 		return (NULL);
 	created->token_ref = token;
 	created->type = PIPE;
+	created->left = NULL;
+	created->right = NULL;
 	trot->left = created;
 	return (tree);
 }
@@ -33,20 +37,25 @@ t_tree	*create_pipe_part(t_token *token)
 {
 	t_tree	*tree;
 
+	if (!token)
+		return (NULL);
 	tree = malloc(sizeof(t_tree));
 	if (!tree)
 		return (NULL);
 	tree->type = PIPE;
 	tree->token_ref = token;
+	tree->left = NULL;
+	tree->right = NULL;
 	while (have_a_token_left(token))
 	{
 		token = go_to_pipe_left(token);
-		if (token == NULL)
+		if (!token)
 			break ;
 		tree = put_pipe_in_tree(tree, token);
 		if (!tree)
 			return (NULL);
 	}
+	tree->left = NULL;
 	return (tree);
 }
 
@@ -71,7 +80,16 @@ t_tree	*create_tree(t_token *token)
 
 	last_pipe = find_last_pipe(token);
 	if (!last_pipe)
-		return (NULL);
+	{
+		tree = malloc(sizeof(t_tree));
+		if (!tree)
+			return (NULL);
+		tree->type = CMD;
+		tree->token_ref = token;
+		tree->left = NULL;
+		tree->right = NULL;
+		return (tree);
+	}
 	tree = create_pipe_part(last_pipe);
 	if (!tree)
 		return (NULL);

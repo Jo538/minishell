@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/04/23 14:21:07 by benji            ###   ########.fr       */
+/*   Updated: 2026/04/30 15:50:01 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,27 @@
 t_tree	*make_right_part(t_token *token, t_tree *tree)
 {
 	t_tree	*to_return;
-	t_token	*trot_token;
 	int		size_av;
 	int		i;
 
-	i = -1;
-	printf("YAHOUUUUUUUUUUU\n");
+	i = 0;
 	to_return = malloc(sizeof(t_tree));
 	if (!to_return)
 		return (NULL);
-	trot_token = token->next;
 	size_av = get_size_of_tokens(token);
-	printf("%d\n", size_av);
-	to_return->argv = malloc (size_av + 1);
-	to_return->argv[size_av] = NULL;
-	printf("test\n");
+	to_return->argv = malloc (sizeof(char *) * (size_av + 1));
 	if (!to_return->argv)
 		return (NULL);
-	while (++i < size_av)
+	while (i < size_av && token)
 	{
-		to_return->argv[i] = strdup(token->segment->value); //remplacer par ft
-		printf("CE QUI EST PRINT EST %d ICI %s", i, to_return->argv[i]);
+		to_return->argv[i] = ft_strdup(token->segment->value);
 		token = token->next;
+		i++;
 	}
+	to_return->argv[i] = NULL;
+	to_return->left = NULL;
+	to_return->right = NULL;
+	to_return->type = CMD;
 	return (to_return);
 }
 
@@ -58,12 +56,17 @@ t_tree	*fill_right_part(t_tree *tree)
 {
 	t_tree	*trot;
 
+	if (!tree)
+		return (NULL);
 	trot = tree;
 	while (trot)
 	{
-		trot = put_right_part(trot);
-		if (!trot)
-			return (NULL);
+		if (trot->type == PIPE || trot->type == CMD)
+		{
+			trot->right = make_right_part(trot->token_ref, trot);
+			if (!trot->right)
+				return (NULL);
+		}
 		trot = trot->left;
 	}
 	return (tree);

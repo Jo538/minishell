@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 18:41:33 by bribot           ###   ########.fr       */
+/*   Updated: 2026/04/30 15:45:00 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ typedef enum e_token
 	IN_DIR,
 	OUT_DIR,
 	HEREDOC,
-	APPEND_OUT_DIR
+	APPEND_OUT_DIR,
+	CMD
 }	t_token_type;
 
 // STRUCTS that live throughout project

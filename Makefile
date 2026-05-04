@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bribot <bribot@student.42.fr>              +#+  +:+       +#+         #
+#    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/04/27 18:59:38 by bribot           ###   ########.fr        #
+#    Updated: 2026/05/04 19:26:30 by benji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ LIBFT_DIR = libft
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c parsing.c parsing_utils.c parsing_right_part.c \
-	parsing_pipes.c parsing_expand.c
+	parsing_pipes.c parsing_expand.c parsing_redirs.c
 	
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
 	test_orchestrator.c

@@ -3,10 +3,11 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
 /*   Updated: 2026/05/04 11:13:01 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/30 15:45:00 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +67,8 @@ typedef enum e_token
 	IN_DIR,
 	OUT_DIR,
 	HEREDOC,
-	APPEND_OUT_DIR
+	APPEND_OUT_DIR,
+	CMD
 }	t_token_type;
 
 // STRUCTS that live throughout project
@@ -126,6 +128,7 @@ typedef struct s_tree
 	int				type;
 	char			**argv;
 	t_redir			*redirections;
+	t_token			*token_ref;
 	struct s_tree	*left;
 	struct s_tree	*right;
 }	t_tree;
@@ -147,5 +150,22 @@ void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err);
 int	inspect_child_status(pid_t child, int status);
 int	execute(t_tree *node, char **env);
 void	errors(int *pipefd, t_error_exec *err);
+
+/// PARSING
+
+t_token	*find_last_pipe(t_token *token);
+t_token	*gt_pipe_left(t_token *tok);
+t_tree	*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
+t_tree	*make_right_part(t_token *token, t_tree *tree);
+t_tree	*put_right_part(t_tree *tree);
+t_tree	*fill_right_part(t_tree *tree);
+t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token);
+t_tree	*create_pipe_part(t_token *token);
+t_token	*find_last_pipe(t_token *token);
+t_tree	*create_tree(t_token *token);
+int		have_a_token_left(t_token *token);
+t_token	*go_to_pipe_left(t_token *token);
+int		get_size_of_tokens(t_token *token);
+t_tree	*parsing_main(t_token *token);
 
 #endif

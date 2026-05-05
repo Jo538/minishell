@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   append_to_token.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 19:33:16 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 00:46:43 by admin            ###   ########.fr       */
+/*   Updated: 2026/04/27 15:42:37 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 		if (previous_state.quoting == UNQUOTED 
 			&& (current_state.quoting == D_QUOTED || current_state.quoting == S_QUOTED)
 				&& (previous_state.c == '\'' || previous_state.c == '"'))
-			return (2) ;
-		return (1) ;
+			return (2);
+		return (1);
 	}
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/05/04 10:37:33 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 15:35:39 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,9 @@ static void left_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_er
 			if (!path)
 				errors(pipefd, err);
 			pipe_redirections('L', pipefd);
-			execve(path, node->argv, env);				
+			execve(path, node->argv, env);
+			err->err = errno;
+			errors(pipefd, err);				
 		}
 		if (node->type == NODE_PIPE)
 		{
@@ -80,7 +82,9 @@ static void right_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_e
 		if (!path)
 			errors(pipefd, err);
 		pipe_redirections('R', pipefd);
-		execve(path, node->argv, env);	
+		execve(path, node->argv, env);
+		err->err = errno;
+		errors(pipefd, err);	
 	}
 }
 

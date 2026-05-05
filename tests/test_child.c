@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 14:02:19 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 16:53:11 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,9 @@ static void run_checks(int test_num, char *cmd, int actual_exit_code, int expect
 	printf("TEST %d: %s\n", test_num, cmd);
 	if (!helper_exit_code(actual_exit_code, expected_exit_code)
 		&& !helper_output(result, expected_output))
-		printf("%s\n", "--SUCCESS--");		
+		printf("%s\n", "--SUCCESS--");
+	fflush(stdout);
+	fflush(stderr);		
 }
 
 static void clean_heap(char **array_of_files, char *result)
@@ -174,7 +176,6 @@ static void clean_heap(char **array_of_files, char *result)
 
 static void helper_orchestrator(int test_num, char *cmd, char **env, t_tree *node, char *expected_output, int expected_exit_code, char *output_file, int error, int expected_fds)
 {
-
 	int actual_exit_code;
 	char *result = NULL;
 
@@ -271,6 +272,22 @@ void test_improved_version_executor(void)
 	// Test 17: cat << STOP with hello jo
 	t_tree node17 = {CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "hello jo\n", NULL}, NULL, NULL};
 	helper_orchestrator(17, "cat << STOP with hello jo", env, &node17, "hello jo\n", 0, NULL, 0, 3);
+
+	// Test 18: cat << STOP (test 1\ntest 2\n) > tests/files/out7.txt
+	t_tree node18 = {CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "test 1 test 2", &(t_redir){OUT_DIR, "tests/files/out7.txt", NULL}}, NULL, NULL};	
+	helper_orchestrator(18, "cat << STOP with test 1 test 2\n", env, &node18, "test 1 test 2", 0, "tests/files/out7.txt", 0, 3);
+
+	// Test 19: echo hello > ""
+	t_tree node19 = {CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "", NULL}, NULL, NULL};
+	helper_orchestrator(19, "echo hello > \"\"", env, &node19, ": No such file or directory", 1, NULL, 1, 3);
+
+	// Test 20: cat ""
+	t_tree node20 = {CMD, (char *[]){"cat", "", NULL}, NULL, NULL, NULL};
+	helper_orchestrator(20, "cat \"\"", env, &node20, ": No such file or directory", 1, NULL, 1, 3);
+
+	// Test 21: cat >> ""
+	t_tree node21 = {CMD, (char *[]){"cat", NULL}, &(t_redir){APPEND_OUT_DIR, "", NULL}, NULL, NULL};
+	helper_orchestrator(20, "cat >> \"\"", env, &node21, ": No such file or directory", 1, NULL, 1, 3);
 }
 
 // void	test_parent_orchestrator(void)
@@ -285,22 +302,6 @@ void test_improved_version_executor(void)
 // 	t_tree node6 = {CMD, (char *[]){"echo", "hello", NULL}, NULL, NULL, NULL};	
 // 	actual = cmd_orchestrator(&node6, no_env, &err);
 // 	test_helper(actual, 127, "echo hello with no env");
-
-// 	t_tree node19 = {CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "test 1\ntest 2\n", &(t_redir){OUT_DIR, "tests/files/out.txt", NULL}}, NULL, NULL};	
-// 	actual = cmd_orchestrator(&node19, env, &err);
-// 	test_helper(actual, 0, "cat test 1 test 2 with HEREDOC and OUT_DIR to out.txt");
-
-// 	t_tree node20 = {CMD, (char *[]){"cat", "Makefile", NULL}, &(t_redir){OUT_DIR, "", NULL}, NULL, NULL};	
-// 	actual = cmd_orchestrator(&node20, env, &err);
-// 	test_helper(actual, 1, "cat Makefile with OUT_DIR to \"\"");
-
-// 	t_tree node21 = {CMD, (char *[]){"cat", "", NULL}, NULL, NULL, NULL};	
-// 	actual = cmd_orchestrator(&node21, env, &err);
-// 	test_helper(actual, 1, "cat \"\"");
-
-// 	t_tree node22 = {CMD, (char *[]){"cat", NULL}, &(t_redir){APPEND_OUT_DIR, "", NULL}, NULL, NULL};	
-// 	actual = cmd_orchestrator(&node22, env, &err);
-// 	test_helper(actual, 1, "cat >> \"\"");
 
 // 	unlink("tests/files/out1.txt");
 // 	unlink("tests/files/out2.txt");

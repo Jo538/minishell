@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/04 11:07:08 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 15:35:51 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err)
 	if (!path)
 		errors(pipefd, err);
 	execve(path, node->argv, env);
+	err->err = errno;
+	errors(pipefd, err);	
 }
 
 int	inspect_child_status(pid_t child, int status)

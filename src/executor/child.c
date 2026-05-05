@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 15:35:51 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/06 00:32:12 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@
 
 void	errors(int *pipefd, t_error_exec *err)
 {
-	if (pipefd)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-	}
 	ft_putstr_fd(err->cmd, 2);
 	if (err->err == 127)
 		ft_putendl_fd(": Command not found", 2);

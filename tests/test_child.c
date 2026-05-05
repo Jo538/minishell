@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 16:53:11 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/06 00:06:58 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,7 +287,13 @@ void test_improved_version_executor(void)
 
 	// Test 21: cat >> ""
 	t_tree node21 = {CMD, (char *[]){"cat", NULL}, &(t_redir){APPEND_OUT_DIR, "", NULL}, NULL, NULL};
-	helper_orchestrator(20, "cat >> \"\"", env, &node21, ": No such file or directory", 1, NULL, 1, 3);
+	helper_orchestrator(21, "cat >> \"\"", env, &node21, ": No such file or directory", 1, NULL, 1, 3);
+
+	// Test 22: cat tests/files/in.txt | cat
+	t_tree node22 = {CMD, (char *[]){"cat", "tests/files/in.txt", NULL}, NULL, NULL, NULL};
+ 	t_tree node23 = {CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL};
+ 	t_tree pipe_node = {PIPE, NULL, NULL, &node22, &node23};
+	helper_orchestrator(22, "cat tests/files/in.txt | cat", env, &pipe_node, "Descriptif : « C’est un roc ! … c’est un pic ! … c’est un cap !", 0, NULL, 0, 3);
 }
 
 // void	test_parent_orchestrator(void)

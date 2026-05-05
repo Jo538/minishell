@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 11:12:25 by admin             #+#    #+#             */
-/*   Updated: 2026/05/03 12:14:20 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 23:06:11 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ void test_find_and_check_path(void)
 		{"", NULL},
 		{"", (char *[]){"/usr/local", "local/sbin", "/bin", NULL}},
 		{"catt", NULL},
-		{"catt", (char *[]){"/usr/local", "local/sbin", "/bin", NULL}},
+		{"catt", (char *[]){"/usr/local", "local/sbin", NULL}},
 		{"cat", NULL},
 		{"cat", (char *[]){"/usr/local", "local/sbin", "/bin", NULL}}
 	};

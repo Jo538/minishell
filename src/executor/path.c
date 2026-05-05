@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/03 12:18:49 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 23:21:37 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,20 @@ void	free_tab(char **tab)
 	free(tab);
 }
 
-static int	check_absolute_or_relative_path(char *str)
+static char *malloc_path_var_when_found(char *var, t_error_exec *err)
 {
-	if (!ft_strchr(str, '/'))
-		return (LITERAL);
-	return (PATH);
+	int		len;
+	int		i;
+	char	*path_var;
+	
+	path_var = NULL;
+	i = 0;
+	len = ft_strlen(var) - 5;
+	path_var = ft_substr(var, 5, len);
+	if (!path_var)
+		err->err = ERR_MALLOC;
+	return (path_var);
 }
-
 #ifdef TESTING
 	char	**extract_paths(char *cmd, char **env, t_error_exec *err)
 #else
@@ -39,12 +46,10 @@ static int	check_absolute_or_relative_path(char *str)
 #endif
 {
 	int		i;
-	int		len;
 	char	*path_var;
 	char	**path_tab;
 
 	i = 0;
-	len = 0;
 	path_var = NULL;
 	path_tab = NULL;
 	if (!env)
@@ -53,26 +58,17 @@ static int	check_absolute_or_relative_path(char *str)
 	{
 		if (!ft_strncmp(env[i], "PATH=", 5))
 		{
-			len = ft_strlen(env[i]) - 5;
-			path_var = ft_substr(env[i], 5, len);
-			if (!path_var)
-				return (err->err = ERR_MALLOC, NULL);
+			path_var = malloc_path_var_when_found(env[i], err);
 			break ;
 		}
 		i++;
 	}
 	if (!path_var)
-	{
-		err->err = ENOENT;
-		err->operation = CMD_OPE;
-		err->cmd = cmd;
-		return (NULL);
-	}
+		return (err->err = ENOENT, err->operation = CMD_OPE, err->cmd = cmd, NULL);
 	path_tab = ft_split(path_var, ':');
 	if (!path_tab)
 		err->err = ERR_MALLOC;
-	free(path_var);
-	return (path_tab);
+	return (free(path_var), path_tab);
 }
 
 #ifdef TESTING
@@ -96,18 +92,9 @@ static int	check_absolute_or_relative_path(char *str)
 	{
 		path = ft_strjoin(path_tab[i], new_cmd);
 		if (!path)
-		{
-			free(new_cmd);
-			err->err = ERR_MALLOC;
-			return (NULL);
-		}
+			return (free(new_cmd), err->err = ERR_MALLOC, NULL);
 		if (!access(path, F_OK | X_OK))
-		{
-			err->err = EACCES;
-			err->operation = CMD_OPE;
-			err->cmd = cmd;
 			break ;
-		}
 		free(path);
 		path = NULL;
 		i++;
@@ -125,31 +112,22 @@ char	*path_orchestrator(char *cmd, char **env, t_error_exec *err)
 	path_tab = NULL;
 	if (!cmd || !env)
 		return (NULL);
-	if (check_absolute_or_relative_path(cmd) == PATH)
+	if (ft_strchr(cmd, '/'))
 	{
 		path = ft_strdup(cmd);
 		if (!path)
 			return (err->err = ERR_MALLOC, NULL);
 		if (access(path, F_OK | X_OK))
-		{
-			err->err = errno;
-			err->operation = CMD_OPE;
-			err->cmd = cmd;
-			free(path);
-			path = NULL;	
-		}
+			return (err->err = errno, err->operation = CMD_OPE, err->cmd = cmd, free(path), NULL);	
 	}
 	else
 	{
 		path_tab = extract_paths(cmd, env, err);
 		path = find_and_check_path(cmd, path_tab, err);
-		if (!path && !err->err)
-		{
-			err->err = 127;
-			err->cmd = cmd;		
-		}
-	}
 	if (path_tab)
 		free_tab(path_tab);
+		if (!path && !err->err)
+			return (err->err = 127, err->cmd = cmd, NULL);
+	}
 	return (path);
 }

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/04/26 18:37:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 23:47:26 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err)
 	i = 0;
 	len = ft_strlen(prompt);
 	ft_bzero(&key_items, sizeof(t_key_items));
+	ft_bzero(state, 2 * sizeof(t_state));
 	if (!len)
 		return (NULL);
 	while (i < len)
@@ -76,10 +77,7 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err)
 		flag = check_new_token(i, state[PREVIOUS_STATE], state[CURRENT_STATE]);
 			helper(flag, state, &key_items, err);
 		if (*err)
-		{
-			free_token_list(key_items.first_token);
-			return NULL;
-		}
+			return (free_token_list(key_items.first_token), NULL);
 		state[PREVIOUS_STATE] = state[CURRENT_STATE];
 		i++;
 	}

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 15:35:39 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/06 00:26:08 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,52 +28,12 @@ static void	pipe_redirections(char direction, int *pipefd)
 	}
 }
 
-static void left_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_error_exec *err)
+static void left_child(int *pipefd, t_tree *node, char **env, t_error_exec *err)
 {
 	char	*path;
-	
-	path = NULL;
-	*child = fork();
-	if (*child == -1)
-	{
-		err->err = errno;
-		perror("fork");
-	}
-	if (*child == 0)
-	{
-		if (node->type == NODE_CMD)
-		{
-			files_redirections_orchestrator(pipefd, node->redirections, err);
-			if (err->err)
-				errors(pipefd, err);
-			path = path_orchestrator(node->argv[0], env, err);
-			if (!path)
-				errors(pipefd, err);
-			pipe_redirections('L', pipefd);
-			execve(path, node->argv, env);
-			err->err = errno;
-			errors(pipefd, err);				
-		}
-		if (node->type == NODE_PIPE)
-		{
-			pipe_redirections('L', pipefd);
-			exit(pipe_orchestrator(node, env, err));			
-		}
-	}
-}
 
-static void right_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_error_exec *err)
-{
-	char	*path;
-	
 	path = NULL;
-	*child = fork();
-	if (*child == -1)
-	{
-		err->err = errno;
-		perror("fork");
-	}
-	if (*child == 0)
+	if (node->type == NODE_CMD)
 	{
 		files_redirections_orchestrator(pipefd, node->redirections, err);
 		if (err->err)
@@ -81,11 +41,31 @@ static void right_child(pid_t *child, int *pipefd, t_tree *node, char **env, t_e
 		path = path_orchestrator(node->argv[0], env, err);
 		if (!path)
 			errors(pipefd, err);
-		pipe_redirections('R', pipefd);
-		execve(path, node->argv, env);
-		err->err = errno;
-		errors(pipefd, err);	
+		pipe_redirections('L', pipefd);
+		execve(path, node->argv, env);			
 	}
+	if (node->type == NODE_PIPE)
+	{
+		pipe_redirections('L', pipefd);
+		exit(pipe_orchestrator(node, env, err));			
+	}
+}
+
+static void right_child(int *pipefd, t_tree *node, char **env, t_error_exec *err)
+{
+	char	*path;
+	
+	path = NULL;
+	files_redirections_orchestrator(pipefd, node->redirections, err);
+	if (err->err)
+		errors(pipefd, err);
+	path = path_orchestrator(node->argv[0], env, err);
+	if (!path)
+		errors(pipefd, err);
+	pipe_redirections('R', pipefd);
+	execve(path, node->argv, env);
+	err->err = errno;
+	errors(pipefd, err);	
 }
 
 int	pipe_orchestrator(t_tree *node, char **env, t_error_exec *err)
@@ -99,12 +79,17 @@ int	pipe_orchestrator(t_tree *node, char **env, t_error_exec *err)
 	status = -1;
 
 	if (pipe(pipefd) == -1)
-	{
+		err->err = errno;	
+	child[0] = fork();
+	if (child[0] == -1)
 		err->err = errno;
-		perror("pipe");		
-	}
-	left_child(&child[0], pipefd, node->left, env, err);
-	right_child(&child[1], pipefd, node->right, env, err);
+	else if (child[0] == 0)
+		left_child(pipefd, node->left, env, err);
+	child[1] = fork();
+	if (child[1] == -1)
+		err->err = errno;
+	else if (child[1] == 0)
+		right_child(pipefd, node->right, env, err);
 	close(pipefd[0]);
 	close(pipefd[1]);
 	waitpid(child[0], NULL, 0);

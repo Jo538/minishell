@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/05/04 20:48:17 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/05 12:02:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,12 @@ typedef struct s_test_path
     char *cmd;
     char **path_tab;
 } t_test_path;
+
+typedef struct s_create_file
+{
+    int copy_fd1;
+    char *path;
+} t_create_file;
 
 # define TEST_ASSERT(actual, expected, msg) do {        \
       tests_run++;                                \

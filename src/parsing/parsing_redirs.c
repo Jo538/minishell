@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/04 16:16:10 by benji             #+#    #+#             */
-/*   Updated: 2026/05/04 20:21:29 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/04 21:35:49 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ t_redir	*make_redir(t_token *token)
 	if (token && token->segment && token->segment->value)
 		redir->file = ft_strdup(token->segment->value);
 	else
-		redir->file = ft_strdup("");
+		redir->file = ft_strdup(" "); //Le if else sert a rien, il sert juste a pas avoir de segfaults tant qu on a pas une fonction qui verifie si tout marche
 	if (!redir->file)
 		return (NULL);
 	token = token->next;

@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/04 20:34:38 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/05 15:37:33 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,12 @@ int	main(void)
 		if (*prompt)
 			add_history(prompt);
 		token = lexer_orchestrator(prompt, error);
-		tree = parsing_main(token);
-		if (tree)
-			print_trees(tree);
+		// tree = parsing_main(token);
+		// if (tree)
+			// print_trees(tree);
+		printf("avant expand = %s\n", token->segment->value);
+		token = expand_tokens(token);
+		printf("apres expand = %s\n", token->segment->value);
 		free(prompt);
 	}
 	printf("%s\n", "minishell>>> exit");

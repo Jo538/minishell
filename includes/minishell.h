@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 15:38:26 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/06 15:38:21 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <fcntl.h>
 # include <signal.h>
+# include <errno.h>
 # include <sys/ioctl.h>
 # include <sys/wait.h>
 # include <readline/readline.h>
@@ -29,18 +31,25 @@ typedef enum e_error
 	ERR_MALLOC = 1,
 }	t_error;
 
-// ENUMS - Lexer
+// ENUMS
+
+typedef enum e_cmd_type
+{
+	LITERAL,
+	PATH
+}	t_cmd_type;
+
 typedef enum e_state
 {
 	PREVIOUS_STATE,
-	CURRENT_STATE,
+	CURRENT_STATE
 }	t_enum_state;
 
 typedef enum e_quoting
 {
 	UNQUOTED = 1,
 	S_QUOTED,
-	D_QUOTED,
+	D_QUOTED
 }	t_quoting;
 
 typedef enum e_char_type
@@ -62,6 +71,20 @@ typedef enum e_token
 }	t_token_type;
 
 // STRUCTS that live throughout project
+
+# define OPEN_OPE 1
+# define CMD_OPE 2
+
+# define NODE_CMD 1
+# define NODE_PIPE 2
+
+typedef struct	s_error_exec
+{
+	int		err;
+	int		operation;
+	char	*cmd;
+}	t_error_exec;
+
 typedef struct s_state
 {
 	char	c;
@@ -117,6 +140,15 @@ void	change_token_type(t_state current_state, t_token *last_token, t_error *err)
 t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
 void	free_token_list(t_token *token_list_head);
 t_token	*lexer_orchestrator(char *prompt, t_error *err);
+char	*path_orchestrator(char *cmd, char **env, t_error_exec *err);
+void	free_tab(char **tab);
+int	cmd_orchestrator(t_tree *current_node, char **env, t_error_exec *err);
+void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err);
+int	pipe_orchestrator(t_tree *node, char **env, t_error_exec *err);
+void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err);
+int	inspect_child_status(pid_t child, int status);
+int	execute(t_tree *node, char **env);
+void	errors(int *pipefd, t_error_exec *err);
 
 /// PARSING
 

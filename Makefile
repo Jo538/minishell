@@ -6,7 +6,7 @@
 #    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/06 15:37:31 by benji            ###   ########.fr        #
+#    Updated: 2026/05/06 15:56:55 by benji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,13 +21,13 @@ TEST_NAME = test_minishell
 ADDITIONAL_FLAGS = -lreadline
 INCLUDES = -Iincludes -Ilibft
 LIBFT_DIR = libft
+OBJ_DIR = obj
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
-	orchestrator.c parsing.c parsing_utils.c parsing_right_part.c \
-	parsing_pipes.c parsing_expand.c \
-
+	parsing.c parsing_utils.c parsing_right_part.c \
+	parsing_pipes.c parsing_expand.c parsing_redirs.c
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 

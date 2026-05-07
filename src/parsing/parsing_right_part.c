@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/04 20:27:54 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/07 12:33:48 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ t_tree	*set_value_to_null(t_tree *to_return, int i)
 	return (to_return);
 }
 
-t_tree	*make_right_part(t_token *token, t_tree *tree)
+t_tree	*make_right_part(t_token *token)
 {
 	t_tree	*to_return;
 	int		size_av;
@@ -37,6 +37,7 @@ t_tree	*make_right_part(t_token *token, t_tree *tree)
 		return (NULL);
 	while (i < size_av && token)
 	{
+		token = expand_tokens(token);
 		if (token->segment && token->segment->value)
 			to_return->argv[i] = ft_strdup(token->segment->value);
 		else
@@ -58,7 +59,7 @@ t_tree	*put_right_part(t_tree *tree)
 	if (!tmp)
 		return (NULL);
 	tree->right = tmp;
-	tmp = make_right_part(tree->token_ref, tmp);
+	tmp = make_right_part(tree->token_ref);
 	return (tmp);
 }
 
@@ -73,7 +74,7 @@ t_tree	*fill_right_part(t_tree *tree)
 	{
 		if (trot->type == PIPE || trot->type == CMD)
 		{
-			trot->right = make_right_part(trot->token_ref, trot);
+			trot->right = make_right_part(trot->token_ref);
 			if (!trot->right)
 				return (NULL);
 		}

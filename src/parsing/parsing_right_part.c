@@ -6,11 +6,32 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/07 12:33:48 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/08 10:11:00 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*put_segment_in_av(t_segment *seg)
+{
+	char *to_return;
+	char	*tmp;
+
+	to_return = malloc(1);
+	if (!to_return)
+		return (NULL);
+	to_return[0] = 0;
+	while (seg && seg->value)
+	{
+		tmp = to_return;
+		to_return = ft_strjoin(tmp, seg->value);
+		if (!to_return)
+			return (NULL);
+		free (tmp);
+		seg = seg->next;
+	}
+	return (to_return);
+}
 
 t_tree	*set_value_to_null(t_tree *to_return, int i)
 {
@@ -39,9 +60,9 @@ t_tree	*make_right_part(t_token *token)
 	{
 		token = expand_tokens(token);
 		if (token->segment && token->segment->value)
-			to_return->argv[i] = ft_strdup(token->segment->value);
-		else
-			to_return->argv[i] = ft_strdup("");
+			to_return->argv[i] = put_segment_in_av(token->segment);
+		if (!to_return->argv[i])
+				return (NULL);
 		token = token->next;
 		i++;
 	}

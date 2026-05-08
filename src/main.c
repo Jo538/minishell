@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/07 12:38:02 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/08 10:51:34 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ int	main(void)
 	t_token	*token;
 	t_error	*error;
 	t_tree	*tree;
+	int		i = -1;
 
 	token = malloc(sizeof(t_token));
 	if (!token)
@@ -39,10 +40,12 @@ int	main(void)
 		tree = parsing_main(token);
 		// if (tree)
 		// 	print_trees(tree);
-		printf("Token = %s\n", tree->argv[1]);
+		while (tree->argv[++i])
+		printf("Token = %s\n", tree->argv[0]);
 		// printf("avant expand = %s\n", token->segment->value);
 		// token = expand_tokens(token);
 		// printf("apres expand = %s\n", token->segment->value);
+		i = -1;
 		free(prompt);
 	}
 	printf("%s\n", "minishell>>> exit");

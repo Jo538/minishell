@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/08 10:51:34 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/08 12:35:59 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,18 @@ int	main(void)
 		tree = parsing_main(token);
 		// if (tree)
 		// 	print_trees(tree);
-		while (tree->argv[++i])
-		printf("Token = %s\n", tree->argv[0]);
+		// while (tree->argv[++i])
+		printf("Token = %s\n", tree->right->argv[1]);
+		// free_the_tree(tree);
+		// printf("Token = %s\n", tree->argv[0]);
 		// printf("avant expand = %s\n", token->segment->value);
 		// token = expand_tokens(token);
 		// printf("apres expand = %s\n", token->segment->value);
 		i = -1;
 		free(prompt);
 	}
+	free(error);
+	free(token);
 	printf("%s\n", "minishell>>> exit");
 	rl_clear_history();
 	return (0);

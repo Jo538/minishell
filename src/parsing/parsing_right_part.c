@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_right_part.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/08 10:11:00 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/08 12:22:46 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	*put_segment_in_av(t_segment *seg)
 {
-	char *to_return;
+	char	*to_return;
 	char	*tmp;
 
 	to_return = malloc(1);
@@ -52,6 +52,8 @@ t_tree	*make_right_part(t_token *token)
 	to_return = malloc(sizeof(t_tree));
 	if (!to_return)
 		return (NULL);
+	if (token->type == PIPE)
+		token = token->next;
 	size_av = get_size_of_tokens(token);
 	to_return->argv = malloc (sizeof(char *) * (size_av + 1));
 	if (!to_return->argv)
@@ -62,27 +64,27 @@ t_tree	*make_right_part(t_token *token)
 		if (token->segment && token->segment->value)
 			to_return->argv[i] = put_segment_in_av(token->segment);
 		if (!to_return->argv[i])
-				return (NULL);
+			return (NULL);
 		token = token->next;
-		i++;
+		i++; // si BGUL le mettre dans le if juste au dessus
 	}
 	to_return = set_value_to_null(to_return, i);
-	to_return = handle_redirs_etc_parsing(to_return, token);
+	to_return = handle_redirs_etc_parsing(to_return, token); //si besoin de gagner une ligne, mettre ca dans le return;
 	return (to_return);
 }
 
-t_tree	*put_right_part(t_tree *tree)
-{
-	t_tree	*trot;
-	t_tree	*tmp;
+// t_tree	*put_right_part(t_tree *tree)
+// {
+// 	t_tree	*trot;
+// 	t_tree	*tmp;
 
-	tmp = malloc(sizeof(t_tree));
-	if (!tmp)
-		return (NULL);
-	tree->right = tmp;
-	tmp = make_right_part(tree->token_ref);
-	return (tmp);
-}
+// 	tmp = malloc(sizeof(t_tree));
+// 	if (!tmp)
+// 		return (NULL);
+// 	tree->right = tmp;
+// 	tmp = make_right_part(tree->token_ref);
+// 	return (tmp);
+// } // JE CROIS QUE CETTE FONCTION EST SUPPRIMABLE
 
 t_tree	*fill_right_part(t_tree *tree)
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_right_part.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/08 12:22:46 by bribot           ###   ########.fr       */
+/*   Updated: 2026/05/08 14:37:44 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ t_tree	*make_right_part(t_token *token)
 	to_return = malloc(sizeof(t_tree));
 	if (!to_return)
 		return (NULL);
+	to_return->redirections = NULL;
 	if (token->type == PIPE)
 		token = token->next;
 	size_av = get_size_of_tokens(token);

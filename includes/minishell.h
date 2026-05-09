@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/07 12:34:35 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/08 14:11:15 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,5 +170,6 @@ t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 t_token	*expand_tokens(t_token	*token);
 t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int		have_pipe(t_token *token);
+void	free_the_tree(t_tree *tree);
 
 #endif

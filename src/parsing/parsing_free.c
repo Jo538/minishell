@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:09:45 by benji             #+#    #+#             */
-/*   Updated: 2026/05/08 16:17:51 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/10 11:27:49 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,20 +40,21 @@ void	free_rec(t_tree *tree)
 		free_rec(tree->left);
 	if (tree->right)
 		free_the_right_part(tree->right);
-	// free(tree);
 }
 
 void	free_pipes(t_tree *tree)
 {
 	if (tree->left)
 		free_pipes(tree->left);
-	free(tree);		
+	free(tree);
 }
 
-void	free_the_tree(t_tree *tree)
+void	free_the_tree(t_tree *tree, t_token *token)
 {
 	t_tree	*tmp;
 
+	if (!have_pipe(token))
+		return (free_the_right_part(tree));
 	free_rec(tree);
 	free_pipes(tree);
 	// free(tree->left);

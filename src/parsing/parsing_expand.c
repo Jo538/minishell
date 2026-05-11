@@ -6,26 +6,73 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/05/05 15:25:53 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/11 18:16:38 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*expand_segtrot(char *str)
+char	*expand_ch(char *str)
 {
 	char	*to_return;
 
-	to_return = getenv(&str[1]);
+	to_return = getenv(str);
 	free(str);
+	return (to_return);
+
+}
+
+char	*get_to_expand(char *str, int *to_i, int *to_start)
+{
+	int		i;
+	int		j;
+	int		start;
+
+	char	*to_return;
+	i = *(to_i);
+	start = *(to_start);
+	i++;
+	j = i;
+	while (str[i] && str[i] != '$' && str[i] != ' ')
+		i++;
+	to_return = ft_substr(str, j, i - j);
+	start = i;
+	to_return = expand_ch(to_return);
+	printf(" iii = %d\n", i);
 	return (to_return);
 }
 
-int	start_dol(char *str)
+char	*expand_segtrot(char *str)
 {
-	if(str[0] == '$')
-		return (1);
-	return (0);
+	int		i;
+	int		start;
+	char	*sub;
+	char	*expand;
+	char	*to_return;
+
+	i = 0;
+	start = 0;
+	to_return = malloc(1);
+	if (!to_return)
+		return (NULL);
+	to_return[0] = 0;
+	while (str[i])
+	{
+		while (str[i] && str[i] != '$')
+			i++;
+		sub = ft_substr(str, start, i - start);
+		to_return = ft_strjoin(to_return, sub);
+		if (str[i] == '$')
+		{
+			printf(" i = %d\n", i);
+			expand = get_to_expand(str, &i, &start);
+			printf(" i = %d", i);
+			to_return = ft_strjoin(to_return, expand);
+		}
+		i++;
+	}
+	printf("to_return = %s\n", to_return);
+	return (sub);
 }
 
 t_token	*expand_tokens(t_token	*token)
@@ -37,7 +84,7 @@ t_token	*expand_tokens(t_token	*token)
 	segtrot = token->segment;
 	while (segtrot)
 	{
-		if (segtrot->quote_type != S_QUOTED  && start_dol(segtrot->value))
+		if (segtrot->quote_type != S_QUOTED)
 			segtrot->value = expand_segtrot(segtrot->value); //il y a encore le cas de $$ a gerer et d autres scases type $? (la ca ne gere que les cas ultras classiques)
 		segtrot = segtrot->next;
 	}

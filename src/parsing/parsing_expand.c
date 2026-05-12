@@ -16,10 +16,9 @@ char	*expand_ch(char *str)
 {
 	char	*to_return;
 
-	to_return = getenv(str);
+	to_return = getenv(str);//ICI PENSER A AJOUTER LE CAS DE $? et trouver ou gerer $$
 	free(str);
 	return (to_return);
-
 }
 
 char	*get_to_expand(char *str, int *to_i, int *to_start)
@@ -38,7 +37,8 @@ char	*get_to_expand(char *str, int *to_i, int *to_start)
 	to_return = ft_substr(str, j, i - j);
 	start = i;
 	to_return = expand_ch(to_return);
-	printf(" iii = %d\n", i);
+	(*to_i) = i;
+	(*to_start) = start;
 	return (to_return);
 }
 
@@ -64,15 +64,16 @@ char	*expand_segtrot(char *str)
 		to_return = ft_strjoin(to_return, sub);
 		if (str[i] == '$')
 		{
-			printf(" i = %d\n", i);
+			// printf("BEFORE i = %d start = %d\n", i, start);
 			expand = get_to_expand(str, &i, &start);
-			printf(" i = %d", i);
+			// printf("AFTER i = %d start = %d\n", i, start);
 			to_return = ft_strjoin(to_return, expand);
+			printf("to return = %s\n", to_return);
 		}
-		i++;
+		// i++;
 	}
-	printf("to_return = %s\n", to_return);
-	return (sub);
+	// printf("END to return = %s\n", to_return);
+	return (to_return);
 }
 
 t_token	*expand_tokens(t_token	*token)

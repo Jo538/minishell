@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/10 11:31:44 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/13 15:56:01 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ int	main(void)
 			add_history(prompt);
 		// prompt = ft_strdup("asdsdkuhj | akj | askjdaksdjh | akjsdhhj | kjh | ksjad < askjd"); // dequote cette ligne pour enlever tout les leaks lier a readline
 		token = lexer_orchestrator(prompt, error);
+		// printf("bon ou pas = %d\n", check_ifgood(token));
+		return (0);
 		tree = parsing_main(token);
 		free_the_tree(tree, token); //necessite d etre fait avant le free des tokens ou alors besoin d envoyer l info de have_pipe a la place de token
 		free(prompt);

@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/10 11:26:19 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/13 15:24:53 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,10 @@ void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err);
 int	inspect_child_status(pid_t child, int status);
 int	execute(t_tree *node, char **env);
 void	errors(int *pipefd, t_error_exec *err);
+
+///CHECKER
+
+int	check_ifgood(t_token *token);
 
 /// PARSING
 

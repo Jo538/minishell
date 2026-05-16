@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/13 15:24:53 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/16 16:03:27 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,12 @@ typedef struct s_tree
 	struct s_tree	*left;
 	struct s_tree	*right;
 }	t_tree;
+
+typedef struct s_tree_token
+{
+	t_tree	*tree;
+	t_token	*token;
+} t_tree_token;
 
 // FUNCT
 t_state	create_current_state(char c, int i, t_state previous_state);

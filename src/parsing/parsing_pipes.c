@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:21:11 by bribot            #+#    #+#             */
-/*   Updated: 2026/04/30 15:50:29 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/10 11:03:35 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ t_tree	*create_pipe_part(t_token *token)
 		if (!tree)
 			return (NULL);
 	}
-	tree->left = NULL;
 	return (tree);
 }
 

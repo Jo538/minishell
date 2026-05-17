@@ -6,9 +6,10 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/05 10:17:34 by admin            ###   ########.fr        #
+#    Updated: 2026/05/17 12:18:03 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 # Compiler
 CC = cc
@@ -28,12 +29,16 @@ else
 	INCLUDES = -Iincludes -Ilibft
 endif
 LIBFT_DIR = libft
+OBJ_DIR = obj
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
-	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c
+	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
+	parsing.c parsing_utils.c parsing_right_part.c \
+	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
 	test_orchestrator.c test_path.c test_child.c
+	
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 

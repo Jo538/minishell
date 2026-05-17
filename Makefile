@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/17 12:18:03 by admin            ###   ########.fr        #
+#    Updated: 2026/05/17 12:23:27 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@
 # Compiler
 CC = cc
 CFLAGS = -g3 -O0
-VPATH = src:src/lexer:src/executor:tests
+VPATH = src:src/lexer:src/executor:src/parsing:tests
+NAME = minishell
 TEST_NAME = test_minishell
 ifeq ($(shell uname), Darwin)
 	ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline

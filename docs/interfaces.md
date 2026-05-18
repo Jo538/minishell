@@ -115,11 +115,11 @@ Redirection type reuses REDIR_IN, REDIR_OUT, HEREDOC, REDIR_APPEND.
 ### Example: echo hello (no pipes, no redirections)
 
             +----------------------+
-            | type: CMD            |
+            |  type: CMD            |
             | argv: ["echo","hello"]|
-            | redirs: NULL         |
-            | left: NULL           |
-            | right: NULL          |
+            |  redirs: NULL         |
+            |  left: NULL           |
+            |  right: NULL          |
             +----------------------+
 
 Just a single CMD node. The tree still works -- it's a tree with one node.

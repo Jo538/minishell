@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/06 00:06:58 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/17 15:25:58 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ static void helper_orchestrator(int test_num, char *cmd, char **env, t_tree *nod
 	
     
 	int copy_fd = create_output_file(test_num, cmd, output_file, error);
-	glob("vg*.log", 0, NULL, &logs_before);
+	//glob("vg*.log", 0, NULL, &logs_before);
 	actual_exit_code = execute(node, env);
 	char **array_of_files = make_logs_array(&logs_before);
 	result = read_output_file(test_num, copy_fd, cmd, output_file, error);
@@ -292,7 +292,7 @@ void test_improved_version_executor(void)
 	// Test 22: cat tests/files/in.txt | cat
 	t_tree node22 = {CMD, (char *[]){"cat", "tests/files/in.txt", NULL}, NULL, NULL, NULL};
  	t_tree node23 = {CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL};
- 	t_tree pipe_node = {PIPE, NULL, NULL, &node22, &node23};
+ 	t_tree pipe_node = {PIPE, NULL, NULL, NULL, &node22, &node23};
 	helper_orchestrator(22, "cat tests/files/in.txt | cat", env, &pipe_node, "Descriptif : « C’est un roc ! … c’est un pic ! … c’est un cap !", 0, NULL, 0, 3);
 }
 

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/06 00:32:12 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/18 15:11:22 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,17 @@ void	errors(int *pipefd, t_error_exec *err)
 	if (err->err == ENOENT)
 	{
 		ft_putendl_fd(": No such file or directory", 2);
-		if (err->operation == CMD_OPE)
+		if (err->operation == OPEN_CMD)
 			exit(127);	
-		if (err->operation == OPEN_OPE)
+		if (err->operation == OPEN_FILE)
 			exit(1);		
 	}
 	if (err->err == EACCES)
 	{
 		ft_putendl_fd(": Permission denied", 2);
-		if (err->operation == CMD_OPE)
+		if (err->operation == OPEN_CMD)
 			exit(126);	
-		if (err->operation == OPEN_OPE)
+		if (err->operation == OPEN_FILE)
 			exit(1);	
 	}
 	exit(err->err);

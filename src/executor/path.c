@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 23:21:37 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/18 15:11:22 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static char *malloc_path_var_when_found(char *var, t_error_exec *err)
 		i++;
 	}
 	if (!path_var)
-		return (err->err = ENOENT, err->operation = CMD_OPE, err->cmd = cmd, NULL);
+		return (err->err = ENOENT, err->operation = OPEN_CMD, err->cmd = cmd, NULL);
 	path_tab = ft_split(path_var, ':');
 	if (!path_tab)
 		err->err = ERR_MALLOC;
@@ -118,7 +118,7 @@ char	*path_orchestrator(char *cmd, char **env, t_error_exec *err)
 		if (!path)
 			return (err->err = ERR_MALLOC, NULL);
 		if (access(path, F_OK | X_OK))
-			return (err->err = errno, err->operation = CMD_OPE, err->cmd = cmd, free(path), NULL);	
+			return (err->err = errno, err->operation = OPEN_CMD, err->cmd = cmd, free(path), NULL);	
 	}
 	else
 	{

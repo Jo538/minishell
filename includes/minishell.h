@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/10 11:26:19 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/18 21:57:15 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ typedef enum e_token
 
 // STRUCTS that live throughout project
 
-# define OPEN_OPE 1
-# define CMD_OPE 2
+# define OPEN_FILE 1
+# define OPEN_CMD 2
 
 # define NODE_CMD 1
 # define NODE_PIPE 2
@@ -132,6 +132,14 @@ typedef struct s_tree
 	struct s_tree	*right;
 }	t_tree;
 
+typedef struct s_env 
+{
+	char	*key;
+	char	*value;
+	int		export_flag;
+	int		set_flag;
+}	t_env;
+
 // FUNCT
 t_state	create_current_state(char c, int i, t_state previous_state);
 t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
@@ -171,5 +179,12 @@ t_token	*expand_tokens(t_token	*token);
 t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int		have_pipe(t_token *token);
 void	free_the_tree(t_tree *tree, t_token *token);
+
+// builtins
+void	run_cd(char **cmd, t_error_exec *err);
+
+// env
+t_env	**env_orchestrator(char **envp, t_error *err);
+void	free_my_env(t_env **my_env);
 
 #endif

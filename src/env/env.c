@@ -6,11 +6,72 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 20:26:36 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 22:01:33 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/19 17:51:51 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	find_size(t_env **my_env)
+{
+	int	i;
+	int	size;
+	
+	i = 0;
+	size = 0;
+	while (my_env[i])
+	{
+		if (my_env[i]->export_flag && my_env[i]->set_flag)
+			size++;
+		i++;
+	}
+	return (size);
+}
+
+static void	join_segments(t_env *my_env, char **new_env, int index, t_error *err)
+{
+	char	*tmp;
+
+	tmp = NULL;
+	tmp = ft_strjoin(my_env->key, "=");
+	if (!tmp)
+	{
+		*err = ERR_MALLOC;
+		return ;		
+	}
+	new_env[index] = ft_strjoin(tmp, my_env->value);
+	free(tmp);
+	if (!new_env)
+		*err = ERR_MALLOC;
+}
+
+char	**consolidate_my_env(t_env **my_env, t_error *err)
+{
+	int		i;
+	int		j;
+	int		size;
+	char	**new_env;
+
+	i = 0;
+	j = 0;
+	new_env = NULL;
+	size = find_size(my_env);
+	new_env = ft_calloc(size + 1, sizeof(char *));
+	if (!new_env)
+		return (*err = ERR_MALLOC, NULL);
+	while (my_env[j])
+	{		
+		if (my_env[j]->export_flag && my_env[j]->set_flag)
+		{
+			join_segments(my_env[j], new_env, i, err);
+			if (*err)
+				return (free_tab(new_env), NULL);
+			i++;		
+		}
+		j++;
+	}
+	return (new_env);
+}
 
 void	free_my_env(t_env **my_env)
 {

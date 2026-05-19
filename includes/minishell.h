@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 21:57:15 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/19 17:38:44 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,5 +186,6 @@ void	run_cd(char **cmd, t_error_exec *err);
 // env
 t_env	**env_orchestrator(char **envp, t_error *err);
 void	free_my_env(t_env **my_env);
+char	**consolidate_my_env(t_env **my_env, t_error *err);
 
 #endif

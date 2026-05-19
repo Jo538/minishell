@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 21:39:22 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/19 17:44:58 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,6 @@ int	main(void)
 	test_cd();
 	printf("%s", "--------------TEST ENV-------------\n\n");	
 	test_env();
+	printf("%s", "--------------TEST CONSOLIDATION ENV-------------\n\n");	
+	test_consolidate_env();
 }

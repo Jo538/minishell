@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:18:27 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 21:38:54 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/19 17:44:35 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ void test_path_orchestrator(void);
 void test_improved_version_executor(void);
 void test_cd(void);
 void	test_env(void);
+void test_consolidate_env(void);
 
 // Static functions
 t_token_type	find_token_type(t_state current_state);

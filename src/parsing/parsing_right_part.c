@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/17 14:46:49 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/18 18:52:13 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,38 +96,80 @@ t_tree	*set_value_to_null(t_tree *to_return, int i)
 // 	return (tmp);
 // } // JE CROIS QUE CETTE FONCTION EST SUPPRIMABLE
 
-t_tree_token	handle_redirs(t_tree_token to_return)
+t_tree	*handle_redirs(t_tree *tree, t_token *token)
 {
+	
+	return (NULL);
+}
+
+t_tree	*handle_heredoc_etc(t_tree *tree, t_token *token)
+{
+	return (NULL);
+}
+
+t_tree	*malloc_tree(t_token *token)
+{
+	int		i;
+	t_tree	*to_return;
+
+	i = 0;
+	while (token && token->type == WORD)
+	{
+		i++;
+		token = token->next;
+	}
+	to_return->argv = malloc (sizeof(char *) * i + 1);
+	if (!to_return->argv)
+		return (NULL);
+	to_return->argv[i] = 0;
 	return (to_return);
 }
 
-t_tree_token	handle_heredoc_etc(t_tree_token to_return)
+t_tree	*handle_words(t_tree *tree, t_token **token)
 {
-	return (to_return);
-}
+	t_token	*tmp;
+	int		i;
 
-t_tree_token	handle_words(t_tree_token to_return)
-{
-	return (to_return);
+	i = 0;
+	tmp = (*token);
+	// tmp = token;
+	// while (token && token == WORD)
+	// {
+	// 	i++;
+	// 	token = token->next;
+	// }
+	// tree->argv = malloc (sizeof(char *) * i + 1);
+	// if (!tree->argv)
+	// 	return (NULL);
+	tree = malloc_tree(tmp);
+	if (!tree)
+		return (NULL);
+	while (tree->argv[i])
+	{
+		tree->argv[i] = ft_strdup(join_segments(tmp));
+		tmp = tmp->next;
+		i++;
+	}
+	return (tree);
 }
 
 t_tree	*make_right_part(t_token *token)
 {
-	t_tree_token	to_return;
+	t_tree	*tree;
 
-	token = token->next; //possible de gagner une ligne dans l appel de fill right part
-	// if (token->type == IN_DIR || token->type == OUT_DIR)
-	// 	return (handle_start_redir(token));
-	while (token && token->type != PIPE)
-	{
-		if (token->type == IN_DIR || token->type == OUT_DIR)
-			to_return =  (handle_redirs(to_return));
-		if (token->type == HEREDOC || token->type == APPEND_OUT_DIR)
-			to_return = handle_heredoc_etc(to_return);
-		if (token->type == WORD)
-			to_return = handle_words(to_return);
-	}
-	return (to_return.tree);
+	// tree = malloc(sizeof(t_tree));
+	// if (!tree);
+	// 	return (NULL);
+	// while (token && token->type != PIPE)
+	// {
+	// 	if (token->type == IN_DIR || token->type == OUT_DIR)
+	// 		handle_redirs(tree, token);
+	// 	if (token->type == HEREDOC || token->type == APPEND_OUT_DIR)
+	// 		handle_heredoc_etc(tree, token);
+	// 	if (token->type == WORD)
+			tree = handle_words(tree, &token);
+	// }
+	return (tree);
 }
 
 t_tree	*fill_right_part(t_tree *tree)

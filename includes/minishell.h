@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/16 16:03:27 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/18 18:47:10 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,12 +132,6 @@ typedef struct s_tree
 	struct s_tree	*right;
 }	t_tree;
 
-typedef struct s_tree_token
-{
-	t_tree	*tree;
-	t_token	*token;
-} t_tree_token;
-
 // FUNCT
 t_state	create_current_state(char c, int i, t_state previous_state);
 t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
@@ -181,5 +175,7 @@ t_token	*expand_tokens(t_token	*token);
 t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int		have_pipe(t_token *token);
 void	free_the_tree(t_tree *tree, t_token *token);
+char	*join_segments(t_token *token);
+
 
 #endif

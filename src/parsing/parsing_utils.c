@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 13:51:39 by bribot            #+#    #+#             */
-/*   Updated: 2026/04/30 15:46:38 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/18 18:32:00 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,4 +50,22 @@ t_token	*go_to_pipe_left(t_token *token)
 			return (token);
 	}
 	return (NULL);
+}
+
+char	*join_segments(t_token *token)
+{
+	char		*to_return;
+	t_segment	*seg;
+
+	seg = token->segment;
+	to_return = ft_strdup(expand_tokens(seg->value));
+	if (!to_return)
+		return (NULL);
+	seg = seg->next;
+	while (seg)
+	{
+		to_return = ft_strjoin(to_return, expand_tokens(seg->value));
+		seg = seg->next;
+	}
+	return (to_return);
 }

@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/16 16:12:34 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/18 18:52:31 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,11 @@ int	main(void)
 		token = lexer_orchestrator(prompt, error);
 		// printf("bon ou pas = %d\n", check_ifgood(token));
 		// return (0);
-		tree = parsing_main(token);
+		// printf("token = %s\n", token->next->next->next->segment->value);
+		tree = make_right_part(token);
+		printf("%s", tree->argv[1]);
 		// free_the_tree(tree, token); //necessite d etre fait avant le free des tokens ou alors besoin d envoyer l info de have_pipe a la place de token
-		free(prompt);
+		// free(prompt);
 	}
 	free(error);
 	free(token);

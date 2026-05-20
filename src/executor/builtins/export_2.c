@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:06:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 01:12:27 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 18:02:22 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static t_env **resize_my_env(t_env **my_env, t_error *err, int size)
 
 	i = 0;
 	new_env = NULL;
-	new_env = ft_calloc(size, sizeof(t_env *));
+	new_env = ft_calloc(size + 2, sizeof(t_env *));
 	if (!new_env)
 	{
 		*err = ERR_MALLOC;
@@ -52,7 +52,7 @@ t_env	**create_new_row(char *cmd, t_env **my_env, t_error *err)
 	new_env = NULL;
 	while (my_env[size])
 		size++;
-	new_env = resize_my_env(my_env, err, size + 2);
+	new_env = resize_my_env(my_env, err, size);
 	if (*err)
 		return (NULL);
 	append_key(cmd, new_env[size], err);

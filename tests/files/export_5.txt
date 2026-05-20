@@ -1,1 +1,2 @@
 export PATH="/usr/admin"
+export TEST="abc"

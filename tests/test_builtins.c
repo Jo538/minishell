@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 14:12:44 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 02:16:39 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 20:57:11 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,9 @@ void test_cd(void)
 
 }
 
-void export_helper(int test_nb, t_env **my_env, char **cmd, char *expected, char *test)
+t_env **export_helper(int test_nb, t_env **my_env, char **cmd, char *expected, char *test, int expected_set, int expected_export)
 {
-	t_error err;
+	t_error err = 0;
 	int fd;
 	int copy_fd;
 	char path[64];
@@ -76,45 +76,73 @@ void export_helper(int test_nb, t_env **my_env, char **cmd, char *expected, char
 	copy_fd = dup(1);
 	dup2(fd, 1);
 	close(fd);
-	run_export(cmd, my_env, &err);
+	my_env = run_export(cmd, my_env, &err);
+	fflush(stdout);
+	char *cmd2[] = {"export", NULL};
+	if (cmd[1])
+		run_export(cmd2, my_env, &err); // char *cmd[] -> {}
 	fflush(stdout);
 	lseek(1, 0, SEEK_SET);
 	read(1, buffer, 4095);
 	if (strcmp(buffer, expected))
 	{
 		fprintf(stderr, "Test %d --FAIL--%s\nExpected: %s\nActual: %s\n", test_nb, test, expected, buffer); // TEST X --FAIL-- Expected: X Actual: Y
-		return ;
+		return (my_env);
 	}
+	if (expected_export != -1 && my_env[1]->export_flag != expected_export)
+	{
+		fprintf(stderr, "Test %d --FAIL--%s\nExpected: %d\nActual: %d\n", test_nb, test, expected_export, my_env[1]->export_flag); // TEST X --FAIL-- Expected: X Actual: Y
+		return (my_env);
+	}	
+	if (expected_set != -1 && my_env[1]->set_flag != expected_set)
+	{
+		fprintf(stderr, "Test %d --FAIL--%s\nExpected: %d\nActual: %d\n", test_nb, test, expected_set, my_env[1]->set_flag); // TEST X --FAIL-- Expected: X Actual: Y
+		return (my_env);
+	}		
 	dup2(copy_fd, 1);
 	close(copy_fd);
 	printf("Test %d --SUCCESS-- %s\n", test_nb, test);
+	fflush(stdout);
+	return (my_env);
 }
 
 void test_export(void)
 {
+	fflush(stdout);
 	int test_nb;
 
 	// Test 1: export with empty environment
 	test_nb = 1;
 	t_env *my_env1[] = {NULL};
 	char *cmd1[] = {"export", NULL};
-	export_helper(test_nb, my_env1, cmd1, "\0", "export with empty environment");
+	export_helper(test_nb, my_env1, cmd1, "\0", "export with empty environment", -1, -1);
 	
 	// export with dense environment
 	test_nb = 2;
 	t_env *my_env2[] = {&(t_env){"PATH", "/usr/admin", 1, 1}, NULL};
 	char *cmd2[] = {"export", NULL};
-	export_helper(test_nb, my_env2, cmd2, "export PATH=\"/usr/admin\"\n", "export with dense environment");
+	export_helper(test_nb, my_env2, cmd2, "export PATH=\"/usr/admin\"\n", "export with dense environment", -1, -1);
 	
 	// export TEST (TEST doesn't exist)
 	test_nb = 3;
-	t_env *my_env3[] = {&(t_env){"PATH", "/usr/admin", 1, 1}, NULL};
+	t_env **my_env3 = calloc(2, sizeof(t_env *)); // {&(t_env){"PATH", "/usr/admin", 1, 1}, NULL};
+	*my_env3 = calloc(1, sizeof(t_env));
+	(*my_env3)->key = ft_strdup("PATH");
+	(*my_env3)->value = ft_strdup("/usr/admin");
+	(*my_env3)->export_flag = 1;
+	(*my_env3)->set_flag = 1;
 	char *cmd3[] = {"export", "TEST", NULL};
-	export_helper(test_nb, my_env3, cmd3, "export PATH=\"/usr/admin\"\n", "export with dense environment");
+	my_env3 = export_helper(test_nb, my_env3, cmd3, "export PATH=\"/usr/admin\"\nexport TEST\n", "export TEST (TEST doesn't exist)", 0, 1);
 	
 	// export TEST (TEST already exists)
-
-	// export TEST=abc (TEST doesn't exist)
-
+	test_nb = 4;
+	my_env3 = export_helper(test_nb, my_env3, cmd3, "export PATH=\"/usr/admin\"\nexport TEST\n", "export TEST (TEST already exists)", 0, 1);
+	
+	// export TEST1=abc (TEST doesn't exist)
+	test_nb = 5;
+	char *cmd5[] = {"export", "TEST=abc", NULL};
+	my_env3 = export_helper(test_nb, my_env3, cmd5, "export PATH=\"/usr/admin\"\nexport TEST=\"abc\"\n", "export TEST1=abc (TEST1 doesn't exist)", 1, 1);
+	
 	// export TEST=abc (TEST already exists)
+	free_my_env(my_env3);
 }

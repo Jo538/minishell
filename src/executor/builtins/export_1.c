@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:06:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 01:11:52 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 18:17:37 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,11 @@ static void	print_var(t_env **my_env)
 	while(my_env[i])
 	{
 		if (my_env[i]->export_flag)
-			printf("export %s=\"%s\"\n", my_env[i]->key, my_env[i]->value);
+			printf("export %s", my_env[i]->key);
+		if (my_env[i]->value)
+			printf("=\"%s\"\n", my_env[i]->value);
+		else
+			printf("%c", '\n');
 		i++;
 	}
 }
@@ -82,7 +86,7 @@ void	append_key(char *cmd, t_env *row, t_error *err)
 	row->export_flag = 1;
 }
 
-void	run_export(char **cmd, t_env **my_env, t_error *err)
+t_env	**run_export(char **cmd, t_env **my_env, t_error *err)
 {
 	int		size;
 	t_env	*key;
@@ -99,9 +103,10 @@ void	run_export(char **cmd, t_env **my_env, t_error *err)
 		{
 			append_value(cmd[1], key, err);
 			if (*err)
-				return ;			
+				return (NULL);			
 		}	
 		else
-			create_new_row(cmd[1], my_env, err);		
+			my_env = create_new_row(cmd[1], my_env, err);
 	}
+	return (my_env);
 }

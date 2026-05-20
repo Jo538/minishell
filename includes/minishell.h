@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 18:09:37 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 21:53:09 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,7 @@ t_env	**run_export(char **cmd, t_env **my_env, t_error *err);
 void	append_value(char *cmd, t_env *row, t_error *err);
 void	append_key(char *cmd, t_env *row, t_error *err);
 t_env	**create_new_row(char *cmd, t_env **my_env, t_error *err);
+t_env	**run_unset(char **cmd, t_env ** my_env, t_error *err);
 
 // env
 t_env	**env_orchestrator(char **envp, t_error *err);

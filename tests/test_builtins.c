@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 14:12:44 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 20:57:11 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 23:25:10 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,4 +145,107 @@ void test_export(void)
 	
 	// export TEST=abc (TEST already exists)
 	free_my_env(my_env3);
+}
+
+static int	open_redirections(int test_nb)
+{
+	fflush(stdout);
+	int copy_fd;
+	char path[64];
+
+	copy_fd = dup(1);
+	snprintf(path, sizeof(path), "tests/files/unset_%d.txt", test_nb);
+	int fd = open(path, O_CREAT | O_RDWR, 0644);
+	dup2(fd, 1);
+	close(fd);
+	return (copy_fd);
+}
+
+static void write_to_file(t_env **my_env)
+{
+	int	i = 0;
+
+	while (my_env[i])
+	{
+		printf("%s\n%s\n", my_env[i]->key, my_env[i]->value);
+		i++;
+	}
+	fflush(stdout);
+}
+
+static int	close_redirections(int copy_fd)
+{
+	int fd = dup(1);
+	dup2(copy_fd, 1);
+	close(copy_fd);
+	return (fd);
+}
+
+static void unset_helper(t_env **my_env, char *expected, int test_nb, char *test)
+{
+	char buffer[4096] = {0};
+	
+	int copy_fd = open_redirections(test_nb);
+	write_to_file(my_env);
+	
+	int fd = close_redirections(copy_fd);
+	lseek(fd, 0, SEEK_SET);
+	read(fd, buffer, 4095);
+	if (strcmp(buffer, expected))
+		fprintf(stderr, "Test %d --FAIL--%s\nExpected: %s\nActual: %s\n", test_nb, test, expected, buffer); // TEST X --FAIL-- Expected: X Actual: Y
+	else
+		printf("Test %d --SUCCESS-- %s\n", test_nb, test);
+	fflush(stdout);
+	close(fd);
+	
+}
+
+void test_unset(void)
+{
+	t_error err = 0;
+	int test_nb = 1;
+
+	// Test 1: unset TEST (TEST exists)
+	char *cmd1[] = {"unset", "TEST", NULL};
+	t_env **my_env1 = calloc(3, sizeof(t_env *)); // {&(t_env){"PATH", "/usr/admin", 1, 1}, NULL};
+	*my_env1 = calloc(1, sizeof(t_env));
+	(*my_env1)->key = ft_strdup("PATH");
+	(*my_env1)->value = ft_strdup("/usr/admin");
+	*(my_env1 + 1) = calloc(1, sizeof(t_env));
+	(*(my_env1 + 1))->key = ft_strdup("TEST");
+	(*(my_env1 + 1))->value = ft_strdup("abc");
+
+	my_env1 = run_unset(cmd1, my_env1, &err);
+	unset_helper(my_env1, "PATH\n/usr/admin\n", test_nb, "unset TEST (TEST exists)");
+
+	// TEST 2: unset
+	test_nb = 2;
+	char *cmd2[] = {"unset", NULL};
+	my_env1 = run_unset(cmd2, my_env1, &err);
+	unset_helper(my_env1, "PATH\n/usr/admin\n", test_nb, "unset");
+
+	// TEST 3: unset TEST (TEST doesn't exist)
+	test_nb = 3;
+	char *cmd3[] = {"unset", "TEST", NULL};
+	my_env1 = run_unset(cmd3, my_env1, &err);
+	unset_helper(my_env1, "PATH\n/usr/admin\n", test_nb, "unset TEST (TEST doesn't exist)");
+
+	free_my_env(my_env1);
+
+	// TEST 4: unset TEST TEST1 (both exist)
+	test_nb = 4;
+	char *cmd4[] = {"unset", "TEST", "TEST1", NULL};
+	t_env **my_env2 = calloc(4, sizeof(t_env *)); // {&(t_env){"PATH", "/usr/admin", 1, 1}, NULL};
+	*my_env2 = calloc(1, sizeof(t_env));
+	(*my_env2)->key = ft_strdup("PATH");
+	(*my_env2)->value = ft_strdup("/usr/admin");
+	*(my_env2 + 1) = calloc(1, sizeof(t_env));
+	(*(my_env2 + 1))->key = ft_strdup("TEST");
+	*(my_env2 + 2) = calloc(1, sizeof(t_env));
+	(*(my_env2 + 2))->key = ft_strdup("TEST1");
+
+	my_env2 = run_unset(cmd4, my_env2, &err);
+	unset_helper(my_env2, "PATH\n/usr/admin\n", test_nb, "unset TEST TEST1 (both exist)");
+	
+	free_my_env(my_env2);
 }

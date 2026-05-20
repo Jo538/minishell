@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 18:17:56 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 01:38:00 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 22:24:49 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,4 +52,6 @@ int	main(void)
 	test_consolidate_env();
 	printf("%s", "--------------TEST EXPORT BUILTIN-------------\n\n");	
 	test_export();
+	printf("%s", "--------------TEST UNSET BUILTIN-------------\n\n");	
+	test_unset();
 }

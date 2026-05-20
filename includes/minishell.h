@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/19 17:38:44 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 01:14:27 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,10 +182,15 @@ void	free_the_tree(t_tree *tree, t_token *token);
 
 // builtins
 void	run_cd(char **cmd, t_error_exec *err);
+void	run_export(char **cmd, t_env **my_env, t_error *err);
+void	append_value(char *cmd, t_env *row, t_error *err);
+void	append_key(char *cmd, t_env *row, t_error *err);
+t_env	**create_new_row(char *cmd, t_env **my_env, t_error *err);
 
 // env
 t_env	**env_orchestrator(char **envp, t_error *err);
 void	free_my_env(t_env **my_env);
 char	**consolidate_my_env(t_env **my_env, t_error *err);
+
 
 #endif

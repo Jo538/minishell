@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 18:47:10 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/20 16:20:43 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,9 +166,6 @@ t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token);
 t_tree	*create_pipe_part(t_token *token);
 t_token	*find_last_pipe(t_token *token);
 t_tree	*create_tree(t_token *token);
-int		have_a_token_left(t_token *token);
-t_token	*go_to_pipe_left(t_token *token);
-int		get_size_of_tokens(t_token *token);
 t_tree	*parsing_main(t_token *token);
 t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 t_token	*expand_tokens(t_token	*token);
@@ -176,6 +173,8 @@ t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int		have_pipe(t_token *token);
 void	free_the_tree(t_tree *tree, t_token *token);
 char	*join_segments(t_token *token);
-
+t_tree	*init_tree_w_malloc(t_token *token);
+t_tree	*fill_av(t_tree *tree);
+t_tree	*handle_redirs(t_tree *tree);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 14:12:44 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 23:25:10 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 23:38:49 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,11 @@ void test_export(void)
 	char *cmd5[] = {"export", "TEST=abc", NULL};
 	my_env3 = export_helper(test_nb, my_env3, cmd5, "export PATH=\"/usr/admin\"\nexport TEST=\"abc\"\n", "export TEST1=abc (TEST1 doesn't exist)", 1, 1);
 	
-	// export TEST=abc (TEST already exists)
+	// export TEST1 TEST2
+	test_nb = 6;
+	char *cmd6[] = {"export", "TEST1", "TEST2", NULL};
+	my_env3 = export_helper(test_nb, my_env3, cmd6, "export PATH=\"/usr/admin\"\nexport TEST=\"abc\"\nexport TEST1\nexport TEST2\n", "export TEST1 TEST2", 1, 1);
+		
 	free_my_env(my_env3);
 }
 

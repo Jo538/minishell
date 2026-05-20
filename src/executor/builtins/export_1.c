@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:06:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 18:17:37 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/20 23:34:42 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,25 +88,29 @@ void	append_key(char *cmd, t_env *row, t_error *err)
 
 t_env	**run_export(char **cmd, t_env **my_env, t_error *err)
 {
+	int		i;
 	int		size;
 	t_env	*key;
-	t_env	*new_row;
 
+	i = 1;
 	size = 0;
-	new_row = NULL;
 	if (!cmd[1])
 		print_var(my_env);
 	else
 	{
-		key = search_key(cmd[1], my_env);
-		if (key)
+		while (cmd[i])
 		{
-			append_value(cmd[1], key, err);
-			if (*err)
-				return (NULL);			
-		}	
-		else
-			my_env = create_new_row(cmd[1], my_env, err);
+			key = search_key(cmd[i], my_env);
+			if (key)
+			{
+				append_value(cmd[i], key, err);
+				if (*err)
+					return (NULL);			
+			}	
+			else
+				my_env = create_new_row(cmd[i], my_env, err);
+			i++;		
+		}
 	}
 	return (my_env);
 }

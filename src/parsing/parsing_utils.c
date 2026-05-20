@@ -6,26 +6,11 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 13:51:39 by bribot            #+#    #+#             */
-/*   Updated: 2026/04/30 15:46:38 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/20 15:27:31 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	get_size_of_tokens(t_token *token)
-{
-	int	to_return;
-
-	if (!token)
-		return (0);
-	to_return = 1;
-	while (token && token->next && token->next->type == WORD)
-	{
-		to_return++;
-		token = token->next;
-	}
-	return (to_return);
-}
 
 int	have_a_token_left(t_token *token)
 {
@@ -51,3 +36,29 @@ t_token	*go_to_pipe_left(t_token *token)
 	}
 	return (NULL);
 }
+
+// char	*join_segments(t_token *token)
+// {
+// 	char		*to_return;
+// 	char		*tmp;
+// 	t_segment	*seg;
+
+// 	if (!token)
+// 		return (NULL);
+// 	token = expand_tokens(token);
+// 	seg = token->segment;
+// 	to_return = malloc(1);
+// 	if (!to_return)
+// 		return (NULL);
+// 	to_return[0] = 0;
+// 	while (seg)
+// 	{
+// 		tmp = to_return;
+// 		to_return = ft_strjoin(tmp, seg->value);
+// 		free(tmp);
+// 		if (!to_return)
+// 			return (NULL);
+// 		seg = seg->next;
+// 	}
+// 	return (to_return);
+// }

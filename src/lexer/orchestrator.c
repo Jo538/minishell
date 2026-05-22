@@ -3,13 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   orchestrator.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 23:47:26 by admin            ###   ########.fr       */
-/*   Updated: 2026/04/27 15:53:21 by bribot           ###   ########.fr       */
+/*   Updated: 2026/05/23 01:08:30 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "minishell.h"
 
@@ -41,24 +41,24 @@ void	free_token_list(t_token *token)
 	}
 }
 
-static void	helper(int flag, t_state state[2], t_key_items *key_items, t_error *err)
+static void	helper(int flag, t_state state[2], t_key_items *key_items, int *exit_code)
 {
 	if (flag == 0)
-		key_items->last_segment = segment_orchestrator(state[PREVIOUS_STATE], state[CURRENT_STATE], key_items->last_segment, err);
+		key_items->last_segment = segment_orchestrator(state[PREVIOUS_STATE], state[CURRENT_STATE], key_items->last_segment, exit_code);
 	if (flag == 1)
 	{
-		key_items->last_token = create_token(state[CURRENT_STATE], key_items->last_token, err);
+		key_items->last_token = create_token(state[CURRENT_STATE], key_items->last_token, exit_code);
 		key_items->last_segment = key_items->last_token->segment;
 	}
 	if (flag == 2)
-		change_token_type(state[CURRENT_STATE], key_items->last_token, err);
+		change_token_type(state[CURRENT_STATE], key_items->last_token, exit_code);
 	if (!key_items->first_token)
 		key_items->first_token = key_items->last_token;		
 	if (flag == 3)
 		return ;
 }
 
-t_token	*lexer_orchestrator(char *prompt, t_error *err)
+t_token	*lexer(char *prompt, int *exit_code)
 {
 	int			i;
 	int			flag;
@@ -76,8 +76,8 @@ t_token	*lexer_orchestrator(char *prompt, t_error *err)
 	{
 		state[CURRENT_STATE] = create_current_state(prompt[i], i, state[PREVIOUS_STATE]);
 		flag = check_new_token(i, state[PREVIOUS_STATE], state[CURRENT_STATE]);
-		helper(flag, state, &key_items, err);
-		if (*err)
+		helper(flag, state, &key_items, exit_code);
+		if (*exit_code == ERR_FATAL)
 			return (free_token_list(key_items.first_token), NULL);
 		state[PREVIOUS_STATE] = state[CURRENT_STATE];
 		i++;

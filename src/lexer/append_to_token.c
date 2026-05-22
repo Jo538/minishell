@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   append_to_token.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 19:33:16 by admin             #+#    #+#             */
-/*   Updated: 2026/04/27 15:42:37 by bribot           ###   ########.fr       */
+/*   Updated: 2026/05/23 01:03:48 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,14 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 #ifdef TESTING
 	t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err)
 #else
-	static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err)
+	static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, int *exit_code)
 #endif
 {
 	t_segment	*new_segment;
 	
 	new_segment = ft_calloc(1, sizeof(t_segment));
 	if (!new_segment)
-		return (*err = ERR_MALLOC, NULL);
+		return (*exit_code = ERR_FATAL, NULL);
 
 	last_segment->next = new_segment;
 	new_segment->next = NULL;
@@ -46,7 +46,7 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 	else
 		new_segment->value = ft_calloc(1, 2);
 	if (!new_segment->value)
-		return (free(new_segment), *err = ERR_MALLOC, NULL);
+		return (free(new_segment), *exit_code = ERR_FATAL, NULL);
 	if (current_state.c == '\'' || current_state.c == '"')
 		return (new_segment);
 	new_segment->value[0] = current_state.c;
@@ -56,7 +56,7 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 #ifdef TESTING
 	void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err)
 #else
-	static void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err)
+	static void	append_to_segment(t_state current_state, t_segment *last_segment, int *exit_code)
 #endif
 {
 	int		len;
@@ -66,7 +66,7 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 	new_value = ft_calloc(1, len + 2);
 	if (!new_value)
 	{
-		*err = ERR_MALLOC;
+		exit_code = ERR_FATAL;
 		return ;
 	}
 	ft_strlcpy(new_value, last_segment->value, len + 2);
@@ -75,15 +75,15 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 	last_segment->value = new_value;
 }
 
-t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *last_segment, t_error *err)
+t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *last_segment, int *exit_code)
 {
 	int	flag;
 
 	flag = check_new_segment(previous_state, current_state);
 	if (flag == 0)
-		append_to_segment(current_state, last_segment, err);
+		append_to_segment(current_state, last_segment, exit_code);
 	if (flag == 1)
-		last_segment = add_new_segment(current_state, last_segment, err);
+		last_segment = add_new_segment(current_state, last_segment, exit_code);
 	if (flag == 2)
 		last_segment->quote_type = current_state.quoting;
 	return (last_segment);

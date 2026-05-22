@@ -6,18 +6,15 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 21:49:26 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 01:50:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	execute(t_tree *node, char **env)
+void	executor(t_tree *node, t_env **my_env, int *exit_code)
 {
-	t_error_exec	err;
-
-	ft_bzero(&err, sizeof(t_error_exec));
 	if (node->type == NODE_CMD)
-		return (cmd_orchestrator(node, env, &err));
-	return (pipe_orchestrator(node, env, &err));
+		cmd_orchestrator(node, my_env, exit_code);
+	pipe_orchestrator(node, my_env, exit_code);
 }

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 20:26:36 by admin             #+#    #+#             */
-/*   Updated: 2026/05/19 17:51:51 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 00:50:46 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void	free_my_env(t_env **my_env)
 	free(my_env);
 }
 
-static void	fill_table(char **envp, t_env **my_env, int count_var, t_error *err)
+static void	fill_table(char **envp, t_env **my_env, int count_var, int *exit_code)
 {
 	int		i;
 	int		key_size;
@@ -105,13 +105,23 @@ static void	fill_table(char **envp, t_env **my_env, int count_var, t_error *err)
 	{
 		my_env[i] = ft_calloc(1, sizeof(t_env));
 		if (!my_env[i])
-			return(free_my_env(my_env));
+		{
+			*exit_code = ERR_FATAL;
+			free_my_env(my_env);
+			my_env = NULL;
+			return ;
+		}
 		delimiter = ft_strchr(envp[i], '=');
 		key_size = delimiter - envp[i];
 		my_env[i]->key = ft_substr(envp[i], 0, key_size);
 		my_env[i]->value = ft_strdup(delimiter + 1);
 		if (!my_env[i]->key || !my_env[i]->value)
-			return(free_my_env(my_env));
+		{
+			*exit_code = ERR_FATAL;
+			free_my_env(my_env);
+			my_env = NULL;
+			return ;
+		}
 		my_env[i]->export_flag = 1;
 		my_env[i]->set_flag = 1;
 		i++;
@@ -119,7 +129,7 @@ static void	fill_table(char **envp, t_env **my_env, int count_var, t_error *err)
 	my_env[count_var] = NULL;
 }
 
-t_env	**env_orchestrator(char **envp, t_error *err)
+t_env	**create_env(char **envp, int *exit_code)
 {
 	int		i;
 	int		count_var;
@@ -134,7 +144,7 @@ t_env	**env_orchestrator(char **envp, t_error *err)
 		count_var++;
 	my_env = ft_calloc(count_var + 1, sizeof(t_env *));
 	if (!my_env)
-		*err = ERR_MALLOC;
-	fill_table(envp, my_env, count_var, err);
+		return (*exit_code = ERR_FATAL, NULL);		
+	fill_table(envp, my_env, count_var, exit_code);
 	return (my_env);
 }

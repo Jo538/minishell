@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 15:11:22 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 01:55:29 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,19 @@ void	errors(int *pipefd, t_error_exec *err)
 	exit(err->err);
 }
 
-void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err)
+void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 {
 	char	*path;
 	
 	path = NULL;
-	files_redirections_orchestrator(pipefd, node->redirections, err);
-	if (err->err)
+	files_redirections_orchestrator(pipefd, node->redirections, exit_code);
+	if (*err)
 		errors(pipefd, err);
-	path = path_orchestrator(node->argv[0], env, err);
+	path = path_orchestrator(node->argv[0], my_env, exit_code);
 	if (!path)
 		errors(pipefd, err);
 	execve(path, node->argv, env);
-	err->err = errno;
+	*err = errno;
 	errors(pipefd, err);	
 }
 
@@ -62,7 +62,7 @@ int	inspect_child_status(pid_t child, int status)
 	return (0);	
 }
 
-int	cmd_orchestrator(t_tree *node, char **env, t_error_exec *err)
+void	cmd_orchestrator(t_tree *node, t_env **my_env, int *exit_code)
 {
 	int		status;
 	pid_t	child;
@@ -72,10 +72,10 @@ int	cmd_orchestrator(t_tree *node, char **env, t_error_exec *err)
 	child = fork();
 	if (child == -1)
 	{
-		err->err = errno;
-		perror("fork");		
+		*exit_code = ERR_FATAL;
+		return ;		
 	}
 	if (child == 0)
-		child_process(NULL, node, env, err);
+		child_process(NULL, node, my_env, exit_code);
 	return (inspect_child_status(child, status));
 }

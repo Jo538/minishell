@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/18 15:11:22 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 00:20:53 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,56 +25,42 @@ void	free_tab(char **tab)
 	free(tab);
 }
 
-static char *malloc_path_var_when_found(char *var, t_error_exec *err)
-{
-	int		len;
-	int		i;
-	char	*path_var;
-	
-	path_var = NULL;
-	i = 0;
-	len = ft_strlen(var) - 5;
-	path_var = ft_substr(var, 5, len);
-	if (!path_var)
-		err->err = ERR_MALLOC;
-	return (path_var);
-}
 #ifdef TESTING
 	char	**extract_paths(char *cmd, char **env, t_error_exec *err)
 #else
-	static char	**extract_paths(char *cmd, char **env, t_error_exec *err)
+	static char	**extract_paths(char *cmd, t_env **my_env, t_error *err)
 #endif
 {
 	int		i;
-	char	*path_var;
+	char	*path_value;
 	char	**path_tab;
 
 	i = 0;
-	path_var = NULL;
+	path_value = NULL;
 	path_tab = NULL;
-	if (!env)
+	if (!my_env)
 		return (NULL);
-	while (env[i])
+	while (my_env[i])
 	{
-		if (!ft_strncmp(env[i], "PATH=", 5))
+		if (!ft_strncmp(my_env[i]->key, "PATH", 4))
 		{
-			path_var = malloc_path_var_when_found(env[i], err);
+			path_value = my_env[i]->value;
 			break ;
 		}
 		i++;
 	}
-	if (!path_var)
+	if (!path_value)
 		return (err->err = ENOENT, err->operation = OPEN_CMD, err->cmd = cmd, NULL);
-	path_tab = ft_split(path_var, ':');
+	path_tab = ft_split(path_value, ':');
 	if (!path_tab)
 		err->err = ERR_MALLOC;
-	return (free(path_var), path_tab);
+	return (path_tab);
 }
 
 #ifdef TESTING
 	char	*find_and_check_path(char *cmd, char **path_tab, t_error_exec *err)
 #else
-	static char	*find_and_check_path(char *cmd, char **path_tab, t_error_exec *err)
+	static char	*find_and_check_path(char *cmd, char **path_tab, t_error *err)
 #endif
 {
 	int		i;
@@ -103,26 +89,26 @@ static char *malloc_path_var_when_found(char *var, t_error_exec *err)
 	return (path);
 }
 
-char	*path_orchestrator(char *cmd, char **env, t_error_exec *err)
+char	*path_orchestrator(char *cmd, t_env **my_env, t_error *err)
 {
 	char	*path;
 	char	**path_tab;
 
 	path = NULL;
 	path_tab = NULL;
-	if (!cmd || !env)
+	if (!cmd || !my_env)
 		return (NULL);
 	if (ft_strchr(cmd, '/'))
 	{
 		path = ft_strdup(cmd);
 		if (!path)
-			return (err->err = ERR_MALLOC, NULL);
+			return (*err = ERR_FATAL, NULL);
 		if (access(path, F_OK | X_OK))
-			return (err->err = errno, err->operation = OPEN_CMD, err->cmd = cmd, free(path), NULL);	
+			return (*err = errno, err->operation = OPEN_CMD, err->cmd = cmd, free(path), NULL);	
 	}
 	else
 	{
-		path_tab = extract_paths(cmd, env, err);
+		path_tab = extract_paths(cmd, my_env, err);
 		path = find_and_check_path(cmd, path_tab, err);
 	if (path_tab)
 		free_tab(path_tab);

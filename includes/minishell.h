@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 21:53:09 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 01:50:59 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,15 @@
 // ENUMS - ERRORS
 typedef enum e_error
 {
-	ERR_MALLOC = 1,
+	ERR_FATAL = -1,
+	NO_ERR = 0,
+	ERR_CMD = 1,
+	ERR_FILE = 2,
+	ERR_PERMISSION = 3,
+	ERR_INVALID_IDENTIFIER = 4,
+	ERR_NON_NUMERIC_ARGUMENT = 5,
+	ERR_TOO_MANY_ARGS = 6,
+	ERR_SYNTAX = 7
 }	t_error;
 
 // ENUMS
@@ -142,20 +150,20 @@ typedef struct s_env
 
 // FUNCT
 t_state	create_current_state(char c, int i, t_state previous_state);
-t_token	*create_token(t_state current_state, t_token *tail, t_error *err);
+t_token	*create_token(t_state current_state, t_token *tail, int *exit_code);
 int		check_new_token(int i, t_state previous_state, t_state current_state);
 void	change_token_type(t_state current_state, t_token *last_token, t_error *err);
-t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, t_error *err);
+t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, int *exit_code);
 void	free_token_list(t_token *token_list_head);
-t_token	*lexer_orchestrator(char *prompt, t_error *err);
-char	*path_orchestrator(char *cmd, char **env, t_error_exec *err);
+t_token	*lexer(char *prompt, int *exit_code);
+char	*path_orchestrator(char *cmd, t_env **my_env, t_error *err);
 void	free_tab(char **tab);
-int	cmd_orchestrator(t_tree *current_node, char **env, t_error_exec *err);
-void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error_exec *err);
-int	pipe_orchestrator(t_tree *node, char **env, t_error_exec *err);
-void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err);
+void	cmd_orchestrator(t_tree *current_node, t_env **my_env, t_error *err);
+void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error *err);
+void	pipe_orchestrator(t_tree *node, t_env **my_env, t_error *err);
+void	child_process(int *pipefd, t_tree *node, t_env **my_env, t_error *err);
 int	inspect_child_status(pid_t child, int status);
-int	execute(t_tree *node, char **env);
+void	executor(t_tree *node, t_env **my_env, int *exit_code);
 void	errors(int *pipefd, t_error_exec *err);
 
 /// PARSING
@@ -189,7 +197,7 @@ t_env	**create_new_row(char *cmd, t_env **my_env, t_error *err);
 t_env	**run_unset(char **cmd, t_env ** my_env, t_error *err);
 
 // env
-t_env	**env_orchestrator(char **envp, t_error *err);
+t_env	**create_env(char **envp, int *exit_code);
 void	free_my_env(t_env **my_env);
 char	**consolidate_my_env(t_env **my_env, t_error *err);
 

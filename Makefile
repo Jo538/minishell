@@ -6,7 +6,7 @@
 #    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/20 15:40:59 by benji            ###   ########.fr        #
+#    Updated: 2026/05/22 14:18:36 by benji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
 	parsing.c parsing_utils.c parsing_right_part.c \
 	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c \
-	check_ifgood.c make_right_part_utils.c right_part_utils_redirs.c \
+	make_right_part_utils.c right_part_utils_redirs.c \
+	check_redirs.c check_ifgood.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 20:26:36 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 00:50:46 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 05:34:00 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static int	find_size(t_env **my_env)
 	return (size);
 }
 
-static void	join_segments(t_env *my_env, char **new_env, int index, t_error *err)
+static void	join_segments(t_env *my_env, char **new_env, int index, int *exit_code)
 {
 	char	*tmp;
 
@@ -36,16 +36,16 @@ static void	join_segments(t_env *my_env, char **new_env, int index, t_error *err
 	tmp = ft_strjoin(my_env->key, "=");
 	if (!tmp)
 	{
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 		return ;		
 	}
 	new_env[index] = ft_strjoin(tmp, my_env->value);
 	free(tmp);
 	if (!new_env)
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 }
 
-char	**consolidate_my_env(t_env **my_env, t_error *err)
+char	**consolidate_my_env(t_env **my_env, int *exit_code)
 {
 	int		i;
 	int		j;
@@ -58,13 +58,13 @@ char	**consolidate_my_env(t_env **my_env, t_error *err)
 	size = find_size(my_env);
 	new_env = ft_calloc(size + 1, sizeof(char *));
 	if (!new_env)
-		return (*err = ERR_MALLOC, NULL);
+		return (*exit_code = ERR_FATAL, NULL);
 	while (my_env[j])
 	{		
 		if (my_env[j]->export_flag && my_env[j]->set_flag)
 		{
-			join_segments(my_env[j], new_env, i, err);
-			if (*err)
+			join_segments(my_env[j], new_env, i, exit_code);
+			if (*exit_code)
 				return (free_tab(new_env), NULL);
 			i++;		
 		}

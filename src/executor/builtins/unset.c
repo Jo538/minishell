@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 21:13:51 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 23:19:58 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 04:48:39 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,14 @@ static int	search_key(char *cmd, t_env **my_env)
 	return (-1);
 }
 
-static t_env **resize_my_env(t_env **my_env, int size, int index, t_error *err)
+static t_env **resize_my_env(t_env **my_env, int size, int index, int *exit_code)
 {
 	t_env	**new_env;
 
 	new_env = ft_calloc(size, sizeof(t_env *));
 	if (!new_env)
 	{
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 		return (NULL);		
 	}
 	free(my_env[index]->key);
@@ -83,7 +83,7 @@ static void	fill_new_env(t_env **new_env, t_env **my_env, int index, int size)
 	free(my_env);
 }
 
-t_env	**run_unset(char **cmd, t_env ** my_env, t_error *err)
+t_env	**run_unset(char **cmd, t_env ** my_env, int *exit_code)
 {
 	int	i;
 	int	size;
@@ -99,7 +99,7 @@ t_env	**run_unset(char **cmd, t_env ** my_env, t_error *err)
 		key_index = search_key(cmd[i], my_env);
 		if (key_index != -1)
 		{
-			new_env = resize_my_env(my_env, size, key_index, err);
+			new_env = resize_my_env(my_env, size, key_index, exit_code);
 			fill_new_env(new_env, my_env, key_index, size);
 			my_env = new_env;
 		}

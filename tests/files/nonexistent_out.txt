@@ -1,1 +1,9 @@
+
+exit code: 0
+exit code: 0
+exit code: 127
+exit code: 127
+exit code: 127
+exit code: 0
+exit code: 0
 hello

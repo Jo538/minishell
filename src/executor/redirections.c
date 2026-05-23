@@ -6,25 +6,22 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 00:21:54 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 07:46:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	redirection_error(int *pipefd, t_redir *redir, t_error *err)
+static void	redirection_error(int *pipefd, t_redir *redir, int *exit_code)
 {
 	if (pipefd)
 	{
 		close(pipefd[0]);
 		close(pipefd[1]);		
 	}
-	err->err = errno;
-	err->operation = OPEN_FILE;
-	err->cmd = redir->file;
 }
 
-static int	open_redirection_file(t_redir *redir, t_error *err)
+static int	open_redirection_file(t_redir *redir, int *exit_code)
 {
 	int	fd;
 	int	len;
@@ -77,7 +74,7 @@ static int	check_same_redirection_later(t_redir *redir)
 	return (0);
 }
 
-void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error *err)
+void	files_redirections_orchestrator(int *pipefd, t_redir *redir, int *exit_code)
 {
 	int	fd;
 	int	flag;
@@ -87,9 +84,9 @@ void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error *err)
 		return ;
 	while (redir)
 	{
-		fd = open_redirection_file(redir, err);
+		fd = open_redirection_file(redir, exit_code);
 		if (fd == -1)
-			return (redirection_error(pipefd, redir, err));
+			return (redirection_error(pipefd, redir, exit_code));
 		if (!redir->next)
 		{
 			run_redirection(fd, redir);

@@ -1,0 +1,17 @@
+==190== Memcheck, a memory error detector
+==190== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
+==190== Using Valgrind-3.25.1 and LibVEX; rerun with -h for copyright info
+==190== Command: ./test_minishell
+==190== Parent PID: 1
+==190== 
+==190== 
+==190== FILE DESCRIPTORS: 3 open (3 inherited) at exit.
+==190== 
+==190== HEAP SUMMARY:
+==190==     in use at exit: 0 bytes in 0 blocks
+==190==   total heap usage: 44 allocs, 44 frees, 947 bytes allocated
+==190== 
+==190== All heap blocks were freed -- no leaks are possible
+==190== 
+==190== For lists of detected and suppressed errors, rerun with: -s
+==190== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

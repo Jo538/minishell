@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 19:33:16 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 01:03:48 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 05:20:54 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 }
 
 #ifdef TESTING
-	t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, t_error *err)
+	t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, int *exit_code)
 #else
 	static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, int *exit_code)
 #endif
@@ -54,7 +54,7 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 }
 
 #ifdef TESTING
-	void	append_to_segment(t_state current_state, t_segment *last_segment, t_error *err)
+	void	append_to_segment(t_state current_state, t_segment *last_segment, int *exit_code)
 #else
 	static void	append_to_segment(t_state current_state, t_segment *last_segment, int *exit_code)
 #endif
@@ -66,7 +66,7 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 	new_value = ft_calloc(1, len + 2);
 	if (!new_value)
 	{
-		exit_code = ERR_FATAL;
+		*exit_code = ERR_FATAL;
 		return ;
 	}
 	ft_strlcpy(new_value, last_segment->value, len + 2);

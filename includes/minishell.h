@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 01:50:59 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 07:09:38 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,10 @@ typedef enum e_error
 {
 	ERR_FATAL = -1,
 	NO_ERR = 0,
-	ERR_CMD = 1,
-	ERR_FILE = 2,
-	ERR_PERMISSION = 3,
+	ERR_CMD = 127,
+	ERR_CMD_FILE = 127,
+	ERR_FILE = 1,
+	ERR_PERMISSION = 126,
 	ERR_INVALID_IDENTIFIER = 4,
 	ERR_NON_NUMERIC_ARGUMENT = 5,
 	ERR_TOO_MANY_ARGS = 6,
@@ -85,13 +86,6 @@ typedef enum e_token
 
 # define NODE_CMD 1
 # define NODE_PIPE 2
-
-typedef struct	s_error_exec
-{
-	int		err;
-	int		operation;
-	char	*cmd;
-}	t_error_exec;
 
 typedef struct s_state
 {
@@ -148,23 +142,28 @@ typedef struct s_env
 	int		set_flag;
 }	t_env;
 
+// env
+t_env	**create_env(char **envp, int *exit_code);
+void	free_my_env(t_env **my_env);
+char	**consolidate_my_env(t_env **my_env, int *exit_code);
+
 // FUNCT
 t_state	create_current_state(char c, int i, t_state previous_state);
 t_token	*create_token(t_state current_state, t_token *tail, int *exit_code);
 int		check_new_token(int i, t_state previous_state, t_state current_state);
-void	change_token_type(t_state current_state, t_token *last_token, t_error *err);
+void	change_token_type(t_state current_state, t_token *last_token, int *exit_code);
 t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *segment, int *exit_code);
 void	free_token_list(t_token *token_list_head);
 t_token	*lexer(char *prompt, int *exit_code);
-char	*path_orchestrator(char *cmd, t_env **my_env, t_error *err);
+char	*path_orchestrator(char *cmd, t_env **my_env, int *exit_code);
 void	free_tab(char **tab);
-void	cmd_orchestrator(t_tree *current_node, t_env **my_env, t_error *err);
-void	files_redirections_orchestrator(int *pipefd, t_redir *redir, t_error *err);
-void	pipe_orchestrator(t_tree *node, t_env **my_env, t_error *err);
-void	child_process(int *pipefd, t_tree *node, t_env **my_env, t_error *err);
+void	cmd_orchestrator(t_tree *current_node, t_env **my_env, int *exit_code);
+void	files_redirections_orchestrator(int *pipefd, t_redir *redir, int *exit_code);
+void	pipe_orchestrator(t_tree *node, t_env **my_env, int *exit_code);
+void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code);
 int	inspect_child_status(pid_t child, int status);
 void	executor(t_tree *node, t_env **my_env, int *exit_code);
-void	errors(int *pipefd, t_error_exec *err);
+void	errors(int *exit_code);
 
 /// PARSING
 
@@ -189,17 +188,20 @@ int		have_pipe(t_token *token);
 void	free_the_tree(t_tree *tree, t_token *token);
 
 // builtins
-void	run_cd(char **cmd, t_error_exec *err);
-t_env	**run_export(char **cmd, t_env **my_env, t_error *err);
-void	append_value(char *cmd, t_env *row, t_error *err);
-void	append_key(char *cmd, t_env *row, t_error *err);
-t_env	**create_new_row(char *cmd, t_env **my_env, t_error *err);
-t_env	**run_unset(char **cmd, t_env ** my_env, t_error *err);
+void	free_node(t_tree *node);
+void	run_echo(char **cmd);
+void	run_env(t_env **my_env);
+void	run_exit(char **cmd, int *exit_code);
+void	run_pwd(void);
+int	is_builtin(t_tree *node);
+void	builtin_orchestrator(t_tree *node, t_env **my_env, int *exit_code);
+void	run_cd(char **cmd, int *exit_code);
+t_env	**run_export(char **cmd, t_env **my_env, int *exit_code);
+void	append_value(char *cmd, t_env *row, int *exit_code);
+void	append_key(char *cmd, t_env *row, int *exit_code);
+t_env	**create_new_row(char *cmd, t_env **my_env, int *exit_code);
+t_env	**run_unset(char **cmd, t_env ** my_env, int *exit_code);
 
-// env
-t_env	**create_env(char **envp, int *exit_code);
-void	free_my_env(t_env **my_env);
-char	**consolidate_my_env(t_env **my_env, t_error *err);
 
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:06:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 23:34:42 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 05:27:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static t_env	*search_key(char *cmd, t_env **my_env)
 	return (NULL);
 }
 
-void	append_value(char *cmd, t_env *row, t_error *err)
+void	append_value(char *cmd, t_env *row, int *exit_code)
 {
 	int		index;
 	char	*delimiter;
@@ -65,12 +65,12 @@ void	append_value(char *cmd, t_env *row, t_error *err)
 			free(row->value);
 		row->value = ft_strdup(delimiter + 1);
 		if (!row->value)
-			*err = ERR_MALLOC;
+			*exit_code = ERR_FATAL;
 		row->set_flag = 1;
 	}
 }
 
-void	append_key(char *cmd, t_env *row, t_error *err)
+void	append_key(char *cmd, t_env *row, int *exit_code)
 {
 	int		size;
 	char	*delimiter;
@@ -82,11 +82,11 @@ void	append_key(char *cmd, t_env *row, t_error *err)
 		size = delimiter - cmd;
 	row->key = ft_substr(cmd, 0, size);
 	if (!row->key)
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 	row->export_flag = 1;
 }
 
-t_env	**run_export(char **cmd, t_env **my_env, t_error *err)
+t_env	**run_export(char **cmd, t_env **my_env, int *exit_code)
 {
 	int		i;
 	int		size;
@@ -103,12 +103,12 @@ t_env	**run_export(char **cmd, t_env **my_env, t_error *err)
 			key = search_key(cmd[i], my_env);
 			if (key)
 			{
-				append_value(cmd[i], key, err);
-				if (*err)
+				append_value(cmd[i], key, exit_code);
+				if (*exit_code)
 					return (NULL);			
 			}	
 			else
-				my_env = create_new_row(cmd[i], my_env, err);
+				my_env = create_new_row(cmd[i], my_env, exit_code);
 			i++;		
 		}
 	}

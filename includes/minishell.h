@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/20 16:20:43 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/22 14:17:22 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ void	errors(int *pipefd, t_error_exec *err);
 ///CHECKER
 
 int	check_ifgood(t_token *token);
+int	check_redirs(t_token *token);
 
 /// PARSING
 
@@ -162,6 +163,8 @@ t_tree	*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
 t_tree	*make_right_part(t_token *token);
 t_tree	*put_right_part(t_tree *tree);
 t_tree	*fill_right_part(t_tree *tree);
+int		have_a_token_left(t_token *token);
+t_token	*go_to_pipe_left(t_token *token);
 t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token);
 t_tree	*create_pipe_part(t_token *token);
 t_token	*find_last_pipe(t_token *token);

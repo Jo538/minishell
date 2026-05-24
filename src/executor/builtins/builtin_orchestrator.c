@@ -6,11 +6,25 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 22:27:25 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 07:36:00 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/24 01:52:00 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	free_redirections(t_tree *node)
+{
+	t_redir	*tmp;
+
+	tmp = node->redirections;
+	while (node->redirections)
+	{
+		free(node->redirections->file);
+		tmp = node->redirections->next;
+		free(node->redirections);	
+		node->redirections = tmp;	
+	}
+}
 
 void	free_node(t_tree *node)
 {
@@ -22,10 +36,7 @@ void	free_node(t_tree *node)
 	}
 	free(node->argv);
 	if (node->redirections)
-	{
-		free(node->redirections->file);
-		free(node->redirections);
-	}
+		free_redirections(node);
 	free(node);
 }
 

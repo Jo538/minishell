@@ -1,1 +1,35 @@
-Descriptif : « C’est un roc ! … c’est un pic ! … c’est un cap !
+--------------TEST EXECUTOR-------------
+
+
+--TEST 1--echo hello
+exit code: 0
+
+--TEST 2--/bin/echo hello
+exit code: 0
+
+--TEST 3--echoo hello
+exit code: 127
+
+--TEST 4--/bin/echoo hello
+exit code: 127
+
+--TEST 5--tests/files/unreadable_file.txt hello
+exit code: 126
+
+--TEST 6--cat < tests/files/in.txt
+exit code: 0
+
+--TEST 7--echo hello > tests/files/out.txt
+exit code: 0
+
+--TEST 8--echo hello > tests/files/nonexistent_out.txt
+exit code: 0
+
+--TEST 9--cat < tests/files/unreadable_file.txt
+exit code: 126
+
+--TEST 10--echo hello > tests/files/unwritable_file.txt
+exit code: 126
+
+--TEST 11--echo hello > tests/files/out.txt > tests/files/out1.txt
+hello

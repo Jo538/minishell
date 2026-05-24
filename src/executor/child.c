@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 07:05:00 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/24 01:37:48 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,13 @@ void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 	char	*path;
 	
 	path = NULL;
-	files_redirections_orchestrator(pipefd, node->redirections, exit_code);
+	files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
 	if (*exit_code)
-		errors(exit_code);
+	{
+		free_node(node);
+		free_my_env(my_env);
+		exit(*exit_code);
+	}
 	if (is_builtin(node))
 		builtin_orchestrator(node, my_env, exit_code);
 	path = path_orchestrator(node->argv[0], my_env, exit_code);

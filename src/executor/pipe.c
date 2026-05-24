@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 05:27:54 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/24 01:39:43 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static void left_child(int *pipefd, t_tree *node, t_env **my_env, int *exit_code
 	path = NULL;
 	if (node->type == NODE_CMD)
 	{
-		files_redirections_orchestrator(pipefd, node->redirections, exit_code);
+		files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
 		if (*exit_code)
 			errors(exit_code);
 		path = path_orchestrator(node->argv[0], my_env, exit_code);
@@ -60,7 +60,7 @@ static void right_child(int *pipefd, t_tree *node, t_env **my_env, int *exit_cod
 	char	*path;
 	
 	path = NULL;
-	files_redirections_orchestrator(pipefd, node->redirections, exit_code);
+	files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
 	if (*exit_code)
 		errors(exit_code);
 	path = path_orchestrator(node->argv[0], my_env, exit_code);

@@ -6,19 +6,24 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 07:46:33 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/24 01:38:31 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	redirection_error(int *pipefd, t_redir *redir, int *exit_code)
+static void	redirection_error(char *cmd, int *pipefd, t_redir *redir, int *exit_code)
 {
 	if (pipefd)
 	{
 		close(pipefd[0]);
 		close(pipefd[1]);		
 	}
+	print_error(cmd, redir->file, *exit_code);
+	if (*exit_code == ENOENT)
+		*exit_code = 1;
+	if (*exit_code == EACCES)
+		*exit_code = 126;	
 }
 
 static int	open_redirection_file(t_redir *redir, int *exit_code)
@@ -42,6 +47,8 @@ static int	open_redirection_file(t_redir *redir, int *exit_code)
 		fd = open("temp_heredoc.txt", O_RDWR);
 		unlink("temp_heredoc.txt");	
 	}
+	if (fd == -1)
+		*exit_code = errno;
 	return (fd);
 }
 
@@ -74,7 +81,7 @@ static int	check_same_redirection_later(t_redir *redir)
 	return (0);
 }
 
-void	files_redirections_orchestrator(int *pipefd, t_redir *redir, int *exit_code)
+void	files_redirections_orchestrator(char *cmd, int *pipefd, t_redir *redir, int *exit_code)
 {
 	int	fd;
 	int	flag;
@@ -86,7 +93,7 @@ void	files_redirections_orchestrator(int *pipefd, t_redir *redir, int *exit_code
 	{
 		fd = open_redirection_file(redir, exit_code);
 		if (fd == -1)
-			return (redirection_error(pipefd, redir, exit_code));
+			return (redirection_error(cmd, pipefd, redir, exit_code));
 		if (!redir->next)
 		{
 			run_redirection(fd, redir);

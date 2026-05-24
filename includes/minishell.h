@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 07:09:38 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/24 01:38:58 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ typedef enum e_error
 {
 	ERR_FATAL = -1,
 	NO_ERR = 0,
-	ERR_CMD = 127,
-	ERR_CMD_FILE = 127,
-	ERR_FILE = 1,
-	ERR_PERMISSION = 126,
-	ERR_INVALID_IDENTIFIER = 4,
-	ERR_NON_NUMERIC_ARGUMENT = 5,
-	ERR_TOO_MANY_ARGS = 6,
-	ERR_SYNTAX = 7
+	ERR_CMD = 1,
+	ERR_CMD_FILE = 2,
+	ERR_FILE = 3,
+	ERR_PERMISSION = 4,
+	ERR_INVALID_IDENTIFIER = 5,
+	ERR_NON_NUMERIC_ARGUMENT = 6,
+	ERR_TOO_MANY_ARGS = 7,
+	ERR_SYNTAX = 8
 }	t_error;
 
 // ENUMS
@@ -158,12 +158,13 @@ t_token	*lexer(char *prompt, int *exit_code);
 char	*path_orchestrator(char *cmd, t_env **my_env, int *exit_code);
 void	free_tab(char **tab);
 void	cmd_orchestrator(t_tree *current_node, t_env **my_env, int *exit_code);
-void	files_redirections_orchestrator(int *pipefd, t_redir *redir, int *exit_code);
+void	files_redirections_orchestrator(char *cmd, int *pipefd, t_redir *redir, int *exit_code);
 void	pipe_orchestrator(t_tree *node, t_env **my_env, int *exit_code);
 void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code);
 int	inspect_child_status(pid_t child, int status);
 void	executor(t_tree *node, t_env **my_env, int *exit_code);
 void	errors(int *exit_code);
+void	print_error(char *cmd, char *file, int error);
 
 /// PARSING
 

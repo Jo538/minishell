@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/24 01:38:58 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:08:17 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,7 @@ void	free_my_env(t_env **my_env);
 char	**consolidate_my_env(t_env **my_env, int *exit_code);
 
 // FUNCT
+void	free_and_exit(t_tree *node, t_env **my_env, int *exit_code);
 t_state	create_current_state(char c, int i, t_state previous_state);
 t_token	*create_token(t_state current_state, t_token *tail, int *exit_code);
 int		check_new_token(int i, t_state previous_state, t_state current_state);
@@ -159,13 +160,12 @@ char	*path_orchestrator(char *cmd, t_env **my_env, int *exit_code);
 void	free_tab(char **tab);
 void	cmd_orchestrator(t_tree *current_node, t_env **my_env, int *exit_code);
 void	files_redirections_orchestrator(char *cmd, int *pipefd, t_redir *redir, int *exit_code);
-void	pipe_orchestrator(t_tree *node, t_env **my_env, int *exit_code);
+void	pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env, int *exit_code);
 void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code);
 int	inspect_child_status(pid_t child, int status);
 void	executor(t_tree *node, t_env **my_env, int *exit_code);
 void	errors(int *exit_code);
-void	print_error(char *cmd, char *file, int error);
-
+void	error_orchestrator(int *exit_code, int translate, int error, int type, char *cmd, char *file);
 /// PARSING
 
 t_token	*find_last_pipe(t_token *token);
@@ -195,7 +195,7 @@ void	run_env(t_env **my_env);
 void	run_exit(char **cmd, int *exit_code);
 void	run_pwd(void);
 int	is_builtin(t_tree *node);
-void	builtin_orchestrator(t_tree *node, t_env **my_env, int *exit_code);
+void	builtin_orchestrator(t_tree *root, t_tree *node, t_env **my_env, int *exit_code);
 void	run_cd(char **cmd, int *exit_code);
 t_env	**run_export(char **cmd, t_env **my_env, int *exit_code);
 void	append_value(char *cmd, t_env *row, int *exit_code);

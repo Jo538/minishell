@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/05/24 01:39:43 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:22:48 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,52 +28,58 @@ static void	pipe_redirections(char direction, int *pipefd)
 	}
 }
 
-static void left_child(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
+static void left_child(t_tree *root, int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 {
 	char	**env;
 	char	*path;
+	t_tree	*left_node;
 
 	path = NULL;
-	if (node->type == NODE_CMD)
+	left_node = node->left;
+	if (left_node->type == NODE_CMD)
 	{
-		files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
+		pipe_redirections('L', pipefd);
+		files_redirections_orchestrator(left_node->argv[0], pipefd, left_node->redirections, exit_code);
 		if (*exit_code)
-			errors(exit_code);
-		path = path_orchestrator(node->argv[0], my_env, exit_code);
-		if (!path)
-			errors(exit_code);
-		pipe_redirections('L', pipefd);
+			free_and_exit(root, my_env, exit_code);
+		if (is_builtin(left_node))
+			builtin_orchestrator(root, left_node, my_env, exit_code);
+		path = path_orchestrator(left_node->argv[0], my_env, exit_code);
+		if (*exit_code)
+			free_and_exit(root, my_env, exit_code);
 		env = consolidate_my_env(my_env, exit_code);
-		execve(path, node->argv, env);			
+		execve(path, left_node->argv, env);			
 	}
-	if (node->type == NODE_PIPE)
+	if (left_node->type == NODE_PIPE)
 	{
 		pipe_redirections('L', pipefd);
-		pipe_orchestrator(node, my_env, exit_code);
-		exit(0);		
+		pipe_orchestrator(root, left_node, my_env, exit_code);
+		free_and_exit(root, my_env, exit_code);		
 	}
 }
 
-static void right_child(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
+static void right_child(t_tree *root, int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 {
 	char	**env;
 	char	*path;
+	t_tree	*right_node;
 	
 	path = NULL;
-	files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
-	if (*exit_code)
-		errors(exit_code);
-	path = path_orchestrator(node->argv[0], my_env, exit_code);
-	if (!path)
-		errors(exit_code);
+	right_node = node->right;
 	pipe_redirections('R', pipefd);
+	files_redirections_orchestrator(right_node->argv[0], pipefd, right_node->redirections, exit_code);
+	if (*exit_code)
+		free_and_exit(root, my_env, exit_code);
+	if (is_builtin(right_node))
+		builtin_orchestrator(root, right_node, my_env, exit_code);
+	path = path_orchestrator(right_node->argv[0], my_env, exit_code);
+	if (*exit_code)
+		free_and_exit(root, my_env, exit_code);
 	env = consolidate_my_env(my_env, exit_code);
-	execve(path, node->argv, env);
-	*exit_code = errno;
-	errors(exit_code);	
+	execve(path, right_node->argv, env);
 }
 
-void	pipe_orchestrator(t_tree *node, t_env **my_env, int *exit_code)
+void	pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env, int *exit_code)
 {
 	int		status;
 	int		pipefd[2];
@@ -89,14 +95,14 @@ void	pipe_orchestrator(t_tree *node, t_env **my_env, int *exit_code)
 	if (child[0] == -1)
 		*exit_code= errno;
 	else if (child[0] == 0)
-		left_child(pipefd, node->left, my_env, exit_code);
+		left_child(root, pipefd, node, my_env, exit_code);
 	child[1] = fork();
 	if (child[1] == -1)
 		*exit_code = errno;
 	else if (child[1] == 0)
-		right_child(pipefd, node->right, my_env, exit_code);
+		right_child(root, pipefd, node, my_env, exit_code);
 	close(pipefd[0]);
 	close(pipefd[1]);
 	waitpid(child[0], NULL, 0);
-	inspect_child_status(child[1], status);
+	*exit_code = inspect_child_status(child[1], status);
 }

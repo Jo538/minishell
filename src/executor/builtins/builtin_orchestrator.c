@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 22:27:25 by admin             #+#    #+#             */
-/*   Updated: 2026/05/24 01:52:00 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:23:18 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	free_redirections(t_tree *node)
 	}
 }
 
-void	free_node(t_tree *node)
+static void	free_argv(t_tree *node)
 {
 	int i = 0;
 	while (node->argv[i])
@@ -35,8 +35,21 @@ void	free_node(t_tree *node)
 		i++;
 	}
 	free(node->argv);
+}
+
+void	free_node(t_tree *node)
+{
+	t_tree	*tmp;
+
+	tmp = NULL;
+	if (node->argv)
+		free_argv(node);
 	if (node->redirections)
 		free_redirections(node);
+	if (node->left)
+		free_node(node->left);
+	if (node->right)
+		free_node(node->right);		
 	free(node);
 }
 
@@ -71,7 +84,7 @@ int	is_builtin(t_tree *node)
 	return (0);
 }
 
-void	builtin_orchestrator(t_tree *node, t_env **my_env, int *exit_code)
+void	builtin_orchestrator(t_tree *root, t_tree *node, t_env **my_env, int *exit_code)
 {
 	if (!ft_strncmp("cd", node->argv[0], 2))
 		run_cd(node->argv, exit_code);
@@ -87,7 +100,5 @@ void	builtin_orchestrator(t_tree *node, t_env **my_env, int *exit_code)
 		run_pwd();
 	if (!ft_strncmp("unset", node->argv[0], 5))
 		run_unset(node->argv, my_env, exit_code);
-	free_node(node);
-	free_my_env(my_env);
-	exit(*exit_code);
+	free_and_exit(root, my_env, exit_code);
 }

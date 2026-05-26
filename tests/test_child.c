@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/24 03:44:10 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:28:58 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,17 +233,25 @@ t_tree *make_node(t_tree *node)
 	t_tree *new_node;
 	int size = 0;
 	int i = 0;
-	while (node->argv[size])
-		size++;
 	new_node = ft_calloc(1, sizeof(t_tree));
-	new_node->argv = ft_calloc(size + 1, sizeof(char *));
-	while (node->argv[i])
+	if (node->type == NODE_CMD)
 	{
-		new_node->argv[i] = ft_strdup(node->argv[i]);
-		i++;
+		while (node->argv[size])
+			size++;
+		new_node->argv = ft_calloc(size + 1, sizeof(char *));
+		while (node->argv[i])
+		{
+			new_node->argv[i] = ft_strdup(node->argv[i]);
+			i++;
+		}		
 	}
 	if (node->redirections)
 		new_node->redirections = make_redirections(new_node->redirections, node->redirections);
+	if (node->type == NODE_PIPE)
+	{
+		new_node->left = node->left;
+		new_node->right = node->right;
+	}
 	new_node->type = node->type;
 	return (new_node);
 }
@@ -261,12 +269,12 @@ void test_improved_version_executor(void)
 	// system("mkdir -p tests/temp/test_outputs");
 
 	// create malloc'd env
-	t_env *my_env[] = {&(t_env){"HOME", "admin", 1, 1}, &(t_env){"PATH", "/local/sbin:/local/bin:/bin", 1, 1}, NULL};
+	t_env *my_env[] = {&(t_env){"HOME", "admin", 1, 1}, &(t_env){"PATH", "/local/sbin:/local/bin:/bin:/usr/bin", 1, 1}, NULL};
 	t_env **env = make_env(my_env);
 
 	// Test 1: echo hello
 	printf("\n--TEST 1--%s", "echo hello\n");
-	t_tree *node1 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, NULL, NULL, NULL});
+	t_tree *node1 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, NULL, NULL, NULL});
 	executor(node1, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node1);
@@ -274,7 +282,7 @@ void test_improved_version_executor(void)
 
 	// // Test 2: /bin/echo hello
 	printf("\n--TEST 2--%s", "/bin/echo hello\n");
-	t_tree *node2 = make_node(&(t_tree){CMD, (char *[]){"/bin/echo", "hello", NULL}, NULL, NULL, NULL});	
+	t_tree *node2 = make_node(&(t_tree){NODE_CMD, (char *[]){"/bin/echo", "hello", NULL}, NULL, NULL, NULL});	
 	executor(node2, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node2);
@@ -282,7 +290,7 @@ void test_improved_version_executor(void)
 
 	// Test 3: echoo hello
 	printf("\n--TEST 3--%s", "echoo hello\n");
-	t_tree *node3 = make_node(&(t_tree){CMD, (char *[]){"echoo", "hello", NULL}, NULL, NULL, NULL});
+	t_tree *node3 = make_node(&(t_tree){NODE_CMD, (char *[]){"echoo", "hello", NULL}, NULL, NULL, NULL});
 	executor(node3, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node3);	
@@ -292,7 +300,7 @@ void test_improved_version_executor(void)
 
 	// Test 4: /bin/echoo hello
 	printf("\n--TEST 4--%s", "/bin/echoo hello\n");
-	t_tree *node4 = make_node(&(t_tree){CMD, (char *[]){"/bin/echoo", "hello", NULL}, NULL, NULL, NULL});
+	t_tree *node4 = make_node(&(t_tree){NODE_CMD, (char *[]){"/bin/echoo", "hello", NULL}, NULL, NULL, NULL});
 	executor(node4, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node4);
@@ -302,7 +310,7 @@ void test_improved_version_executor(void)
 
 	// Test 5: tests/files/unreadable_file.txt hello
 	printf("\n--TEST 5--%s", "tests/files/unreadable_file.txt hello\n");
-	t_tree *node5 = make_node(&(t_tree){CMD, (char *[]){"tests/files/unreadable_file.txt", "hello", NULL}, NULL, NULL, NULL});
+	t_tree *node5 = make_node(&(t_tree){NODE_CMD, (char *[]){"tests/files/unreadable_file.txt", "hello", NULL}, NULL, NULL, NULL});
 	executor(node5, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node5);
@@ -312,7 +320,7 @@ void test_improved_version_executor(void)
 	
 	// Test 6 cat < tests/files/in.txt
 	printf("\n--TEST 6--%s", "cat < tests/files/in.txt\n");
-	t_tree *node6 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/in.txt", NULL}, NULL, NULL});
+	t_tree *node6 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/in.txt", NULL}, NULL, NULL});
 	executor(node6, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node6);
@@ -320,7 +328,7 @@ void test_improved_version_executor(void)
 
 	// Test 7: echo hello > tests/files/out.txt
 	printf("\n--TEST 7--%s", "echo hello > tests/files/out.txt\n");
-	t_tree *node7 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/out.txt", NULL}, NULL, NULL});
+	t_tree *node7 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/out.txt", NULL}, NULL, NULL});
 	executor(node7, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node7);
@@ -328,7 +336,7 @@ void test_improved_version_executor(void)
 
 	// Test 8: echo hello > tests/files/nonexistent_out.txt
 	printf("\n--TEST 8--%s", "echo hello > tests/files/nonexistent_out.txt\n");
-	t_tree *node8 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/nonexistent_out.txt", NULL}, NULL, NULL});
+	t_tree *node8 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/nonexistent_out.txt", NULL}, NULL, NULL});
 	executor(node8, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node8);
@@ -336,7 +344,7 @@ void test_improved_version_executor(void)
 
 	// Test 9: cat < tests/files/unreadable_file.txt
 	printf("\n--TEST 9--%s", "cat < tests/files/unreadable_file.txt\n");
-	t_tree *node9 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){IN_DIR, "tests/files/unreadable_file.txt", NULL}, NULL, NULL});
+	t_tree *node9 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){IN_DIR, "tests/files/unreadable_file.txt", NULL}, NULL, NULL});
 	executor(node9, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node9);
@@ -344,7 +352,7 @@ void test_improved_version_executor(void)
 
 	// Test 10: echo hello > tests/files/unwritable_file.txt
 	printf("\n--TEST 10--%s", "echo hello > tests/files/unwritable_file.txt\n");
-	t_tree *node10 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/unwritable_file.txt", NULL}, NULL, NULL});
+	t_tree *node10 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/unwritable_file.txt", NULL}, NULL, NULL});
 	executor(node10, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node10);
@@ -354,7 +362,7 @@ void test_improved_version_executor(void)
 
 	// Test 11: echo hello > tests/files/out.txt > tests/files/out1.txt
 	printf("\n--TEST 11--%s", "echo hello > tests/files/out.txt > tests/files/out1.txt\n");
-	t_tree *node11 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/out.txt", &(t_redir){OUT_DIR, "tests/files/out1.txt", NULL}}, NULL, NULL});
+	t_tree *node11 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/out.txt", &(t_redir){OUT_DIR, "tests/files/out1.txt", NULL}}, NULL, NULL});
 	executor(node11, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node11);
@@ -364,7 +372,7 @@ void test_improved_version_executor(void)
 	
 	// Test 12: cat tests/files/tirade_1.txt > tests/files/out2.txt > tests/files/out3.txt
 	printf("\n--TEST 12--%s", "cat tests/files/tirade_1.txt > tests/files/out2.txt > tests/files/out3.txt\n");
-	t_tree *node12 = make_node(&(t_tree){CMD, (char *[]){"cat", "tests/files/tirade_1.txt", NULL}, &(t_redir){OUT_DIR, "tests/files/out2.txt", &(t_redir){OUT_DIR, "tests/files/out3.txt", NULL}}, NULL, NULL});
+	t_tree *node12 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "tests/files/tirade_1.txt", NULL}, &(t_redir){OUT_DIR, "tests/files/out2.txt", &(t_redir){OUT_DIR, "tests/files/out3.txt", NULL}}, NULL, NULL});
 	executor(node12, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node12);
@@ -374,7 +382,7 @@ void test_improved_version_executor(void)
 	
 	// Test 13: echo hello > tests/files/unwritable_file.txt > tests/files/out4.txt
 	printf("\n--TEST 13--%s", "echo hello > tests/files/unwritable_file.txt > tests/files/out4.txt\n");
-	t_tree *node13 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/unwritable_file.txt", &(t_redir){OUT_DIR, "tests/files/out4.txt", NULL}}, NULL, NULL});
+	t_tree *node13 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "tests/files/unwritable_file.txt", &(t_redir){OUT_DIR, "tests/files/out4.txt", NULL}}, NULL, NULL});
 	executor(node13, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node13);
@@ -384,7 +392,7 @@ void test_improved_version_executor(void)
 	
 	// Test 14: cat < tests/files/empty.txt < tests/files/in.txt > tests/files/out5.txt
 	printf("\n--TEST 14--%s", "cat < tests/files/empty.txt < tests/files/in.txt > tests/files/out5.txt\n");
-	t_tree *node14 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){IN_DIR, "tests/files/in.txt", &(t_redir){OUT_DIR, "tests/files/out5.txt", NULL}}}, NULL, NULL});
+	t_tree *node14 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){IN_DIR, "tests/files/in.txt", &(t_redir){OUT_DIR, "tests/files/out5.txt", NULL}}}, NULL, NULL});
 	executor(node14, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node14);
@@ -392,7 +400,7 @@ void test_improved_version_executor(void)
 
 	// Test 15: cat < tests/files/empty.txt > tests/files/out6.txt < tests/files/in.txt
 	printf("\n--TEST 15--%s", "cat < tests/files/empty.txt > tests/files/out6.txt < tests/files/in.txt\n");
-	t_tree *node15 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){OUT_DIR, "tests/files/out6.txt", &(t_redir){IN_DIR, "tests/files/in.txt", NULL}}}, NULL, NULL});
+	t_tree *node15 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/empty.txt", &(t_redir){OUT_DIR, "tests/files/out6.txt", &(t_redir){IN_DIR, "tests/files/in.txt", NULL}}}, NULL, NULL});
 	executor(node15, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node15);
@@ -400,7 +408,7 @@ void test_improved_version_executor(void)
 
 	// Test 16: cat < tests/files/tirade_2.txt >> tests/files/tirade_1.txt
 	printf("\n--TEST 16--%s", "cat < tests/files/tirade_2.txt >> tests/files/tirade_1.txt\n");
-	t_tree *node16 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/tirade_2.txt", &(t_redir){APPEND_OUT_DIR, "tests/files/tirade_1.txt", NULL}}, NULL, NULL});
+	t_tree *node16 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "tests/files/tirade_2.txt", &(t_redir){APPEND_OUT_DIR, "tests/files/tirade_1.txt", NULL}}, NULL, NULL});
 	executor(node16, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node16);
@@ -409,7 +417,7 @@ void test_improved_version_executor(void)
 
 	// Test 17: cat << STOP with hello jo
 	printf("\n--TEST 17--%s", "cat << STOP with hello jo\n");
-	t_tree *node17 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "hello jo\n", NULL}, NULL, NULL});
+	t_tree *node17 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "hello jo\n", NULL}, NULL, NULL});
 	executor(node17, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node17);
@@ -417,7 +425,7 @@ void test_improved_version_executor(void)
 
 	// Test 18: cat << STOP (test 1\ntest 2\n) > tests/files/out7.txt
 	printf("\n--TEST 18--%s", "cat << STOP (test 1 test 2) > tests/files/out7.txt\n");
-	t_tree *node18 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "test 1\ntest 2", &(t_redir){OUT_DIR, "tests/files/out7.txt", NULL}}, NULL, NULL});	
+	t_tree *node18 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){HEREDOC, "test 1\ntest 2", &(t_redir){OUT_DIR, "tests/files/out7.txt", NULL}}, NULL, NULL});	
 	executor(node18, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node18);
@@ -425,7 +433,7 @@ void test_improved_version_executor(void)
 
 	// Test 19: echo hello > ""
 	printf("\n--TEST 19--%s", "echo hello > ""\n");
-	t_tree *node19 = make_node(&(t_tree){CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "", NULL}, NULL, NULL});
+	t_tree *node19 = make_node(&(t_tree){NODE_CMD, (char *[]){"echo", "hello", NULL}, &(t_redir){OUT_DIR, "", NULL}, NULL, NULL});
 	executor(node19, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node19);
@@ -435,7 +443,7 @@ void test_improved_version_executor(void)
 	
 	// Test 20: cat ""
 	printf("\n--TEST 20--%s", "cat ""\n");
-	t_tree *node20 = make_node(&(t_tree){CMD, (char *[]){"cat", "", NULL}, NULL, NULL, NULL});
+	t_tree *node20 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "", NULL}, NULL, NULL, NULL});
 	executor(node20, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node20);
@@ -445,17 +453,102 @@ void test_improved_version_executor(void)
 	
 	// Test 21: cat >> ""
 	printf("\n--TEST 21--%s", "cat >> ""\n");
-	t_tree *node21 = make_node(&(t_tree){CMD, (char *[]){"cat", NULL}, &(t_redir){APPEND_OUT_DIR, "", NULL}, NULL, NULL});
+	t_tree *node21 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){APPEND_OUT_DIR, "", NULL}, NULL, NULL});
 	executor(node21, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(node21);
 	// helper_orchestrator(21, "cat >> \"\"", env, &node21, ": No such file or directory", 1, NULL, 1, 3);
 
-	// // Test 22: cat tests/files/in.txt | cat
-	// t_tree node22 = {CMD, (char *[]){"cat", "tests/files/in.txt", NULL}, NULL, NULL, NULL};
- 	// t_tree node23 = {CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL};
- 	// t_tree pipe_node = {PIPE, NULL, NULL, NULL, &node22, &node23};
+	exit_code = 0;
+
+	// Test 22: cat tests/files/in.txt | cat
+	printf("\n--TEST 22--%s", "cat tests/files/in.txt | cat\n");
+	t_tree *node22 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "tests/files/in.txt", NULL}, NULL, NULL, NULL});
+ 	t_tree *node23 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL});
+ 	t_tree *pipe_node = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, node22, node23});
+	executor(pipe_node, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(pipe_node);
 	// helper_orchestrator(22, "cat tests/files/in.txt | cat", env, &pipe_node, "Descriptif : « C’est un roc ! … c’est un pic ! … c’est un cap !", 0, NULL, 0, 3);
+
+	// TEST 23: cat Makefile | wc -l
+	printf("\n--TEST 23--%s", "cat Makefile | wc -l\n");
+	t_tree *node24 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL});
+ 	t_tree *node25 = make_node(&(t_tree){NODE_CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL});
+ 	t_tree *pipe_node1 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, node24, node25});
+	executor(pipe_node1, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(pipe_node1);
+	
+	// Test 24: catt Makefile | wc -l
+	printf("\n--TEST 24--%s", "catt Makefile | wc -l\n");
+	t_tree *node26 = make_node(&(t_tree){NODE_CMD, (char *[]){"catt", "Makefile", NULL}, NULL, NULL, NULL});
+ 	t_tree *node27 = make_node(&(t_tree){NODE_CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL});
+ 	t_tree *pipe_node2 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, node26, node27});
+	executor(pipe_node2, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(pipe_node2);
+
+	exit_code = 0;
+	
+	// Test 25: cat Makefile | wcc -l
+	printf("\n--TEST 25--%s", "cat Makefile | wcc -l\n");
+	t_tree *node28 = make_node(&(t_tree){CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL});
+ 	t_tree *node29 = make_node(&(t_tree){CMD, (char *[]){"wcc", "-l", NULL}, NULL, NULL, NULL});
+ 	t_tree *pipe_node3 = make_node(&(t_tree){PIPE, NULL, NULL, NULL, node28, node29});
+	executor(pipe_node3, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(pipe_node3);
+
+	exit_code = 0;
+	
+	// Test 26: cat Makefile | wcc -l
+	printf("\n--TEST 26--%s", "cat < Makefiles | wc -l\n");
+ 	t_tree *node30 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "Makefiles", NULL}, NULL, NULL});
+ 	t_tree *node31 = make_node(&(t_tree){NODE_CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL});
+ 	t_tree *pipe_node4 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, node30, node31});
+	executor(pipe_node4, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(pipe_node4);
+
+	exit_code = 0;
+	
+	// Test 27: cat Makefile | cat | cat > tests/files/out8.txt
+	printf("\n--TEST 27--%s", "cat Makefile | cat | cat > tests/files/out8.txt\n");
+	t_tree *inner_pipe_left_node = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL});
+ 	t_tree *inner_pipe_right_node = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL});
+ 	t_tree *inner_pipe = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, inner_pipe_left_node, inner_pipe_right_node});
+	
+	t_tree *outer_pipe_right_node = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){OUT_DIR, "tests/files/out8.txt", NULL}, NULL, NULL});
+	t_tree *outer_pipe = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, inner_pipe, outer_pipe_right_node});
+	executor(outer_pipe, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(outer_pipe);
+
+	
+	// Test 28: cat Makefile | cats | cat > tests/files/out9.txt
+	printf("\n--TEST 28--%s", "cat Makefile | cats | cat > tests/files/out9.txt\n");
+	t_tree *inner_pipe_left_node1 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL});
+ 	t_tree *inner_pipe_right_node1 = make_node(&(t_tree){NODE_CMD, (char *[]){"cats", NULL}, NULL, NULL, NULL});
+ 	t_tree *inner_pipe1 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, inner_pipe_left_node1, inner_pipe_right_node1});
+	
+	t_tree *outer_pipe_right_node1 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, &(t_redir){OUT_DIR, "tests/files/out9.txt", NULL}, NULL, NULL});
+	t_tree *outer_pipe1 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, inner_pipe1, outer_pipe_right_node1});
+	executor(outer_pipe1, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(outer_pipe1);
+
+	// Test 29: cat Makefile | cat | cats > tests/files/out9.txt
+	printf("\n--TEST 29--%s", "cat Makefile | cat | cats > tests/files/out9.txt\n");
+	t_tree *inner_pipe_left_node2 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL});
+ 	t_tree *inner_pipe_right_node2 = make_node(&(t_tree){NODE_CMD, (char *[]){"cat", NULL}, NULL, NULL, NULL});
+ 	t_tree *inner_pipe2 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, inner_pipe_left_node2, inner_pipe_right_node2});
+	
+	t_tree *outer_pipe_right_node2 = make_node(&(t_tree){NODE_CMD, (char *[]){"cats", NULL}, &(t_redir){OUT_DIR, "tests/files/out9.txt", NULL}, NULL, NULL});
+	t_tree *outer_pipe2 = make_node(&(t_tree){NODE_PIPE, NULL, NULL, NULL, inner_pipe2, outer_pipe_right_node2});
+	executor(outer_pipe2, env, &exit_code);
+	printf("exit code: %d\n", exit_code);
+	free_node(outer_pipe2);
 
 	free_my_env(env);
 }
@@ -481,32 +574,12 @@ void test_improved_version_executor(void)
 
 // void test_pipe_orchestrator(void)
 // {
-// 	char *env[] = {"HOME=admin", "PATH=/local/sbin:/local/bin:/bin:/usr/bin", NULL};
-// 	t_error_exec err = {0};
-// 	t_tree node0 = {CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL};
-// 	t_tree node1 = {CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL};
-// 	t_tree pipe_node = {PIPE, NULL, NULL, &node0, &node1};
-
-// 	int actual = pipe_orchestrator(&pipe_node, env, &err);
-// 	test_helper(actual, 0, "cat Makefile | wc -l");
 
 // 	t_tree node2 = {CMD, (char *[]){"/bin/cat", "Makefile", NULL}, NULL, NULL, NULL};
 // 	t_tree node3 = {CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL};
 // 	t_tree pipe_node1 = {PIPE, NULL, NULL, &node2, &node3};
 // 	actual = pipe_orchestrator(&pipe_node1, env, &err);
 // 	test_helper(actual, 0, "/bin/cat Makefile | wc -l");
-
-// 	t_tree node4 = {CMD, (char *[]){"catt", "Makefile", NULL}, NULL, NULL, NULL};
-// 	t_tree node5 = {CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL};
-// 	t_tree pipe_node2 = {PIPE, NULL, NULL, &node4, &node5};
-// 	actual = pipe_orchestrator(&pipe_node2, env, &err);
-// 	test_helper(actual, 0, "catt Makefile | wc -l");
-
-// 	t_tree node6 = {CMD, (char *[]){"cat", "Makefile", NULL}, NULL, NULL, NULL};
-// 	t_tree node7 = {CMD, (char *[]){"wcc", "-l", NULL}, NULL, NULL, NULL};
-// 	t_tree pipe_node3 = {PIPE, NULL, NULL, &node6, &node7};
-// 	actual = pipe_orchestrator(&pipe_node3, env, &err);
-// 	test_helper(actual, 127, "cat Makefile | wcc -l");
 
 // 	t_tree node8 = {CMD, (char *[]){"cat", NULL}, &(t_redir){IN_DIR, "Makefile", NULL}, NULL, NULL};
 // 	t_tree node9 = {CMD, (char *[]){"wc", "-l", NULL}, NULL, NULL, NULL};

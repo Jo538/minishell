@@ -6,35 +6,11 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/24 01:37:48 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:09:05 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	errors(int *exit_code)
-{
-	// ft_putstr_fd(err->cmd, 2);
-	// if (err->err == 127)
-	// 	ft_putendl_fd(": Command not found", 2);
-	// if (err->err == ENOENT)
-	// {
-	// 	ft_putendl_fd(": No such file or directory", 2);
-	// 	if (err->operation == OPEN_CMD)
-	// 		exit(127);	
-	// 	if (err->operation == OPEN_FILE)
-	// 		exit(1);		
-	// }
-	// if (err->err == EACCES)
-	// {
-	// 	ft_putendl_fd(": Permission denied", 2);
-	// 	if (err->operation == OPEN_CMD)
-	// 		exit(126);	
-	// 	if (err->operation == OPEN_FILE)
-	// 		exit(1);	
-	// }
-	// exit(err->err);
-}
 
 void	free_and_exit(t_tree *node, t_env **my_env, int *exit_code)
 {
@@ -51,20 +27,14 @@ void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 	path = NULL;
 	files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
 	if (*exit_code)
-	{
-		free_node(node);
-		free_my_env(my_env);
-		exit(*exit_code);
-	}
+		free_and_exit(node, my_env, exit_code);
 	if (is_builtin(node))
-		builtin_orchestrator(node, my_env, exit_code);
+		builtin_orchestrator(node, node, my_env, exit_code);
 	path = path_orchestrator(node->argv[0], my_env, exit_code);
 	if (!path)
 		free_and_exit(node, my_env, exit_code);
 	env = consolidate_my_env(my_env, exit_code);
 	execve(path, node->argv, env);
-	*exit_code = errno;
-	errors(exit_code);	
 }
 
 int	inspect_child_status(pid_t child, int status)

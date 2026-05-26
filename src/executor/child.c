@@ -6,18 +6,11 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:09:05 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:33:21 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	free_and_exit(t_tree *node, t_env **my_env, int *exit_code)
-{
-	free_node(node);
-	free_my_env(my_env);
-	exit(*exit_code);
-}
 
 void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 {

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:51:42 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 03:04:03 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,6 @@ t_token	*expand_tokens(t_token	*token);
 t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int		have_pipe(t_token *token);
 void	free_the_tree(t_tree *tree, t_token *token);
-char	*join_segments(t_token *token);
 t_tree	*init_tree_w_malloc(t_token *token);
 t_tree	*fill_av(t_tree *tree);
 t_tree	*handle_redirs(t_tree *tree);

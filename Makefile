@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/26 02:47:59 by admin            ###   ########.fr        #
+#    Updated: 2026/05/23 05:59:06 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,25 +14,32 @@
 # Compiler
 CC = cc
 CFLAGS = -g3 -O0
-VPATH = src:src/lexer:src/parsing:src/executor:src/check_if_good:src/executor/builtins:src/env:
-ADDITIONAL_FLAGS = -lreadline # to remove the macos part when pushing to main
+VPATH = src:src/lexer:src/executor:src/parsing:src/executor/builtins:src/env:tests
 NAME = minishell
-ADDITIONAL_FLAGS = -lreadline
+TEST_NAME = test_minishell
+ifeq ($(shell uname), Darwin)
+	ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline
+else
+	ADDITIONAL_FLAGS = -lreadline
+endif
 
 # Directories
-INCLUDES = -Iincludes -Ilibft
+ifeq ($(shell uname), Darwin)
+	INCLUDES = -Iincludes -Ilibft -I/opt/homebrew/opt/readline/include
+else
+	INCLUDES = -Iincludes -Ilibft
+endif
 LIBFT_DIR = libft
 OBJ_DIR = obj
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
-	parsing.c parsing_utils.c parsing_right_part.c \
-	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c \
-	make_right_part_utils.c right_part_utils_redirs.c \
-	check_redirs.c check_ifgood.c exit.c pwd.c echo.c cd.c create_env.c env.c export_1.c \
-	export_2.c unset.c builtin_orchestrator.c
-
+	parsing.c parsing_utils.c parsing_right_part.c exit.c pwd.c echo.c cd.c create_env.c env.c export_1.c \
+	export_2.c unset.c builtin_orchestrator.c parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c
+TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
+	test_orchestrator.c test_path.c test_child.c test_builtins.c test_env.c
+	
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
 
@@ -67,3 +74,8 @@ fclean: clean
 # Recompile all files
 re: fclean
 	$(MAKE) all
+
+# Create test binary
+test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
+	rm -f vg-*.log
+	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)

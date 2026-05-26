@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   create_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/05/17 15:52:28 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:52:01 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,12 @@ static void	create_node(t_token *new_token, t_token *last_token)
 	last_token->next = new_token;
 }
 
-static void	create_segment(t_state current_state, t_token *new_token, t_error *err)
+static void	create_segment(t_state current_state, t_token *new_token, int *exit_code)
 {
 	new_token->segment = ft_calloc(1, sizeof(t_segment));
 	if (!new_token->segment)
 	{
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 		return ;
 	}
 	if (current_state.c == '\'' || current_state.c == '"')
@@ -89,7 +89,7 @@ static void	create_segment(t_state current_state, t_token *new_token, t_error *e
 	if (!new_token->segment->value)
 	{
 		free(new_token->segment);
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 		return ;
 	}
 	new_token->segment->quote_type = current_state.quoting;
@@ -99,20 +99,20 @@ static void	create_segment(t_state current_state, t_token *new_token, t_error *e
 	new_token->segment->next = NULL;
 }
 
-t_token	*create_token(t_state current_state, t_token *last_token, t_error *err)
+t_token	*create_token(t_state current_state, t_token *last_token, int *exit_code)
 {
 	t_token	*new_token;
 
 	new_token = ft_calloc(1, sizeof (t_token));
 	if (!new_token)
 	{
-		*err = ERR_MALLOC;
+		*exit_code = ERR_FATAL;
 		return (NULL);
 	}
 	create_node(new_token, last_token);
 	new_token->type = find_token_type(current_state);
-	create_segment(current_state, new_token, err);
-	if (*err)
+	create_segment(current_state, new_token, exit_code);
+	if (*exit_code == ERR_FATAL)
 	{
 		free(new_token);
 		return (NULL);

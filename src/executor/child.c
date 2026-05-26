@@ -6,50 +6,28 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/06 00:32:12 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:33:21 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	errors(int *pipefd, t_error_exec *err)
+void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 {
-	ft_putstr_fd(err->cmd, 2);
-	if (err->err == 127)
-		ft_putendl_fd(": Command not found", 2);
-	if (err->err == ENOENT)
-	{
-		ft_putendl_fd(": No such file or directory", 2);
-		if (err->operation == CMD_OPE)
-			exit(127);	
-		if (err->operation == OPEN_OPE)
-			exit(1);		
-	}
-	if (err->err == EACCES)
-	{
-		ft_putendl_fd(": Permission denied", 2);
-		if (err->operation == CMD_OPE)
-			exit(126);	
-		if (err->operation == OPEN_OPE)
-			exit(1);	
-	}
-	exit(err->err);
-}
-
-void	child_process(int *pipefd, t_tree *node, char **env, t_error_exec *err)
-{
+	char **	env;
 	char	*path;
 	
 	path = NULL;
-	files_redirections_orchestrator(pipefd, node->redirections, err);
-	if (err->err)
-		errors(pipefd, err);
-	path = path_orchestrator(node->argv[0], env, err);
+	files_redirections_orchestrator(node->argv[0], pipefd, node->redirections, exit_code);
+	if (*exit_code)
+		free_and_exit(node, my_env, exit_code);
+	if (is_builtin(node))
+		builtin_orchestrator(node, node, my_env, exit_code);
+	path = path_orchestrator(node->argv[0], my_env, exit_code);
 	if (!path)
-		errors(pipefd, err);
+		free_and_exit(node, my_env, exit_code);
+	env = consolidate_my_env(my_env, exit_code);
 	execve(path, node->argv, env);
-	err->err = errno;
-	errors(pipefd, err);	
 }
 
 int	inspect_child_status(pid_t child, int status)
@@ -62,7 +40,7 @@ int	inspect_child_status(pid_t child, int status)
 	return (0);	
 }
 
-int	cmd_orchestrator(t_tree *node, char **env, t_error_exec *err)
+void	cmd_orchestrator(t_tree *node, t_env **my_env, int *exit_code)
 {
 	int		status;
 	pid_t	child;
@@ -72,10 +50,10 @@ int	cmd_orchestrator(t_tree *node, char **env, t_error_exec *err)
 	child = fork();
 	if (child == -1)
 	{
-		err->err = errno;
-		perror("fork");		
+		*exit_code = ERR_FATAL;
+		return ;		
 	}
 	if (child == 0)
-		child_process(NULL, node, env, err);
-	return (inspect_child_status(child, status));
+		child_process(NULL, node, my_env, exit_code);
+	*exit_code = inspect_child_status(child, status);
 }

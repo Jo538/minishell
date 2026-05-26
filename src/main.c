@@ -3,27 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/22 14:08:41 by benji            ###   ########.fr       */
+/*   Updated: 2026/05/26 02:48:48 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <stdint.h>
 
-int	main(void)
+int	main(char **env)
 {
+	int		exit_code;
+	t_env	**my_env;
 	char	*prompt;
 	t_token	*token;
-	t_error	*error;
 	t_tree	*tree;
 	int		i = 0;
 
-	error = malloc(sizeof(t_error));
-	if (!error)
-		return (1);
+	my_env = create_env(env, &exit_code);
+	if (exit_code == ERR_FATAL)
+		return (ERR_FATAL);
 	while (1)
 	{
 		i = 0;
@@ -48,9 +48,16 @@ int	main(void)
 		// while (tree->argv[i])
 		// 	printf("av = %s\n", tree->argv[i++]);
 		// free_the_tree(tree, token); //necessite d etre fait avant le free des tokens ou alors besoin d envoyer l info de have_pipe a la place de token
+		token = lexer(prompt, &exit_code);
 		free(prompt);
+		if (exit_code = ERR_FATAL)
+			return (exit_code);
+		tree = parsing_main(token);
+		free_token_list(token);
+		// expander
+		free_the_tree(tree, token); //necessite d etre fait avant le free des tokens ou alors besoin d envoyer l info de have_pipe a la place de token
+		executor(tree, my_env, &exit_code);
 	}
-	free(error);
 	free(token);
 	printf("%s\n", "minishell>>> exit");
 	rl_clear_history();

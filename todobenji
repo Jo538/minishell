@@ -1,5 +1,0 @@
-faire une fonction qui free tout l arbre || FAIT WOUHOU
-faire la gestion des signaux avec la technique de SIGQUIT sur le readline des heredocs (a tester)
-faire la fonction qui check si l entree est valide (a voir si le plus simple est de la faire avant ou apres le lexer)(demande d etre parfaite sinon le parser segfaultera)
-faire une potite blague rigolote a Josephine
-avancer sur l expander (gerer le $? et le $$) || FAIT WOUHOU

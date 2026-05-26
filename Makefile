@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: benji <benji@student.42.fr>                +#+  +:+       +#+         #
+#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/22 14:18:36 by benji            ###   ########.fr        #
+#    Updated: 2026/05/26 02:47:59 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,11 +14,12 @@
 # Compiler
 CC = cc
 CFLAGS = -g3 -O0
-VPATH = src:src/lexer:src/parsing:src/executor:src/check_if_good
+VPATH = src:src/lexer:src/parsing:src/executor:src/check_if_good:src/executor/builtins:src/env:
 ADDITIONAL_FLAGS = -lreadline # to remove the macos part when pushing to main
 NAME = minishell
-TEST_NAME = test_minishell
 ADDITIONAL_FLAGS = -lreadline
+
+# Directories
 INCLUDES = -Iincludes -Ilibft
 LIBFT_DIR = libft
 OBJ_DIR = obj
@@ -29,7 +30,8 @@ SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	parsing.c parsing_utils.c parsing_right_part.c \
 	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c \
 	make_right_part_utils.c right_part_utils_redirs.c \
-	check_redirs.c check_ifgood.c
+	check_redirs.c check_ifgood.c exit.c pwd.c echo.c cd.c create_env.c env.c export_1.c \
+	export_2.c unset.c builtin_orchestrator.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
@@ -51,7 +53,7 @@ $(LIBFT_ARCHIVE):
 	$(MAKE) -C $(LIBFT_DIR)
 
 # Phony targets declaration
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re test
 
 # Clean project's object files
 clean:

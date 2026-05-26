@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/05 23:21:37 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/25 19:27:32 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,56 +25,42 @@ void	free_tab(char **tab)
 	free(tab);
 }
 
-static char *malloc_path_var_when_found(char *var, t_error_exec *err)
-{
-	int		len;
-	int		i;
-	char	*path_var;
-	
-	path_var = NULL;
-	i = 0;
-	len = ft_strlen(var) - 5;
-	path_var = ft_substr(var, 5, len);
-	if (!path_var)
-		err->err = ERR_MALLOC;
-	return (path_var);
-}
 #ifdef TESTING
-	char	**extract_paths(char *cmd, char **env, t_error_exec *err)
+	char	**extract_paths(char *cmd, t_env **my_env, int *exit_code)
 #else
-	static char	**extract_paths(char *cmd, char **env, t_error_exec *err)
+	static char	**extract_paths(char *cmd, t_env **my_env, int *exit_code)
 #endif
 {
 	int		i;
-	char	*path_var;
+	char	*path_value;
 	char	**path_tab;
 
 	i = 0;
-	path_var = NULL;
+	path_value = NULL;
 	path_tab = NULL;
-	if (!env)
+	if (!my_env)
 		return (NULL);
-	while (env[i])
+	while (my_env[i])
 	{
-		if (!ft_strncmp(env[i], "PATH=", 5))
+		if (!ft_strncmp(my_env[i]->key, "PATH", 4))
 		{
-			path_var = malloc_path_var_when_found(env[i], err);
+			path_value = my_env[i]->value;
 			break ;
 		}
 		i++;
 	}
-	if (!path_var)
-		return (err->err = ENOENT, err->operation = CMD_OPE, err->cmd = cmd, NULL);
-	path_tab = ft_split(path_var, ':');
-	if (!path_tab)
-		err->err = ERR_MALLOC;
-	return (free(path_var), path_tab);
+	if (!path_value)
+		return (/*err->err = ENOENT, err->operation = OPEN_CMD, err->cmd = cmd,*/ NULL);
+	path_tab = ft_split(path_value, ':');
+	/*if (!path_tab)
+		err->err = ERR_MALLOC;*/
+	return (path_tab);
 }
 
 #ifdef TESTING
-	char	*find_and_check_path(char *cmd, char **path_tab, t_error_exec *err)
+	char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 #else
-	static char	*find_and_check_path(char *cmd, char **path_tab, t_error_exec *err)
+	static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 #endif
 {
 	int		i;
@@ -82,52 +68,59 @@ static char *malloc_path_var_when_found(char *var, t_error_exec *err)
 	char	*new_cmd;
 	
 	i = 0;
-	path = NULL;
 	if (!cmd || !*cmd || !path_tab)
 		return (NULL);
 	new_cmd = ft_strjoin("/", cmd);
 	if (!new_cmd)
-		return (err->err = ERR_MALLOC, NULL);
+		return (/*err->err = ERR_MALLOC*/ NULL);
 	while (path_tab[i])
 	{
 		path = ft_strjoin(path_tab[i], new_cmd);
 		if (!path)
-			return (free(new_cmd), err->err = ERR_MALLOC, NULL);
-		if (!access(path, F_OK | X_OK))
-			break ;
+			return (free(new_cmd), NULL);
+		if (!access(path, F_OK))
+		{
+			if (!access(path, X_OK))
+				return (free(new_cmd), path);
+			return (free(path), free(new_cmd), *error = ERR_PERMISSION, NULL);
+		}
 		free(path);
-		path = NULL;
 		i++;
 	}
 	free(new_cmd);
-	return (path);
+	*error = ERR_CMD;
+	return (NULL);
 }
 
-char	*path_orchestrator(char *cmd, char **env, t_error_exec *err)
+char	*path_orchestrator(char *cmd, t_env **my_env, int *exit_code)
 {
+	int		error = 0;
 	char	*path;
 	char	**path_tab;
 
 	path = NULL;
 	path_tab = NULL;
-	if (!cmd || !env)
+	if (!cmd || !my_env)
 		return (NULL);
 	if (ft_strchr(cmd, '/'))
 	{
+		if (access(cmd, F_OK | X_OK))
+		{
+			error_orchestrator(exit_code, 1, errno, OPEN_CMD, cmd, NULL);
+			return (NULL);	
+		}
 		path = ft_strdup(cmd);
 		if (!path)
-			return (err->err = ERR_MALLOC, NULL);
-		if (access(path, F_OK | X_OK))
-			return (err->err = errno, err->operation = CMD_OPE, err->cmd = cmd, free(path), NULL);	
+			return (*exit_code = ERR_FATAL, NULL);
 	}
 	else
 	{
-		path_tab = extract_paths(cmd, env, err);
-		path = find_and_check_path(cmd, path_tab, err);
-	if (path_tab)
-		free_tab(path_tab);
-		if (!path && !err->err)
-			return (err->err = 127, err->cmd = cmd, NULL);
+		path_tab = extract_paths(cmd, my_env, exit_code);
+		path = find_and_check_path(cmd, path_tab, &error);
+		if (path_tab)
+			free_tab(path_tab);
+		if (error)
+			error_orchestrator(exit_code, 0, error, OPEN_CMD, cmd, NULL);
 	}
 	return (path);
 }

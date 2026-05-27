@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 22:22:18 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 14:58:07 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,78 +143,78 @@ typedef struct s_env
 
 /* CHECKER */
 
-int		check_ifgood(t_token *token);
-int		check_redirs(t_token *token);
+int			check_ifgood(t_token *token);
+int			check_redirs(t_token *token);
 
 /* env */
-t_env	**create_env(char **envp, int *exit_code);
-void	free_my_env(t_env **my_env);
-char	**consolidate_my_env(t_env **my_env, int *exit_code);
+t_env		**create_env(char **envp, int *exit_code);
+void		free_my_env(t_env **my_env);
+char		**consolidate_my_env(t_env **my_env, int *exit_code);
 
 /* FUNCT */
-void	free_and_exit(t_tree *node, t_env **my_env, int *exit_code);
-t_state	create_current_state(char c, int i, t_state previous_state);
-t_token	*create_token(t_state state, t_token *tail, int *exit_code);
-int		check_new_token(int i, t_state prev, t_state cur);
-void	change_token_type(t_state cur, t_token *last_token, t_error *err);
+void		free_and_exit(t_tree *node, t_env **my_env, int *exit_code);
+t_state		create_current_state(char c, int i, t_state previous_state);
+t_token		*create_token(t_state state, t_token *tail, int *exit_code);
+int			check_new_token(int i, t_state prev, t_state cur);
+void		change_token_type(t_state cur, t_token *last_token, t_error *err);
 t_segment	*segment_orchestrator(t_state prev, t_state cur,
 				t_segment *last, int *exit_code);
-void	free_token_list(t_token *token_list_head);
-t_token	*lexer(char *prompt, int *exit_code);
-char	*path_orchestrator(char *cmd, t_env **my_env, int *exit_code);
-void	free_tab(char **tab);
-void	cmd_orchestrator(t_tree *current_node, t_env **my_env, int *exit_code);
-void	files_redirections_orchestrator(char *cmd, int *pipefd,
-			t_redir *redir, int *exit_code);
-void	pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
-			int *exit_code);
-void	child_process(int *pipefd, t_tree *node, t_env **my_env,
-			int *exit_code);
-int		inspect_child_status(pid_t child, int status);
-t_env	**executor(t_tree *node, t_env **my_env, int *exit_code);
-void	error_orchestrator(int *exit_code, int error, char *cmd, char *file);
-void	error_with_errno(int *exit_code, int type, char *cmd, char *file);
-/* PARSING */
+void		free_token_list(t_token *token_list_head);
+t_token		*lexer(char *prompt, int *exit_code);
+char		*path_orchestrator(char *cmd, t_env **my_env, int *exit_code);
+void		free_tab(char **tab);
+void		cmd_orchestrator(t_tree *current_node, t_env **my_env, int *exit_code);
+void		files_redirections_orchestrator(char *cmd, int *pipefd,
+				t_redir *redir, int *exit_code);
+void		pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
+				int *exit_code);
+void		child_process(int *pipefd, t_tree *node, t_env **my_env,
+				int *exit_code);
+int			inspect_child_status(pid_t child, int status);
+t_env		**executor(t_tree *node, t_env **my_env, int *exit_code);
+void		error_orchestrator(int *exit_code, int error, char *cmd, char *file);
+void		error_with_errno(int *exit_code, int type, char *cmd, char *file);
 
-t_token	*find_last_pipe(t_token *token);
-t_token	*gt_pipe_left(t_token *tok);
-t_tree	*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
-t_tree	*make_right_part(t_token *token);
-t_tree	*put_right_part(t_tree *tree);
-t_tree	*fill_right_part(t_tree *tree);
-int		have_a_token_left(t_token *token);
-t_token	*go_to_pipe_left(t_token *token);
-t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token);
-t_tree	*create_pipe_part(t_token *token);
-t_token	*find_last_pipe(t_token *token);
-t_tree	*create_tree(t_token *token);
-t_tree	*parsing_main(t_token *token);
-t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
-t_token	*expand_tokens(t_token	*token);
-t_tree	*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
-int		have_pipe(t_token *token);
-void	free_the_tree(t_tree *tree, t_token *token);
-t_tree	*init_tree_w_malloc(t_token *token);
-t_tree	*fill_av(t_tree *tree);
-t_tree	*handle_redirs(t_tree *tree);
+/* PARSING */
+t_token		*find_last_pipe(t_token *token);
+t_token		*gt_pipe_left(t_token *tok);
+t_tree		*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
+t_tree		*make_right_part(t_token *token);
+t_tree		*put_right_part(t_tree *tree);
+t_tree		*fill_right_part(t_tree *tree);
+int			have_a_token_left(t_token *token);
+t_token		*go_to_pipe_left(t_token *token);
+t_tree		*put_pipe_in_tree(t_tree *tree, t_token *token);
+t_tree		*create_pipe_part(t_token *token);
+t_token		*find_last_pipe(t_token *token);
+t_tree		*create_tree(t_token *token);
+t_tree		*parsing_main(t_token *token);
+t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
+t_token		*expand_tokens(t_token	*token);
+t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
+int			have_pipe(t_token *token);
+void		free_the_tree(t_tree *tree, t_token *token);
+t_tree		*init_tree_w_malloc(t_token *token);
+t_tree		*fill_av(t_tree *tree);
+t_tree		*handle_redirs(t_tree *tree);
 
 /* builtins */
-int		is_a_mutable_builtin(char *cmd);
-void	free_node(t_tree *node);
-void	run_echo(char **cmd);
-void	run_env(char **cmd, t_env **my_env, int *exit_code);
-void	run_exit(char **cmd, int *exit_code);
-void	run_pwd(void);
-int		is_builtin(t_tree *node);
-void	builtin_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
-			int *exit_code);
-void	run_cd(char **cmd, t_env **my_env, int *exit_code);
-t_env	**run_export(char **cmd, t_env **my_env, int *exit_code);
-void	print_var(t_env **my_env);
-void	append_value(char *cmd, t_env *row, int *exit_code);
-void	append_key(char *cmd, t_env *row, int *exit_code);
-t_env	**create_new_row(char *cmd, t_env **my_env, int *exit_code);
-t_env	**run_unset(char **cmd, t_env **my_env, int *exit_code);
-int		max(char *str1, char *str2);
+int			is_a_mutable_builtin(char *cmd);
+void		free_node(t_tree *node);
+void		run_echo(char **cmd);
+void		run_env(char **cmd, t_env **my_env, int *exit_code);
+void		run_exit(char **cmd, int *exit_code);
+void		run_pwd(void);
+int			is_builtin(t_tree *node);
+void		builtin_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
+				int *exit_code);
+void		run_cd(char **cmd, t_env **my_env, int *exit_code);
+t_env		**run_export(char **cmd, t_env **my_env, int *exit_code);
+void		print_var(t_env **my_env);
+void		append_value(char *cmd, t_env *row, int *exit_code);
+void		append_key(char *cmd, t_env *row, int *exit_code);
+t_env		**create_new_row(char *cmd, t_env **my_env, int *exit_code);
+t_env		**run_unset(char **cmd, t_env **my_env, int *exit_code);
+int			max(char *str1, char *str2);
 
 #endif

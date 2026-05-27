@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 19:33:16 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 05:20:54 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:26:33 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,8 @@ static int	check_new_segment(t_state prev, t_state cur)
 	return (0);
 }
 
-#ifdef TESTING
-	t_segment	*add_new_segment(t_state cur, t_segment *last,
+static t_segment	*add_new_segment(t_state cur, t_segment *last,
 		int *exit_code)
-#else
-	static t_segment	*add_new_segment(t_state cur, t_segment *last,
-		int *exit_code)
-#endif
 {
 	t_segment	*new_segment;
 
@@ -53,12 +48,8 @@ static int	check_new_segment(t_state prev, t_state cur)
 	return (new_segment);
 }
 
-#ifdef TESTING
-	void	append_to_segment(t_state cur, t_segment *last, int *exit_code)
-#else
-	static void	append_to_segment(t_state cur, t_segment *last,
+static void	append_to_segment(t_state cur, t_segment *last,
 		int *exit_code)
-#endif
 {
 	int		len;
 	char	*new_value;

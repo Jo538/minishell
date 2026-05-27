@@ -34,6 +34,9 @@ void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 	env = consolidate_my_env(my_env, exit_code);
 	execve(path, node->argv, env);
 	*exit_code = 126;
+	free(path);
+	if (env)
+		free_tab(env);
 	free_and_exit(node, my_env, exit_code);
 }
 

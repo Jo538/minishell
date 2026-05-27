@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:52:01 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:22:38 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,7 @@ int	check_new_token(int i, t_state previous_state, t_state current_state)
 	return (0);
 }
 
-#ifdef TESTING
-	t_token_type	find_token_type(t_state current_state)
-#else
-	static t_token_type	find_token_type(t_state current_state)
-#endif
+static t_token_type	find_token_type(t_state current_state)
 {
 	if (current_state.quoting == UNQUOTED)
 	{

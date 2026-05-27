@@ -50,18 +50,20 @@ static void	exec_in_pipe(t_tree *root, t_tree *cmd_node, t_env **my_env,
 	env = consolidate_my_env(my_env, exit_code);
 	execve(path, cmd_node->argv, env);
 	*exit_code = 126;
+	free(path);
+	if (env)
+		free_tab(env);
 	free_and_exit(root, my_env, exit_code);
 }
 
-static void	left_child(t_tree *root, int *pipefd, t_tree *node,
-	t_env **my_env, int *exit_code)
+static void	left_child(t_tree *root, t_tree *node, t_env **my_env,
+	int *exit_code)
 {
 	t_tree	*left_node;
 
 	left_node = node->left;
 	if (left_node->type == NODE_PIPE && !left_node->left)
 		left_node = left_node->right;
-	pipe_redirections('L', pipefd);
 	if (left_node->type == NODE_CMD)
 		exec_in_pipe(root, left_node, my_env, exit_code);
 	if (left_node->type == NODE_PIPE)
@@ -71,37 +73,38 @@ static void	left_child(t_tree *root, int *pipefd, t_tree *node,
 	}
 }
 
-static void	right_child(t_tree *root, int *pipefd, t_tree *node,
-	t_env **my_env, int *exit_code)
+static void	right_child(t_tree *root, t_tree *node, t_env **my_env,
+	int *exit_code)
 {
-	pipe_redirections('R', pipefd);
 	exec_in_pipe(root, node->right, my_env, exit_code);
 }
 
 void	pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
 	int *exit_code)
 {
-	int		status;
 	int		pipefd[2];
 	pid_t	child[2];
 
-	ft_bzero(child, 2 * sizeof(pid_t));
-	ft_bzero(pipefd, 2 * sizeof(int));
-	status = -1;
 	if (pipe(pipefd) == -1)
 		*exit_code = errno;
 	child[0] = fork();
 	if (child[0] == -1)
 		*exit_code = errno;
 	else if (child[0] == 0)
-		left_child(root, pipefd, node, my_env, exit_code);
+	{
+		pipe_redirections('L', pipefd);
+		left_child(root, node, my_env, exit_code);
+	}
 	child[1] = fork();
 	if (child[1] == -1)
 		*exit_code = errno;
 	else if (child[1] == 0)
-		right_child(root, pipefd, node, my_env, exit_code);
+	{
+		pipe_redirections('R', pipefd);
+		right_child(root, node, my_env, exit_code);
+	}
 	close(pipefd[0]);
 	close(pipefd[1]);
 	waitpid(child[0], NULL, 0);
-	*exit_code = inspect_child_status(child[1], status);
+	*exit_code = inspect_child_status(child[1], 0);
 }

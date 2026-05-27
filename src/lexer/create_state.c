@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 11:05:50 by admin             #+#    #+#             */
-/*   Updated: 2026/04/22 12:48:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:23:46 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	find_repeat(char c, int i, t_state previous_state, t_quoting quote_type)
 
 t_state	create_current_state(char c, int i, t_state previous_state)
 {
-	t_state	current_state;
+	t_state		current_state;
 	t_quoting	q;
 
 	current_state.c = c;

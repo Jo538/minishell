@@ -6,10 +6,9 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:52:09 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:20:39 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "minishell.h"
 
@@ -74,8 +73,6 @@ t_token	*lexer(char *prompt, int *exit_code)
 	len = ft_strlen(prompt);
 	ft_bzero(&k, sizeof(t_key_items));
 	ft_bzero(state, 2 * sizeof(t_state));
-	if (!len)
-		return (NULL);
 	while (i < len)
 	{
 		state[CURRENT_STATE] = create_current_state(prompt[i], i,

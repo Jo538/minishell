@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/25 19:27:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:27:12 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,7 @@ void	free_tab(char **tab)
 	free(tab);
 }
 
-#ifdef TESTING
-	char	**extract_paths(t_env **my_env)
-#else
-	static char	**extract_paths(t_env **my_env)
-#endif
+static char	**extract_paths(t_env **my_env)
 {
 	int		i;
 	char	*path_value;
@@ -52,11 +48,7 @@ void	free_tab(char **tab)
 	return (ft_split(path_value, ':'));
 }
 
-#ifdef TESTING
-	char	*find_and_check_path(char *cmd, char **path_tab, int *error)
-#else
-	static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
-#endif
+static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 {
 	int		i;
 	char	*path;
@@ -73,12 +65,10 @@ void	free_tab(char **tab)
 		path = ft_strjoin(path_tab[i], new_cmd);
 		if (!path)
 			return (free(new_cmd), NULL);
+		if (!access(path, X_OK))
+			return (free(new_cmd), path);
 		if (!access(path, F_OK))
-		{
-			if (!access(path, X_OK))
-				return (free(new_cmd), path);
 			return (free(path), free(new_cmd), *error = ERR_PERMISSION, NULL);
-		}
 		free(path);
 		i++;
 	}

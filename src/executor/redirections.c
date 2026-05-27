@@ -6,18 +6,39 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 01:39:22 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 22:22:27 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+static void	read_heredoc_into(int fd, char *delim)
+{
+	char	*line;
+	size_t	dlen;
+
+	dlen = ft_strlen(delim);
+	while (1)
+	{
+		line = readline("> ");
+		if (!line)
+			break ;
+		if (ft_strlen(line) == dlen && ft_strncmp(line, delim, dlen) == 0)
+		{
+			free(line);
+			break ;
+		}
+		write(fd, line, ft_strlen(line));
+		write(fd, "\n", 1);
+		free(line);
+	}
+}
+
 static int	open_redirection_file(t_redir *redir, int *error)
 {
 	int	fd;
-	int	len;
 
-	len = 0;
+	fd = -1;
 	if (redir->type == IN_DIR)
 		fd = open(redir->file, O_RDONLY);
 	if (redir->type == OUT_DIR)
@@ -26,12 +47,14 @@ static int	open_redirection_file(t_redir *redir, int *error)
 		fd = open(redir->file, O_CREAT | O_APPEND | O_WRONLY, 0644);
 	if (redir->type == HEREDOC)
 	{
-		len = ft_strlen(redir->file);
-		fd = open("temp_heredoc.txt", O_CREAT | O_RDWR, 0644);
-		write(fd, redir->file, len);
-		close(fd);
-		fd = open("temp_heredoc.txt", O_RDWR);
-		unlink("temp_heredoc.txt");	
+		fd = open("temp_heredoc.txt", O_CREAT | O_TRUNC | O_RDWR, 0644);
+		if (fd != -1)
+		{
+			read_heredoc_into(fd, redir->file);
+			close(fd);
+			fd = open("temp_heredoc.txt", O_RDONLY);
+			unlink("temp_heredoc.txt");
+		}
 	}
 	if (fd == -1)
 		*error = errno;
@@ -52,7 +75,7 @@ static void	run_redirection(int fd, t_redir *redir)
 	}
 }
 
-static int	check_same_redirection_later(t_redir *redir)
+static int	same_redirection_later(t_redir *redir)
 {
 	int	type;
 
@@ -60,41 +83,32 @@ static int	check_same_redirection_later(t_redir *redir)
 	redir = redir->next;
 	while (redir)
 	{
-		if (redir-> type == type)
+		if (redir->type == type)
 			return (1);
 		redir = redir->next;
 	}
 	return (0);
 }
 
-void	files_redirections_orchestrator(char *cmd, int *pipefd, t_redir *redir, int *exit_code)
+void	files_redirections_orchestrator(char *cmd, int *pipefd,
+	t_redir *redir, int *exit_code)
 {
 	int	error;
 	int	fd;
-	int	flag;
 
-	flag = 0;
+	(void)pipefd;
+	error = 0;
 	if (!redir)
 		return ;
 	while (redir)
 	{
 		fd = open_redirection_file(redir, &error);
 		if (fd == -1)
-		{
-			error_orchestrator(exit_code, 1, error, OPEN_FILE, cmd, redir->file);
-			return ;
-		}
-		if (!redir->next)
-		{
-			run_redirection(fd, redir);
-			return ;
-		}
-		flag = check_same_redirection_later(redir);
-		if (!flag)
+			return (error_with_errno(exit_code, OPEN_FILE, cmd, redir->file));
+		if (!same_redirection_later(redir))
 			run_redirection(fd, redir);
 		else
 			close(fd);
-		flag = 0;
 		redir = redir->next;
 	}
 }

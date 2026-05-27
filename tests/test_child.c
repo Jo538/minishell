@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 18:57:04 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:28:58 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 22:49:02 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -549,6 +549,43 @@ void test_improved_version_executor(void)
 	executor(outer_pipe2, env, &exit_code);
 	printf("exit code: %d\n", exit_code);
 	free_node(outer_pipe2);
+
+	exit_code = 0;	
+
+	void	print_var(t_env **my_env);
+
+ 	// Test 30: export TEST
+	printf("\n--TEST 30--%s", "export TEST\n");
+	t_tree *node32 = make_node(&(t_tree){NODE_CMD, (char *[]){"export", "TEST", NULL}, NULL, NULL, NULL});
+	env = executor(node32, env, &exit_code);
+	print_var(env);
+	printf("exit code: %d\n", exit_code);
+	free_node(node32);
+
+	
+	// Test 31: export TEST > tests/files/out10.txt
+	printf("\n--TEST 31--%s", "export TEST > tests/files/out10.txt\n");
+	t_tree *node33 = make_node(&(t_tree){NODE_CMD, (char *[]){"export", "TEST1", NULL}, &(t_redir){OUT_DIR, "tests/files/out10.txt", NULL}, NULL, NULL});
+	env = executor(node33, env, &exit_code);
+	print_var(env);
+	printf("exit code: %d\n", exit_code);
+	free_node(node33);
+
+	// Test 32: export TEST > tests/files/out10.txt > tests/files/out11.txt
+	printf("\n--TEST 32--%s", "export TEST > tests/files/out10.txt > tests/files/out11.txt\n");
+	t_tree *node34 = make_node(&(t_tree){NODE_CMD, (char *[]){"export", "TEST2", NULL}, &(t_redir){OUT_DIR, "tests/files/out10.txt", &(t_redir){OUT_DIR, "tests/files/out11.txt", NULL}}, NULL, NULL});
+	env = executor(node34, env, &exit_code);
+	print_var(env);
+	printf("exit code: %d\n", exit_code);
+	free_node(node34);
+
+	// Test 33: export TEST < tests/files/in.txt > tests/files/out12.txt
+	printf("\n--TEST 33--%s", "export TEST < tests/files/in.txt > tests/files/out12.txt\n");
+	t_tree *node35 = make_node(&(t_tree){NODE_CMD, (char *[]){"export", "TEST3", NULL}, &(t_redir){IN_DIR, "tests/files/in.txt", &(t_redir){OUT_DIR, "tests/files/out12.txt", NULL}}, NULL, NULL});
+	env = executor(node35, env, &exit_code);
+	print_var(env);
+	printf("exit code: %d\n", exit_code);
+	free_node(node35);
 
 	free_my_env(env);
 }

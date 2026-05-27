@@ -6,73 +6,76 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:33:29 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/26 23:34:59 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-
-void	free_and_exit(t_tree *node, t_env **my_env, int *exit_code)
+static t_env	**apply_redirs_and_run_builtin(t_tree *node, t_env **my_env,
+	int *exit_code)
 {
-	free_node(node);
-	free_my_env(my_env);
-	exit(*exit_code);
+	char	*cmd;
+	int		prev_code;
+
+	cmd = node->argv[0];
+	prev_code = *exit_code;
+	*exit_code = 0;
+	files_redirections_orchestrator(cmd, NULL, node->redirections, exit_code);
+	if (*exit_code)
+		return (my_env);
+	if (!ft_strncmp(cmd, "cd", max(cmd, "cd")))
+		run_cd(node->argv, my_env, exit_code);
+	else if (!ft_strncmp(cmd, "export", max(cmd, "export")))
+		my_env = run_export(node->argv, my_env, exit_code);
+	else if (!ft_strncmp(cmd, "unset", max(cmd, "unset")))
+		my_env = run_unset(node->argv, my_env, exit_code);
+	else if (!ft_strncmp(cmd, "exit", max(cmd, "exit")))
+	{
+		*exit_code = prev_code;
+		run_exit(node->argv, exit_code);
+	}
+	return (my_env);
 }
 
-static void	print_error(char *cmd, char *file, int error)
+static t_env	**run_mutate_builtin(t_tree *node, t_env **my_env, int *ec)
 {
-	ft_putstr_fd(cmd, 2);
-	ft_putstr_fd(": ", 2);
-	if (error == ERR_CMD)
-		ft_putstr_fd("Command not found\n", 2);
-	if (error == ERR_CMD_FILE)
-		ft_putstr_fd("No such file or directory\n", 2);
-	if (!file && error == ERR_PERMISSION)
-		ft_putstr_fd("Permission denied\n", 2);
-	if (file)
-		ft_putstr_fd(file, 2);	
-	if (error == ERR_PERMISSION)
-		ft_putstr_fd(": Permission denied\n", 2);		
-	if (error == ERR_FILE)
-		ft_putstr_fd(": No such file or directory\n", 2);
+	int	copy_stdin;
+	int	copy_stdout;
+
+	copy_stdin = dup(0);
+	copy_stdout = dup(1);
+	my_env = apply_redirs_and_run_builtin(node, my_env, ec);
+	dup2(copy_stdin, 0);
+	close(copy_stdin);
+	dup2(copy_stdout, 1);
+	close(copy_stdout);
+	return (my_env);
 }
 
-static int	translate_errno(int error, int type)
+int	is_a_mutable_builtin(char *cmd)
 {
-	if (error == ENOENT && type == OPEN_FILE)
-		return (ERR_FILE);
-	if (error == ENOENT && type == OPEN_CMD)
-		return (ERR_CMD_FILE);
-	if (error == EACCES)
-		return (ERR_PERMISSION);
-	return (error);
+	if (!ft_strncmp(cmd, "cd", max(cmd, "cd")))
+		return (1);
+	if (!ft_strncmp(cmd, "export", max(cmd, "export")))
+		return (1);
+	if (!ft_strncmp(cmd, "unset", max(cmd, "unset")))
+		return (1);
+	if (!ft_strncmp(cmd, "exit", max(cmd, "exit")))
+		return (1);
+	return (0);
 }
 
-static void	set_exit_code(int error, int *exit_code)
+t_env	**executor(t_tree *node, t_env **my_env, int *exit_code)
 {
-	if (error == ERR_CMD || error == ERR_CMD_FILE)
-		*exit_code = 127;
-	if (error == ERR_PERMISSION)
-		*exit_code = 126;
-	if (error == ERR_FILE || error == ERR_INVALID_IDENTIFIER)
-		*exit_code = 1;
-	if (error == ERR_NON_NUMERIC_ARGUMENT || error == ERR_TOO_MANY_ARGS)
-		*exit_code = 2;
-}
-
-void	error_orchestrator(int *exit_code, int translate, int error, int type, char *cmd, char *file)
-{
-	if (translate == 1)
-		error = translate_errno(error, type);
-	print_error(cmd, file, error);
-	set_exit_code(error, exit_code);	
-}
-
-void	executor(t_tree *node, t_env **my_env, int *exit_code)
-{
+	if (node->type == NODE_CMD && is_a_mutable_builtin(node->argv[0]))
+	{
+		my_env = run_mutate_builtin(node, my_env, exit_code);
+		return (my_env);
+	}
 	if (node->type == NODE_CMD)
 		cmd_orchestrator(node, my_env, exit_code);
 	if (node->type == NODE_PIPE)
 		pipe_orchestrator(node, node, my_env, exit_code);
+	return (my_env);
 }

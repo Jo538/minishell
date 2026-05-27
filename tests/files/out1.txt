@@ -13,7 +13,7 @@ exit code: 127
 exit code: 127
 
 --TEST 5--tests/files/unreadable_file.txt hello
-exit code: 126
+exit code: 127
 
 --TEST 6--cat < tests/files/in.txt
 exit code: 0
@@ -25,10 +25,10 @@ exit code: 0
 exit code: 0
 
 --TEST 9--cat < tests/files/unreadable_file.txt
-exit code: 126
+exit code: 1
 
 --TEST 10--echo hello > tests/files/unwritable_file.txt
-exit code: 126
+exit code: 1
 
 --TEST 11--echo hello > tests/files/out.txt > tests/files/out1.txt
 hello

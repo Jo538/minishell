@@ -51,11 +51,8 @@ void	free_pipes(t_tree *tree)
 
 void	free_the_tree(t_tree *tree, t_token *token)
 {
-	t_tree	*tmp;
-
 	if (!have_pipe(token))
 		return (free_the_right_part(tree));
 	free_rec(tree);
 	free_pipes(tree);
-	// free(tree->left);
 }

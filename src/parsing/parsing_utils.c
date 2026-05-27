@@ -17,7 +17,7 @@ int	have_a_token_left(t_token *token)
 	token = token->before;
 	while (token)
 	{
-		if (token->type == WORD)
+		if (token->type == PIPE)
 			return (1);
 		token = token->before;
 	}
@@ -31,7 +31,7 @@ t_token	*go_to_pipe_left(t_token *token)
 		token = token->before;
 		if (!token)
 			return (NULL);
-		if (token->type == WORD)
+		if (token->type == PIPE)
 			return (token);
 	}
 	return (NULL);

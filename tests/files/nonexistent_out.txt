@@ -13,7 +13,7 @@ exit code: 127
 exit code: 127
 
 --TEST 5--tests/files/unreadable_file.txt hello
-exit code: 126
+exit code: 127
 
 --TEST 6--cat < tests/files/in.txt
 exit code: 0

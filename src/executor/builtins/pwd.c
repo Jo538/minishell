@@ -17,5 +17,6 @@ void	run_pwd(void)
 	char	buffer[4096];
 
 	ft_bzero(buffer, sizeof(buffer));
-	getcwd(buffer, sizeof(buffer) - 1);	
+	if (getcwd(buffer, sizeof(buffer) - 1))
+		printf("%s\n", buffer);
 }

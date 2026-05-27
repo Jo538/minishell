@@ -12,13 +12,13 @@
 
 #include "minishell.h"
 
-static int	check_new_segment(t_state previous_state, t_state current_state)
+static int	check_new_segment(t_state prev, t_state cur)
 {
-	if (current_state.quoting != previous_state.quoting)
+	if (cur.quoting != prev.quoting)
 	{
-		if (previous_state.quoting == UNQUOTED 
-			&& (current_state.quoting == D_QUOTED || current_state.quoting == S_QUOTED)
-				&& (previous_state.c == '\'' || previous_state.c == '"'))
+		if (prev.quoting == UNQUOTED
+			&& (cur.quoting == D_QUOTED || cur.quoting == S_QUOTED)
+			&& (prev.c == '\'' || prev.c == '"'))
 			return (2);
 		return (1);
 	}
@@ -26,74 +26,76 @@ static int	check_new_segment(t_state previous_state, t_state current_state)
 }
 
 #ifdef TESTING
-	t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, int *exit_code)
+	t_segment	*add_new_segment(t_state cur, t_segment *last,
+		int *exit_code)
 #else
-	static t_segment	*add_new_segment(t_state current_state, t_segment *last_segment, int *exit_code)
+	static t_segment	*add_new_segment(t_state cur, t_segment *last,
+		int *exit_code)
 #endif
 {
 	t_segment	*new_segment;
-	
+
 	new_segment = ft_calloc(1, sizeof(t_segment));
 	if (!new_segment)
 		return (*exit_code = ERR_FATAL, NULL);
-
-	last_segment->next = new_segment;
+	last->next = new_segment;
 	new_segment->next = NULL;
-	new_segment->quote_type = current_state.quoting;
-
-	if (current_state.c == '\'' || current_state.c == '"')
+	new_segment->quote_type = cur.quoting;
+	if (cur.c == '\'' || cur.c == '"')
 		new_segment->value = ft_calloc(1, 1);
 	else
 		new_segment->value = ft_calloc(1, 2);
 	if (!new_segment->value)
 		return (free(new_segment), *exit_code = ERR_FATAL, NULL);
-	if (current_state.c == '\'' || current_state.c == '"')
+	if (cur.c == '\'' || cur.c == '"')
 		return (new_segment);
-	new_segment->value[0] = current_state.c;
+	new_segment->value[0] = cur.c;
 	return (new_segment);
 }
 
 #ifdef TESTING
-	void	append_to_segment(t_state current_state, t_segment *last_segment, int *exit_code)
+	void	append_to_segment(t_state cur, t_segment *last, int *exit_code)
 #else
-	static void	append_to_segment(t_state current_state, t_segment *last_segment, int *exit_code)
+	static void	append_to_segment(t_state cur, t_segment *last,
+		int *exit_code)
 #endif
 {
 	int		len;
 	char	*new_value;
-	
-	len = ft_strlen(last_segment->value);
+
+	len = ft_strlen(last->value);
 	new_value = ft_calloc(1, len + 2);
 	if (!new_value)
 	{
 		*exit_code = ERR_FATAL;
 		return ;
 	}
-	ft_strlcpy(new_value, last_segment->value, len + 2);
-	new_value[len] = current_state.c;
-	free(last_segment->value);
-	last_segment->value = new_value;
+	ft_strlcpy(new_value, last->value, len + 2);
+	new_value[len] = cur.c;
+	free(last->value);
+	last->value = new_value;
 }
 
-t_segment	*segment_orchestrator(t_state previous_state, t_state current_state, t_segment *last_segment, int *exit_code)
+t_segment	*segment_orchestrator(t_state prev, t_state cur,
+	t_segment *last, int *exit_code)
 {
 	int	flag;
 
-	flag = check_new_segment(previous_state, current_state);
+	flag = check_new_segment(prev, cur);
 	if (flag == 0)
-		append_to_segment(current_state, last_segment, exit_code);
+		append_to_segment(cur, last, exit_code);
 	if (flag == 1)
-		last_segment = add_new_segment(current_state, last_segment, exit_code);
+		last = add_new_segment(cur, last, exit_code);
 	if (flag == 2)
-		last_segment->quote_type = current_state.quoting;
-	return (last_segment);
+		last->quote_type = cur.quoting;
+	return (last);
 }
 
-void	change_token_type(t_state current_state, t_token *last_token, t_error *err)
+void	change_token_type(t_state cur, t_token *last_token, t_error *err)
 {
-		if (current_state.c == '<')
-			last_token->type = HEREDOC;
-		else
-			last_token->type = APPEND_OUT_DIR;
-		append_to_segment(current_state, last_token->segment, err);
+	if (cur.c == '<')
+		last_token->type = HEREDOC;
+	else
+		last_token->type = APPEND_OUT_DIR;
+	append_to_segment(cur, last_token->segment, err);
 }

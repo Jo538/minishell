@@ -62,7 +62,6 @@ void	free_argv(t_tree *tree, int i)
 
 t_tree	*fill_av(t_tree *tree)
 {
-	t_token	*trot;
 	int		i;
 
 	i = 0;

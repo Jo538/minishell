@@ -6,60 +6,59 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:48:48 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 13:18:31 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	main(char **env)
+static t_env	**run_one_line(char *prompt, t_env **my_env, int *exit_code)
+{
+	t_token	*token;
+	t_tree	*tree;
+
+	token = lexer(prompt, exit_code);
+	if (*exit_code == ERR_FATAL || !token)
+		return (my_env);
+	if (check_ifgood(token))
+	{
+		ft_putstr_fd("minishell: syntax error\n", 2);
+		*exit_code = 2;
+		return (free_token_list(token), my_env);
+	}
+	tree = parsing_main(token);
+	if (!tree)
+		return (free_token_list(token), my_env);
+	my_env = executor(tree, my_env, exit_code);
+	free_the_tree(tree, token);
+	free_token_list(token);
+	return (my_env);
+}
+
+int	main(int argc, char **argv, char **envp)
 {
 	int		exit_code;
 	t_env	**my_env;
 	char	*prompt;
-	t_token	*token;
-	t_tree	*tree;
-	int		i = 0;
 
-	my_env = create_env(env, &exit_code);
-	if (exit_code == ERR_FATAL)
-		return (ERR_FATAL);
+	(void)argc;
+	(void)argv;
+	exit_code = 0;
+	my_env = create_env(envp, &exit_code);
 	while (1)
 	{
-		i = 0;
 		prompt = readline("minishell>>> ");
 		if (!prompt)
 			break ;
 		if (*prompt)
 			add_history(prompt);
-		// prompt = ft_strdup("asdsdkuhj | akj | askjdaksdjh | akjsdhhj | kjh | ksjad < askjd"); // dequote cette ligne pour enlever tout les leaks lier a readline
-		token = lexer_orchestrator(prompt, error);
-		// printf("%s\n", token->segment->value);
-		printf("bon ou pas = %d\n", check_ifgood(token));
-		// return (0);
-		// printf("token = %s\n", token->next->next->next->segment->value);
-		// tree = parsing_main(token); // ICI
-		// while (tree->right->redirections)
-		// {
-		// 	printf("redir = %s\n", tree->right->redirections->file);
-		// 	tree->right->redirections = tree->right->redirections->next;
-		// }
-		// printf("%s\n", tree->argv);
-		// while (tree->argv[i])
-		// 	printf("av = %s\n", tree->argv[i++]);
-		// free_the_tree(tree, token); //necessite d etre fait avant le free des tokens ou alors besoin d envoyer l info de have_pipe a la place de token
-		token = lexer(prompt, &exit_code);
+		my_env = run_one_line(prompt, my_env, &exit_code);
 		free(prompt);
-		if (exit_code = ERR_FATAL)
-			return (exit_code);
-		tree = parsing_main(token);
-		free_token_list(token);
-		// expander
-		free_the_tree(tree, token); //necessite d etre fait avant le free des tokens ou alors besoin d envoyer l info de have_pipe a la place de token
-		executor(tree, my_env, &exit_code);
+		if (exit_code == ERR_FATAL)
+			break ;
 	}
-	free(token);
-	printf("%s\n", "minishell>>> exit");
+	printf("minishell>>> exit\n");
 	rl_clear_history();
-	return (0);
+	free_my_env(my_env);
+	return (exit_code);
 }

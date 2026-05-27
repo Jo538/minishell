@@ -1,2 +1,18 @@
 CLAUDE.md
 .claude
+.DS_Store
+
+# Build artefacts
+obj/
+minishell
+test_minishell
+test_minishell.dSYM/
+*.o
+*.dSYM/
+
+# Libft artefacts
+libft/*.o
+libft/libft.a
+
+# Valgrind logs
+vg-*.log

@@ -12,8 +12,6 @@
 
 #include "minishell.h"
 
-// return 1 si c est pas bon et 0 si c est
-
 int	is_one_pipe(char *str)
 {
 	int	i;
@@ -33,8 +31,6 @@ int	is_one_pipe(char *str)
 
 int	check_pipes(t_token *token)
 {
-	int	i;
-	
 	if (token->type == PIPE)
 		return (1);
 	while (token)
@@ -50,14 +46,14 @@ int	check_pipes(t_token *token)
 
 int	last_token_isnt_word(t_token *token)
 {
-	while(token->next)
+	while (token->next)
 		token = token->next;
 	if (token->type != WORD)
 		return (1);
 	return (0);
 }
 
-int	check_ifgood(t_token *token) //LA REGLE C EST RETOURNE 1 SI ERREUR | 0 SI GOOD
+int	check_ifgood(t_token *token)
 {
 	if (check_pipes(token))
 		return (1);

@@ -6,15 +6,15 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/23 05:59:06 by admin            ###   ########.fr        #
+#    Updated: 2026/05/26 16:51:11 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 # Compiler
 CC = cc
-CFLAGS = -g3 -O0
-VPATH = src:src/lexer:src/executor:src/parsing:src/executor/builtins:src/env:tests
+CFLAGS = -Wall -Wextra -Werror -Wno-unused-function -g3 -O0
+VPATH = src:src/lexer:src/check_if_good:src/executor:src/parsing:src/executor/builtins:src/env:tests
 NAME = minishell
 TEST_NAME = test_minishell
 ifeq ($(shell uname), Darwin)
@@ -35,8 +35,13 @@ OBJ_DIR = obj
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
-	parsing.c parsing_utils.c parsing_right_part.c exit.c pwd.c echo.c cd.c create_env.c env.c export_1.c \
-	export_2.c unset.c builtin_orchestrator.c parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c
+	errors.c free_node.c \
+	parsing.c parsing_utils.c parsing_right_part.c \
+	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c \
+	make_right_part_utils.c right_part_utils_redirs.c \
+	check_redirs.c check_ifgood.c exit.c pwd.c echo.c cd.c create_env.c \
+	consolidate_env.c env.c export.c export_print.c export_utils.c unset.c \
+	builtin_orchestrator.c
 TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
 	test_orchestrator.c test_path.c test_child.c test_builtins.c test_env.c
 	

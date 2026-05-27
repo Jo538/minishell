@@ -36,6 +36,7 @@ t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token)
 t_tree	*create_pipe_part(t_token *token)
 {
 	t_tree	*tree;
+	t_token	*first_word;
 
 	if (!token)
 		return (NULL);
@@ -52,6 +53,17 @@ t_tree	*create_pipe_part(t_token *token)
 		if (!token)
 			break ;
 		tree = put_pipe_in_tree(tree, token);
+		if (!tree)
+			return (NULL);
+	}
+	first_word = token;
+	while (first_word && first_word->before)
+		first_word = first_word->before;
+	while (first_word && first_word->type != WORD)
+		first_word = first_word->next;
+	if (first_word)
+	{
+		tree = put_pipe_in_tree(tree, first_word);
 		if (!tree)
 			return (NULL);
 	}

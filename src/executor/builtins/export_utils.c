@@ -1,63 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   export_1.c                                         :+:      :+:    :+:   */
+/*   export_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:06:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/23 05:27:33 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/23 04:47:41 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	print_var(t_env **my_env)
-{
-	int	i;
-
-	i = 0;
-	while(my_env[i])
-	{
-		if (my_env[i]->export_flag)
-			printf("export %s", my_env[i]->key);
-		if (my_env[i]->value)
-			printf("=\"%s\"\n", my_env[i]->value);
-		else
-			printf("%c", '\n');
-		i++;
-	}
-}
-
-static t_env	*search_key(char *cmd, t_env **my_env)
-{
-	int		i;
-	int		size;
-	char	*new_key;
-	char	*delimiter;
-
-	i = 0;
-	new_key = NULL;
-	delimiter = ft_strchr(cmd, '=');
-	if (!delimiter)
-		size = ft_strlen(cmd);
-	else
-		size = delimiter - cmd;
-	while (my_env[i])
-	{
-		if (!ft_strncmp(cmd, my_env[i]->key, size))
-			return (my_env[i]);
-		i++;
-	}
-	return (NULL);
-}
-
 void	append_value(char *cmd, t_env *row, int *exit_code)
 {
-	int		index;
 	char	*delimiter;
 
-	index = 0;
 	delimiter = ft_strchr(cmd, '=');
 	if (delimiter)
 	{
@@ -86,31 +44,46 @@ void	append_key(char *cmd, t_env *row, int *exit_code)
 	row->export_flag = 1;
 }
 
-t_env	**run_export(char **cmd, t_env **my_env, int *exit_code)
+static t_env	**resize_my_env(t_env **my_env, int *exit_code, int size)
 {
 	int		i;
-	int		size;
-	t_env	*key;
+	t_env	**new_env;
 
-	i = 1;
-	size = 0;
-	if (!cmd[1])
-		print_var(my_env);
-	else
+	i = 0;
+	new_env = ft_calloc(size + 2, sizeof(t_env *));
+	if (!new_env)
 	{
-		while (cmd[i])
-		{
-			key = search_key(cmd[i], my_env);
-			if (key)
-			{
-				append_value(cmd[i], key, exit_code);
-				if (*exit_code)
-					return (NULL);			
-			}	
-			else
-				my_env = create_new_row(cmd[i], my_env, exit_code);
-			i++;		
-		}
+		*exit_code = ERR_FATAL;
+		return (NULL);
 	}
-	return (my_env);
+	new_env[size] = ft_calloc(1, sizeof(t_env));
+	if (!new_env[size])
+	{
+		*exit_code = ERR_FATAL;
+		free(new_env);
+		return (NULL);
+	}
+	while (i < size)
+	{
+		new_env[i] = my_env[i];
+		i++;
+	}
+	free(my_env);
+	return (new_env);
+}
+
+t_env	**create_new_row(char *cmd, t_env **my_env, int *exit_code)
+{
+	int		size;
+	t_env	**new_env;
+
+	size = 0;
+	while (my_env[size])
+		size++;
+	new_env = resize_my_env(my_env, exit_code, size);
+	if (*exit_code)
+		return (NULL);
+	append_key(cmd, new_env[size], exit_code);
+	append_value(cmd, new_env[size], exit_code);
+	return (new_env);
 }

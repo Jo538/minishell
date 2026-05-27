@@ -1,4 +1,0 @@
-export PATH="/usr/admin"
-export TEST="abc"
-export TEST1
-export TEST2

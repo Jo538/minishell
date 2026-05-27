@@ -6,10 +6,9 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:52:09 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:20:39 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "minishell.h"
 
@@ -22,15 +21,13 @@ static void	free_segment_list(t_segment *segment)
 		next_segment = segment->next;
 		free(segment->value);
 		free(segment);
-		segment = next_segment;	
+		segment = next_segment;
 	}
-}	
+}
 
 void	free_token_list(t_token *token)
 {
 	t_token		*next_token;
-	t_segment	*segment;
-
 
 	while (token)
 	{
@@ -41,46 +38,54 @@ void	free_token_list(t_token *token)
 	}
 }
 
-static void	helper(int flag, t_state state[2], t_key_items *key_items, int *exit_code)
+static void	helper(int flag, t_state state[2], t_key_items *k, int *ec)
 {
 	if (flag == 0)
-		key_items->last_segment = segment_orchestrator(state[PREVIOUS_STATE], state[CURRENT_STATE], key_items->last_segment, exit_code);
+		k->last_segment = segment_orchestrator(state[PREVIOUS_STATE],
+				state[CURRENT_STATE], k->last_segment, ec);
 	if (flag == 1)
 	{
-		key_items->last_token = create_token(state[CURRENT_STATE], key_items->last_token, exit_code);
-		key_items->last_segment = key_items->last_token->segment;
+		k->last_token = create_token(state[CURRENT_STATE],
+				k->last_token, ec);
+		k->last_segment = k->last_token->segment;
 	}
 	if (flag == 2)
-		change_token_type(state[CURRENT_STATE], key_items->last_token, exit_code);
-	if (!key_items->first_token)
-		key_items->first_token = key_items->last_token;		
+		change_token_type(state[CURRENT_STATE], k->last_token, ec);
+	if (!k->first_token)
+		k->first_token = k->last_token;
 	if (flag == 3)
 		return ;
+}
+
+static int	is_unclosed_quote(t_state state)
+{
+	return (state.quoting == S_QUOTED || state.quoting == D_QUOTED);
 }
 
 t_token	*lexer(char *prompt, int *exit_code)
 {
 	int			i;
-	int			flag;
 	int			len;
 	t_state		state[2];
-	t_key_items	key_items;
+	t_key_items	k;
 
 	i = 0;
 	len = ft_strlen(prompt);
-	ft_bzero(&key_items, sizeof(t_key_items));
+	ft_bzero(&k, sizeof(t_key_items));
 	ft_bzero(state, 2 * sizeof(t_state));
-	if (!len)
-		return (NULL);
 	while (i < len)
 	{
-		state[CURRENT_STATE] = create_current_state(prompt[i], i, state[PREVIOUS_STATE]);
-		flag = check_new_token(i, state[PREVIOUS_STATE], state[CURRENT_STATE]);
-		helper(flag, state, &key_items, exit_code);
+		state[CURRENT_STATE] = create_current_state(prompt[i], i,
+				state[PREVIOUS_STATE]);
+		helper(check_new_token(i, state[PREVIOUS_STATE],
+				state[CURRENT_STATE]), state, &k, exit_code);
 		if (*exit_code == ERR_FATAL)
-			return (free_token_list(key_items.first_token), NULL);
+			return (free_token_list(k.first_token), NULL);
 		state[PREVIOUS_STATE] = state[CURRENT_STATE];
 		i++;
 	}
-	return (key_items.first_token);
+	if (is_unclosed_quote(state[CURRENT_STATE]))
+		return (ft_putstr_fd("minishell: syntax error: unclosed quote\n", 2),
+			free_token_list(k.first_token), *exit_code = ERR_SYNTAX, NULL);
+	return (k.first_token);
 }

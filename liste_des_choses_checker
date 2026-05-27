@@ -1,9 +1,0 @@
-
-commencer par checker les pipes
-
-dans les redirections :
-
-> et < et << et >> :
-
--commencer par redirection in apres un pipe
--avoir plusieurs word apres la redirection

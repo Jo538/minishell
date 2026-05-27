@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 11:05:50 by admin             #+#    #+#             */
-/*   Updated: 2026/04/22 12:48:32 by admin            ###   ########.fr       */
+/*   Updated: 2026/05/27 15:23:46 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,18 +56,20 @@ int	find_repeat(char c, int i, t_state previous_state, t_quoting quote_type)
 		if (previous_state.c == '>' && c == '>')
 			return (previous_state.repeat + 1);
 		if (c == '<' || c == '>')
-			return (1);		
+			return (1);
 	}
 	return (0);
 }
 
 t_state	create_current_state(char c, int i, t_state previous_state)
 {
-	t_state	current_state;
+	t_state		current_state;
+	t_quoting	q;
 
 	current_state.c = c;
-	current_state.quoting = find_quoting(c, i, previous_state);
-	current_state.char_type = find_char_type(c, current_state.quoting);
-	current_state.repeat = find_repeat(c, i, previous_state, current_state.quoting);
+	q = find_quoting(c, i, previous_state);
+	current_state.quoting = q;
+	current_state.char_type = find_char_type(c, q);
+	current_state.repeat = find_repeat(c, i, previous_state, q);
 	return (current_state);
 }

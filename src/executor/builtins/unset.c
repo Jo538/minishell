@@ -16,11 +16,9 @@ static int	search_key(char *cmd, t_env **my_env)
 {
 	int		i;
 	int		size;
-	char	*new_key;
 	char	*delimiter;
 
 	i = 0;
-	new_key = NULL;
 	delimiter = ft_strchr(cmd, '=');
 	if (!delimiter)
 		size = ft_strlen(cmd);
@@ -28,14 +26,16 @@ static int	search_key(char *cmd, t_env **my_env)
 		size = delimiter - cmd;
 	while (my_env[i])
 	{
-		if (!ft_strncmp(cmd, my_env[i]->key, size))
+		if ((int)ft_strlen(my_env[i]->key) == size
+			&& !ft_strncmp(cmd, my_env[i]->key, size))
 			return (i);
 		i++;
 	}
 	return (-1);
 }
 
-static t_env **resize_my_env(t_env **my_env, int size, int index, int *exit_code)
+static t_env	**resize_my_env(t_env **my_env, int size, int index,
+	int *exit_code)
 {
 	t_env	**new_env;
 
@@ -43,7 +43,7 @@ static t_env **resize_my_env(t_env **my_env, int size, int index, int *exit_code
 	if (!new_env)
 	{
 		*exit_code = ERR_FATAL;
-		return (NULL);		
+		return (NULL);
 	}
 	free(my_env[index]->key);
 	if (my_env[index]->value)
@@ -55,14 +55,15 @@ static t_env **resize_my_env(t_env **my_env, int size, int index, int *exit_code
 int	find_size_array(t_env **my_env)
 {
 	int	i;
-	
+
 	i = 0;
 	while (my_env[i])
 		i++;
 	return (i);
 }
 
-static void	fill_new_env(t_env **new_env, t_env **my_env, int index, int size)
+static void	fill_new_env(t_env **new_env, t_env **my_env, int index,
+	int size)
 {
 	int	i;
 	int	j;
@@ -71,23 +72,21 @@ static void	fill_new_env(t_env **new_env, t_env **my_env, int index, int size)
 	j = 0;
 	while (i < size)
 	{
-		if (i == index)
+		if (i != index)
 		{
-			i++;
-			continue ;			
+			new_env[j] = my_env[i];
+			j++;
 		}
-		new_env[j] = my_env[i];
 		i++;
-		j++;
 	}
 	free(my_env);
 }
 
-t_env	**run_unset(char **cmd, t_env ** my_env, int *exit_code)
+t_env	**run_unset(char **cmd, t_env **my_env, int *exit_code)
 {
-	int	i;
-	int	size;
-	int	key_index;
+	int		i;
+	int		size;
+	int		key_index;
 	t_env	**new_env;
 
 	if (!cmd[1])
@@ -103,7 +102,7 @@ t_env	**run_unset(char **cmd, t_env ** my_env, int *exit_code)
 			fill_new_env(new_env, my_env, key_index, size);
 			my_env = new_env;
 		}
-		i++;	
+		i++;
 	}
 	return (my_env);
 }

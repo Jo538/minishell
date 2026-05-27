@@ -59,12 +59,8 @@ Reference material we relied on while building this:
 
 ### Use of AI
 
-We used AI assistants (Claude) to help:
+We used AI assistants to help:
 
 - Audit the codebase for bugs and design issues, and propose fixes.
 - Explain `readline` / signal interactions when the documentation was thin.
 - Talk through edge cases in the lexer and the expander.
-
-All AI-generated code was reviewed line-by-line and rewritten when we did not
-fully understand it. We took ownership of every change and can explain what
-each function does and why.

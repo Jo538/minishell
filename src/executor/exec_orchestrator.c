@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_orchestrator.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 23:34:59 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/02 14:13:33 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ static t_env	**run_mutate_builtin(t_tree *node, t_env **my_env, int *ec)
 
 int	is_a_mutable_builtin(char *cmd)
 {
+	if (!cmd)
+		return (0);
 	if (!ft_strncmp(cmd, "cd", max(cmd, "cd")))
 		return (1);
 	if (!ft_strncmp(cmd, "export", max(cmd, "export")))

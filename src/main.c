@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/06/02 12:56:04 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/03 13:18:29 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static t_env	**run_one_line(char *prompt, t_env **my_env, int *exit_code)
 		*exit_code = 2;
 		return (free_token_list(token), my_env);
 	}
-	tree = parsing_main(token); // qjouter env et exitcode
+	tree = parsing_main(token, my_env, exit_code); // qjouter env et exitcode
 	if (!tree)
 		return (free_token_list(token), my_env);
 	my_env = executor(tree, my_env, exit_code);

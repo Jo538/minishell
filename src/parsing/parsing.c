@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 14:31:10 by benji             #+#    #+#             */
-/*   Updated: 2026/05/07 12:36:27 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/03 13:19:01 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	have_pipe(t_token *token)
 	return (0);
 }
 
-t_tree	*parsing_main(t_token *token)
+t_tree	*parsing_main(t_token *token, t_env **my_env, int *exit_code)
 {
 	t_tree	*tree;
 	t_token	*first_token;

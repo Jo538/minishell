@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   make_right_part_utils.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 13:52:06 by benji             #+#    #+#             */
-/*   Updated: 2026/05/20 16:35:20 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/03 15:37:15 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	count_arguments(t_token *token)
 	return (to_return);
 }
 
-char	*join_segments(t_token *token)
+char	*join_segments(t_token *token, t_env **my_env, int *exit_code)
 {
 	char		*to_return;
 	char		*tmp;
@@ -33,11 +33,11 @@ char	*join_segments(t_token *token)
 
 	if (!token)
 		return (NULL);
-	token = expand_tokens(token);
+	token = expand_tokens(token, my_env, exit_code);
 	seg = token->segment;
 	to_return = malloc(1);
 	if (!to_return)
-		return (NULL);
+		return (*exit_code = ERR_FATAL, NULL);
 	to_return[0] = 0;
 	while (seg)
 	{
@@ -45,7 +45,7 @@ char	*join_segments(t_token *token)
 		to_return = ft_strjoin(tmp, seg->value);
 		free(tmp);
 		if (!to_return)
-			return (NULL);
+			return (*exit_code = ERR_FATAL, NULL);
 		seg = seg->next;
 	}
 	return (to_return);
@@ -60,16 +60,16 @@ void	free_argv(t_tree *tree, int i)
 	}
 }
 
-t_tree	*fill_av(t_tree *tree)
+t_tree	*fill_av(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	int		i;
 
 	i = 0;
 	while (tree->token_ref && tree->token_ref->type == WORD)
 	{
-		tree->argv[i] = join_segments(tree->token_ref);
+		tree->argv[i] = join_segments(tree->token_ref, my_env, exit_code);
 		if (!tree->argv[i])
-			return (free_argv(tree, i), NULL);
+			return (free_argv(tree, i), *exit_code = ERR_FATAL, NULL);
 		i++;
 		tree->token_ref = tree->token_ref->next;
 	}

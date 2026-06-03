@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/06/03 13:18:29 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/03 18:06:49 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		prompt = readline("minishell>>> ");
-		// prompt = ft_strdup("< test");
 		if (!prompt)
 			break ;
 		if (*prompt)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_right_part.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/06/02 07:59:44 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/03 15:01:57 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@
 // 	return (count);
 // }
 
-t_tree	*make_right_part(t_token *token) // il faut gerer les heredocs
+t_tree	*make_right_part(t_token *token, t_env **my_env, int *exit_code)
 {
 	t_tree	*tree;
 
@@ -54,22 +54,26 @@ t_tree	*make_right_part(t_token *token) // il faut gerer les heredocs
 		token = token->next;
 	tree = init_tree_w_malloc(token);
 	if (!tree)
-		return(NULL);
-	tree = fill_av(tree);
+		return(*exit_code = ERR_FATAL, NULL);
+	tree = fill_av(tree, my_env, exit_code);
 	if (!tree->argv)
-		return(free(tree), NULL);
-	tree = handle_redirs(tree);
+		return(free(tree), *exit_code = ERR_FATAL, NULL);
+	tree = handle_redirs(tree, my_env, exit_code);
 	while (tree->token_ref && tree->token_ref->type != PIPE)
 	{
+		if (*exit_code == ERR_FATAL)
+			return (NULL);
 		if (tree->token_ref->type != WORD)
-			tree = handle_redirs(tree);
+			tree = handle_redirs(tree, my_env, exit_code);
 		else
 			tree->token_ref = tree->token_ref->next;
 	}
+	if (*exit_code == ERR_FATAL)
+			return (NULL);
 	return (tree);
 }
 
- t_tree	*fill_right_part(t_tree *tree)
+ t_tree	*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	t_tree	*trot;
 
@@ -80,8 +84,8 @@ t_tree	*make_right_part(t_token *token) // il faut gerer les heredocs
 	{
 		if (trot->type == PIPE || trot->type == CMD)
 		{
-			trot->right = make_right_part(trot->token_ref);
-			if (!trot->right)
+			trot->right = make_right_part(trot->token_ref, my_env, exit_code);
+			if (*exit_code == ERR_FATAL)
 				return (NULL);
 		}
 		trot = trot->left;

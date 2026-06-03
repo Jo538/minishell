@@ -6,7 +6,7 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/05/11 18:16:38 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/02 08:06:34 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ char	*expand_ch(char *str)
 {
 	char	*to_return;
 
-	to_return = getenv(str);//ICI PENSER A AJOUTER LE CAS DE $? et trouver ou gerer $$
+	to_return = getenv(str);//ICI PENSER A AJOUTER LE CAS DE $?
 	free(str);
 	return (to_return);
 }
@@ -58,7 +58,7 @@ char	*expand_segtrot(char *str)
 	to_return[0] = 0;
 	while (str[i])
 	{
-		while (str[i] && str[i] != '$')
+		while (str[i] && (str[i] != '$' || (str[i] == '$' && str[i + 1] && str[i + 1] == '$')))
 			i++;
 		sub = ft_substr(str, start, i - start);
 		to_return = ft_strjoin(to_return, sub);
@@ -68,7 +68,7 @@ char	*expand_segtrot(char *str)
 			expand = get_to_expand(str, &i, &start);
 			// printf("AFTER i = %d start = %d\n", i, start);
 			to_return = ft_strjoin(to_return, expand);
-			printf("to return = %s\n", to_return);
+			// printf("to return = %s\n", to_return);
 		}
 		// i++;
 	}

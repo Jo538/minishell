@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   create_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/05/27 15:22:38 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/02 12:32:17 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ t_token	*create_token(t_state state, t_token *last_token, int *exit_code)
 {
 	t_token	*new_token;
 
-	new_token = ft_calloc(1, sizeof (t_token));
+	new_token = ft_calloc(1, sizeof(t_token));
 	if (!new_token)
 	{
 		*exit_code = ERR_FATAL;

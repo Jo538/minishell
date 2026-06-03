@@ -6,45 +6,45 @@
 /*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/20 18:22:37 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/02 07:59:44 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	free_right_part_tree(t_tree *tree, int arg_count)
-{
-	while (arg_count > 0)
-	{
-		free(tree->argv[--arg_count]);
-	}
-	free(tree->argv);
-	free(tree);
-}
+// static void	free_right_part_tree(t_tree *tree, int arg_count)
+// {
+// 	while (arg_count > 0)
+// 	{
+// 		free(tree->argv[--arg_count]);
+// 	}
+// 	free(tree->argv);
+// 	free(tree);
+// }
 
-static int	count_arguments(t_token *token)
-{
-	int	count;
+// static int	count_arguments(t_token *token)
+// {
+// 	int	count;
 
-	count = 0;
-	if (!token)
-		return (0);
-	if (token->type == PIPE)
-		token = token->next;
-	while (token && token->type != PIPE)
-	{
-		if (token->type == WORD)
-			count++;
-		else
-		{
-			if (token->next)
-				token = token->next;
-		}
-		if (token)
-			token = token->next;
-	}
-	return (count);
-}
+// 	count = 0;
+// 	if (!token)
+// 		return (0);
+// 	if (token->type == PIPE)
+// 		token = token->next;
+// 	while (token && token->type != PIPE)
+// 	{
+// 		if (token->type == WORD)
+// 			count++;
+// 		else
+// 		{
+// 			if (token->next)
+// 				token = token->next;
+// 		}
+// 		if (token)
+// 			token = token->next;
+// 	}
+// 	return (count);
+// }
 
 t_tree	*make_right_part(t_token *token) // il faut gerer les heredocs
 {

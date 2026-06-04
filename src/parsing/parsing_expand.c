@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_expand.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/04 12:13:34 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/04 12:37:42 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,13 @@ char	*search_in_env(char *str, t_env **my_env, int *exit)
 	if (str[0] == '?')
 	{
 		tmp = ft_itoa(*exit);
+		if (!tmp)
+			return (*exit = ERR_FATAL, NULL);
+		return (tmp);
+	}
+	if (str[0] == ' ' || str[0] == '\0')
+	{
+		tmp = ft_strdup("$");
 		if (!tmp)
 			return (*exit = ERR_FATAL, NULL);
 		return (tmp);
@@ -132,4 +139,3 @@ t_token	*expand_tokens(t_token	*token, t_env **my_env, int *exit_code)
 	}
 	return (token); //necessite a faire
 }
-

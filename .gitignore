@@ -1,6 +1,7 @@
 CLAUDE.md
 .claude
 .DS_Store
+minishell_tester/
 
 # Build artefacts
 obj/

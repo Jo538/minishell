@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipe.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:22:48 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/04 11:43:26 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ static void	left_child(t_tree *root, t_tree *node, t_env **my_env,
 static void	right_child(t_tree *root, t_tree *node, t_env **my_env,
 	int *exit_code)
 {
+	*exit_code = 0;
 	exec_in_pipe(root, node->right, my_env, exit_code);
 }
 

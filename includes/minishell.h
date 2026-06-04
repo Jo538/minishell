@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/05/27 14:58:07 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/03 15:45:25 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,24 +179,25 @@ void		error_with_errno(int *exit_code, int type, char *cmd, char *file);
 t_token		*find_last_pipe(t_token *token);
 t_token		*gt_pipe_left(t_token *tok);
 t_tree		*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
-t_tree		*make_right_part(t_token *token);
+t_tree		*make_right_part(t_token *token, t_env **my_env, int *exit_code);
 t_tree		*put_right_part(t_tree *tree);
-t_tree		*fill_right_part(t_tree *tree);
+ t_tree		*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code);
 int			have_a_token_left(t_token *token);
 t_token		*go_to_pipe_left(t_token *token);
 t_tree		*put_pipe_in_tree(t_tree *tree, t_token *token);
 t_tree		*create_pipe_part(t_token *token);
 t_token		*find_last_pipe(t_token *token);
 t_tree		*create_tree(t_token *token);
-t_tree		*parsing_main(t_token *token);
+t_tree		*parsing_main(t_token *token, t_env **my_env, int *exit_code);
 t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
-t_token		*expand_tokens(t_token	*token);
+t_token		*expand_tokens(t_token	*token, t_env **my_env, int *exit_code);
 t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int			have_pipe(t_token *token);
 void		free_the_tree(t_tree *tree, t_token *token);
 t_tree		*init_tree_w_malloc(t_token *token);
-t_tree		*fill_av(t_tree *tree);
-t_tree		*handle_redirs(t_tree *tree);
+t_tree		*fill_av(t_tree *tree, t_env **my_env, int *exit_code);
+t_tree		*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code);
+void		free_the_redirs(t_redir *redir);
 
 /* builtins */
 int			is_a_mutable_builtin(char *cmd);

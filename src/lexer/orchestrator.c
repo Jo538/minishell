@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   orchestrator.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 10:47:32 by admin             #+#    #+#             */
-/*   Updated: 2026/06/02 12:32:05 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/03 13:20:56 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void	free_token_list(t_token *token)
 
 	while (token)
 	{
-		printf("token value = %s\n", token->segment->value);
 		next_token = token->next;
 		free_segment_list(token->segment);
 		free(token);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_expand.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/04 11:12:39 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/04 12:13:34 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 
 t_token	*expand_tokens(t_token	*token, t_env **my_env, int *exit_code)
 {
+	char		*expanded;
 	t_segment	*segtrot;
 
 	if (token->type != WORD)
@@ -122,7 +123,11 @@ t_token	*expand_tokens(t_token	*token, t_env **my_env, int *exit_code)
 	while (segtrot)
 	{
 		if (segtrot->quote_type != S_QUOTED)
-			segtrot->value = expand_segtrot(segtrot->value, my_env, exit_code); //il y a encore le cas de $$ a gerer et d autres scases type $? (la ca ne gere que les cas ultras classiques)
+		{
+			expanded = expand_segtrot(segtrot->value, my_env, exit_code); //il y a encore le cas de $$ a gerer et d autres scases type $? (la ca ne gere que les cas ultras classiques)
+			free(segtrot->value);
+			segtrot->value = expanded;
+		}
 		segtrot = segtrot->next;
 	}
 	return (token); //necessite a faire

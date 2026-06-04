@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
+#    By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/26 16:51:11 by admin            ###   ########.fr        #
+#    Updated: 2026/06/02 14:06:23 by jchartie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 # Compiler
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g3 -O0
+CFLAGS = -g3 -O0
 VPATH = src:src/lexer:src/check_if_good:src/executor:src/parsing:src/executor/builtins:src/env
 NAME = minishell
 ADDITIONAL_FLAGS = -lreadline
@@ -53,8 +53,13 @@ $(OBJ_DIR)/%.o: %.c
 $(LIBFT_ARCHIVE):
 	$(MAKE) -C $(LIBFT_DIR)
 
+# Run valgrind suppressing readline's known leaks
+valgrind: $(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
+		--suppressions=readline.supp ./$(NAME)
+
 # Phony targets declaration
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re valgrind
 
 # Clean project's object files
 clean:

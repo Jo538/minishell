@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_orchestrator.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 22:27:25 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 18:37:02 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/02 14:17:16 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ int	max(char *str1, char *str2)
 
 int	is_builtin(t_tree *node)
 {
+	if (!node->argv[0])
+		return (0);
 	if (!ft_strncmp("cd", node->argv[0], max("cd", node->argv[0])))
 		return (1);
 	if (!ft_strncmp("echo", node->argv[0], max("echo", node->argv[0])))

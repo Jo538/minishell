@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 12:05:41 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/04 12:43:15 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,10 @@ static void	set_exit_code(int error, int *exit_code)
 		*exit_code = 126;
 	if (error == ERR_FILE || error == ERR_INVALID_IDENTIFIER)
 		*exit_code = 1;
-	if (error == ERR_NON_NUMERIC_ARGUMENT || error == ERR_TOO_MANY_ARGS)
+	if (error == ERR_NON_NUMERIC_ARGUMENT)
 		*exit_code = 2;
+	if (error == ERR_TOO_MANY_ARGS)
+		*exit_code = 1;
 }
 
 void	error_orchestrator(int *exit_code, int error, char *cmd, char *file)

@@ -6,7 +6,7 @@
 /*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:40:14 by admin             #+#    #+#             */
-/*   Updated: 2026/06/02 14:43:22 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/04 11:33:53 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ t_token	*create_token(t_state state, t_token *last_token, int *exit_code)
 {
 	t_token	*new_token;
 
-	new_token = ft_calloc(1, sizeof (t_token));
+	new_token = ft_calloc(1, sizeof(t_token));
 	if (!new_token)
 	{
 		*exit_code = ERR_FATAL;

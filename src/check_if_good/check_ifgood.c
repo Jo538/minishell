@@ -3,14 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   check_ifgood.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/13 12:17:09 by benji             #+#    #+#             */
-/*   Updated: 2026/05/22 14:15:29 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/03 18:40:04 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	check_heredocs(t_token *token)
+{
+	int	i;
+
+	i = 0;
+	while (token)
+	{
+		if (token->type == HEREDOC)
+			i++;
+		token = token->next;
+	}
+	if (i >= 16)
+		return (1);
+	return (0);
+}
 
 int	is_one_pipe(char *str)
 {
@@ -55,6 +71,8 @@ int	last_token_isnt_word(t_token *token)
 
 int	check_ifgood(t_token *token)
 {
+	if (check_heredocs(token))
+		return (1);
 	if (check_pipes(token))
 		return (1);
 	if (check_redirs(token))

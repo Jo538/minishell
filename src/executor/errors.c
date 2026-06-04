@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 23:34:59 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/04 12:05:41 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void	print_error(char *cmd, char *file, int error)
 	ft_putstr_fd(cmd, 2);
 	ft_putstr_fd(": ", 2);
 	if (error == ERR_CMD)
-		ft_putstr_fd("Command not found\n", 2);
+		ft_putstr_fd("command not found\n", 2);
 	if (error == ERR_CMD_FILE)
 		ft_putstr_fd("No such file or directory\n", 2);
 	if (error == ERR_TOO_MANY_ARGS)

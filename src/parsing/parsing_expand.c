@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/03 18:06:16 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/04 11:12:39 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,6 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 		if (str[i] == '$')
 		{
 			expand = get_to_expand(str, &i, &start, exit_code, my_env);
-			if (!expand)
-				return (*exit_code = ERR_FATAL, NULL);
 			to_return = ft_strjoin(to_return, expand);
 			if (!to_return)
 				return (*exit_code = ERR_FATAL, NULL);

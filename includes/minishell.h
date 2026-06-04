@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/03 15:45:25 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/04 12:00:49 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,13 @@ typedef enum e_token
 	CMD
 }	t_token_type;
 
+typedef enum e_sig
+{
+	NO_SIG = 0,
+	SIG_INT,
+	SIG_QUIT
+}	t_sig;
+
 /* STRUCTS that live throughout project */
 
 # define OPEN_FILE 1
@@ -140,6 +147,11 @@ typedef struct s_env
 	int		export_flag;
 	int		set_flag;
 }	t_env;
+
+/* SIGNAUX */
+
+static volatile sig_atomic_t	g_signum;
+void		sig_init(void);
 
 /* CHECKER */
 

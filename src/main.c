@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 11:13:30 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/04 11:40:15 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static t_env	**run_one_line(char *prompt, t_env **my_env, int *exit_code)
 		*exit_code = 2;
 		return (free_token_list(token), my_env);
 	}
-	tree = parsing_main(token, my_env, exit_code); // qjouter env et exitcode
+	tree = parsing_main(token, my_env, exit_code);
 	if (!tree)
 		return (free_token_list(token), my_env);
 	my_env = executor(tree, my_env, exit_code);
@@ -44,6 +44,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	exit_code = 0;
+	sig_init();
 	my_env = create_env(envp, &exit_code);
 	while (1)
 	{

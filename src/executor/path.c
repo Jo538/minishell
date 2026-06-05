@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/05/27 15:27:12 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/04 19:08:13 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 		if (!access(path, X_OK))
 			return (free(new_cmd), path);
 		if (!access(path, F_OK))
-			return (free(path), free(new_cmd), *error = ERR_PERMISSION, NULL);
+			return (free(path), free(new_cmd), *error = ERR_CMD_PERMISSION, NULL);
 		free(path);
 		i++;
 	}
@@ -79,8 +79,15 @@ static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 
 static char	*resolve_absolute_path(char *cmd, int *exit_code)
 {
-	char	*path;
+	struct stat	st;
+	char		*path;
 
+	stat(cmd, &st);
+	if (S_ISDIR(st.st_mode))
+	{
+		error_orchestrator(exit_code, ERR_IS_DIRECTORY, cmd, NULL);
+		return (NULL);
+	}
 	if (access(cmd, F_OK | X_OK))
 	{
 		error_with_errno(exit_code, OPEN_CMD, cmd, NULL);

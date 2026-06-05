@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 02:33:21 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/04 18:34:01 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,9 @@ void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 		free_and_exit(node, my_env, exit_code);
 	env = consolidate_my_env(my_env, exit_code);
 	execve(path, node->argv, env);
-	*exit_code = 126;
+	*exit_code = EISDIR;
+	printf("macro: %d\n", *exit_code);
+	error_with_errno(exit_code, -1, node->argv[0], NULL);
 	free(path);
 	if (env)
 		free_tab(env);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_expand.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/04 12:37:42 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/05 14:00:49 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,11 @@ char	*search_in_env(char *str, t_env **my_env, int *exit)
 	}
 	while (my_env[i])
 	{
-		if (ft_strncmp(my_env[i]->key, str, ft_strlen(str) && 
-		ft_strlen(my_env[i]->key) == ft_strlen(str)))
+		if (ft_strlen(my_env[i]->key) == ft_strlen(str) &&
+			!(ft_strncmp(my_env[i]->key, str, ft_strlen(str))))
+		{
 			return (my_env[i]->value);
+		}
 		i++;
 	}
 	return (NULL);
@@ -91,6 +93,7 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 	char	*sub;
 	char	*expand;
 	char	*to_return;
+	char	*tmp;
 
 	i = 0;
 	start = 0;
@@ -104,16 +107,29 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 			i++;
 		sub = ft_substr(str, start, i - start);
 		if (!sub)
-			return (*exit_code = ERR_FATAL, NULL);
+			return (free(to_return), *exit_code = ERR_FATAL, NULL);
+		tmp = to_return;
 		to_return = ft_strjoin(to_return, sub);
+		free(tmp);
+		free(sub);
 		if (!to_return)
 			return (*exit_code = ERR_FATAL, NULL);
 		if (str[i] == '$')
 		{
 			expand = get_to_expand(str, &i, &start, exit_code, my_env);
-			to_return = ft_strjoin(to_return, expand);
-			if (!to_return)
-				return (*exit_code = ERR_FATAL, NULL);
+			if (expand)
+			{
+				tmp = to_return;
+				to_return = ft_strjoin(to_return, expand);
+				if (!to_return)
+				{
+					free(tmp);
+					free(expand);
+					return (*exit_code = ERR_FATAL, NULL);
+				}
+				free(tmp);
+				free(expand);
+			}
 		}
 	}
 	return (to_return);

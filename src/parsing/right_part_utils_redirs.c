@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   right_part_utils_redirs.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 15:40:20 by benji             #+#    #+#             */
-/*   Updated: 2026/06/03 14:55:46 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/05 13:17:31 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*join_segments(t_token *token, t_env **my_env, int *exit_code);
 
 int	is_redirection_token(int type)
 {
@@ -19,9 +21,10 @@ int	is_redirection_token(int type)
 	return (0);
 }
 
-t_tree	*create_fredir(t_tree *tree, int *exit_code)
+t_tree	*create_fredir(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	t_redir	*trot;
+	char	*filename;
 
 	if (!tree || !tree->token_ref || !is_redirection_token(tree->token_ref->type))
 		return (tree);
@@ -33,7 +36,10 @@ t_tree	*create_fredir(t_tree *tree, int *exit_code)
 	trot->type = tree->token_ref->type;
 	trot->next = NULL;
 	tree->token_ref = tree->token_ref->next;
-	trot->file = ft_strdup(tree->token_ref->segment->value);
+	filename = join_segments(tree->token_ref, my_env, exit_code);
+	if (*exit_code == ERR_FATAL)
+		return (free(trot), NULL);
+	trot->file = filename;
 	if (!trot->file)
 		return (free(trot), *exit_code = ERR_FATAL, NULL);
 	tree->redirections = trot;
@@ -41,9 +47,10 @@ t_tree	*create_fredir(t_tree *tree, int *exit_code)
 	return (tree);
 }
 
-t_redir	*create_redir(t_tree *tree, int *exit_code)
+t_redir	*create_redir(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	t_redir	*trot;
+	char	*filename;
 
 	if (!tree || !tree->token_ref || !is_redirection_token(tree->token_ref->type))
 		return (NULL);
@@ -55,7 +62,10 @@ t_redir	*create_redir(t_tree *tree, int *exit_code)
 	trot->type = tree->token_ref->type;
 	trot->next = NULL;
 	tree->token_ref = tree->token_ref->next;
-	trot->file = ft_strdup(tree->token_ref->segment->value);
+	filename = join_segments(tree->token_ref, my_env, exit_code);
+	if (*exit_code == ERR_FATAL)
+		return (free(trot), NULL);
+	trot->file = filename;
 	if (!trot->file)
 		return (free(trot), *exit_code = ERR_FATAL, NULL);
 	tree->token_ref = tree->token_ref->next;
@@ -71,7 +81,7 @@ t_tree	*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code)
 
 	if (!tree->redirections)
 	{
-		tree = create_fredir(tree, exit_code);
+		tree = create_fredir(tree, my_env, exit_code);
 		if (*exit_code == ERR_FATAL)
 			return (NULL);
 		return (tree);
@@ -79,10 +89,9 @@ t_tree	*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code)
 	stat = tree->redirections;
 	while (tree->redirections->next)
 		tree->redirections = tree->redirections->next;
-	tree->redirections->next = create_redir(tree, exit_code);
+	tree->redirections->next = create_redir(tree, my_env, exit_code);
 	if (*exit_code == ERR_FATAL)
 		return (free_the_redirs(tree->redirections), NULL);
 	tree->redirections = stat;
-	(void)my_env;
 	return (tree);
 }

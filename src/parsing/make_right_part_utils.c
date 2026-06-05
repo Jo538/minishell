@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   make_right_part_utils.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 13:52:06 by benji             #+#    #+#             */
-/*   Updated: 2026/06/03 15:37:15 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/05 13:13:59 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,11 @@ int	count_arguments(t_token *token)
 	int	to_return;
 
 	to_return = 0;
-	while (token && token->type == WORD)
+	while (token && token->type != PIPE)
 	{
+		if (token->type == WORD)
+			to_return++;
 		token = token->next;
-		to_return++;
 	}
 	return (to_return);
 }
@@ -60,21 +61,35 @@ void	free_argv(t_tree *tree, int i)
 	}
 }
 
+t_tree	*fill_av_from_index(t_tree *tree, int *start_index, t_env **my_env, int *exit_code)
+{
+	char	*arg;
+
+	while (tree->token_ref && tree->token_ref->type == WORD)
+	{
+		arg = join_segments(tree->token_ref, my_env, exit_code);
+		if (*exit_code == ERR_FATAL)
+			return (NULL);
+		if (arg && arg[0] != '\0')
+		{
+			tree->argv[*start_index] = arg;
+			(*start_index)++;
+		}
+		else if (arg)
+			free(arg);
+		tree->token_ref = tree->token_ref->next;
+	}
+	tree->argv[*start_index] = 0;
+	return (tree);
+}
+
 t_tree	*fill_av(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	int		i;
 
 	i = 0;
-	while (tree->token_ref && tree->token_ref->type == WORD)
-	{
-		tree->argv[i] = join_segments(tree->token_ref, my_env, exit_code);
-		if (!tree->argv[i])
-			return (free_argv(tree, i), *exit_code = ERR_FATAL, NULL);
-		i++;
-		tree->token_ref = tree->token_ref->next;
-	}
-	tree->argv[i] = 0;
-	return (tree);
+	
+	return (fill_av_from_index(tree, &i, my_env, exit_code));
 }
 
 t_tree	*init_tree_w_malloc(t_token *token)

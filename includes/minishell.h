@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 12:00:49 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/05 13:09:53 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,7 @@ int			have_pipe(t_token *token);
 void		free_the_tree(t_tree *tree, t_token *token);
 t_tree		*init_tree_w_malloc(t_token *token);
 t_tree		*fill_av(t_tree *tree, t_env **my_env, int *exit_code);
+t_tree		*fill_av_from_index(t_tree *tree, int *start, t_env **my_env, int *exit_code);
 t_tree		*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code);
 void		free_the_redirs(t_redir *redir);
 

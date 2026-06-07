@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 12:45:40 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/07 13:02:24 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static void	set_exit_code(int error, int *exit_code)
 	if (error == ERR_CMD || error == ERR_CMD_FILE)
 		*exit_code = 127;
 	if (error == ERR_PERMISSION)
-		*exit_code = 1;
+		*exit_code = 126;
 	if (error == ERR_FILE || error == ERR_INVALID_IDENTIFIER)
 		*exit_code = 1;
 	if (error == ERR_NON_NUMERIC_ARGUMENT)

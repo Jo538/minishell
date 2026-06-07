@@ -3,23 +3,32 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+         #
+#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/06/02 14:06:23 by jchartie         ###   ########.fr        #
+#    Updated: 2026/05/26 16:51:11 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 # Compiler
 CC = cc
-CFLAGS = -g3 -O0
-VPATH = src:src/lexer:src/check_if_good:src/executor:src/parsing:src/executor/builtins:src/env
+CFLAGS = -Wall -Wextra -Werror -Wno-unused-function -g3 -O0
+VPATH = src:src/lexer:src/check_if_good:src/executor:src/parsing:src/executor/builtins:src/env:tests
 NAME = minishell
-ADDITIONAL_FLAGS = -lreadline
+TEST_NAME = test_minishell
+ifeq ($(shell uname), Darwin)
+	ADDITIONAL_FLAGS = -L/opt/homebrew/opt/readline/lib -lreadline
+else
+	ADDITIONAL_FLAGS = -lreadline
+endif
 
 # Directories
-INCLUDES = -Iincludes -Ilibft
+ifeq ($(shell uname), Darwin)
+	INCLUDES = -Iincludes -Ilibft -I/opt/homebrew/opt/readline/include
+else
+	INCLUDES = -Iincludes -Ilibft
+endif
 LIBFT_DIR = libft
 OBJ_DIR = obj
 
@@ -33,6 +42,8 @@ SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	check_redirs.c check_ifgood.c exit.c pwd.c echo.c cd.c create_env.c \
 	consolidate_env.c env.c export.c export_print.c export_utils.c unset.c \
 	builtin_orchestrator.c
+TEST_SRC = run_tests.c test_lexer.c test_create_token.c test_append_to_token.c \
+	test_orchestrator.c test_path.c test_child.c test_builtins.c test_env.c
 	
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_ARCHIVE = $(LIBFT_DIR)/libft.a
@@ -53,13 +64,8 @@ $(OBJ_DIR)/%.o: %.c
 $(LIBFT_ARCHIVE):
 	$(MAKE) -C $(LIBFT_DIR)
 
-# Run valgrind suppressing readline's known leaks
-valgrind: $(NAME)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
-		--suppressions=readline.supp ./$(NAME)
-
 # Phony targets declaration
-.PHONY: all clean fclean re valgrind
+.PHONY: all clean fclean re test
 
 # Clean project's object files
 clean:
@@ -73,3 +79,8 @@ fclean: clean
 # Recompile all files
 re: fclean
 	$(MAKE) all
+
+# Create test binary
+test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
+	rm -f vg-*.log
+	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)

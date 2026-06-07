@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 18:45:52 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 17:01:47 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/05 10:13:54 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ void	run_exit(char **cmd, int *exit_code)
 	size = 0;
 	while (cmd[size])
 		size++;
-	ft_putstr_fd("exit\n", 2);
+	if (isatty(STDIN_FILENO))
+		ft_putstr_fd("exit\n", 2);
 	if (size >= 2 && !is_numeric_arg(cmd[1]))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
@@ -48,7 +49,7 @@ void	run_exit(char **cmd, int *exit_code)
 	if (size > 2)
 	{
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		*exit_code = 1;
+		*exit_code = 2;
 		return ;
 	}
 	if (size == 2)

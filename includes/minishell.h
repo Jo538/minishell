@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/05 13:09:53 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/07 14:19:09 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <errno.h>
 # include <sys/ioctl.h>
 # include <sys/wait.h>
+#include <sys/stat.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "libft.h"
@@ -33,11 +34,13 @@ typedef enum e_error
 	ERR_CMD = 1,
 	ERR_CMD_FILE = 2,
 	ERR_FILE = 3,
-	ERR_PERMISSION = 4,
-	ERR_INVALID_IDENTIFIER = 5,
-	ERR_NON_NUMERIC_ARGUMENT = 6,
-	ERR_TOO_MANY_ARGS = 7,
-	ERR_SYNTAX = 8
+	ERR_FILE_PERMISSION = 4,
+	ERR_CMD_PERMISSION = 5,
+	ERR_INVALID_IDENTIFIER = 6,
+	ERR_NON_NUMERIC_ARGUMENT = 7,
+	ERR_TOO_MANY_ARGS = 8,
+	ERR_SYNTAX = 9,
+	ERR_IS_DIRECTORY = 10
 }	t_error;
 
 /* ENUMS */

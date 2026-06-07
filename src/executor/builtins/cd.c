@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:04:28 by admin             #+#    #+#             */
-/*   Updated: 2026/05/26 23:39:46 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/04 20:12:57 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,12 @@ void	run_cd(char **cmd, t_env **my_env, int *exit_code)
 	char	old_pwd[4096];
 	char	new_pwd[4096];
 
+	if (cmd[2])
+	{
+		ft_putstr_fd(" exit: too many arguments\n", 2);
+		*exit_code = 2;
+		return ;		
+	}
 	target = resolve_target(cmd, my_env, exit_code);
 	if (!target)
 		return ;

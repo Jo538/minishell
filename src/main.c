@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/06/07 14:17:09 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/08 12:31:27 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ static t_env	**run_one_line(char *prompt, t_env **my_env, int *exit_code)
 {
 	t_token	*token;
 	t_tree	*tree;
+	int		has_pipe;
 
 	token = lexer(prompt, exit_code);
 	if (*exit_code == ERR_FATAL || !token)
@@ -27,11 +28,12 @@ static t_env	**run_one_line(char *prompt, t_env **my_env, int *exit_code)
 		return (free_token_list(token), my_env);
 	}
 	tree = parsing_main(token, my_env, exit_code);
+	has_pipe = have_pipe(token);
+	free_token_list(token);
 	if (!tree)
 		return (free_token_list(token), my_env);
 	my_env = executor(tree, my_env, exit_code);
-	free_the_tree(tree, token);
-	free_token_list(token);
+	free_the_tree(tree, has_pipe);
 	return (my_env);
 }
 

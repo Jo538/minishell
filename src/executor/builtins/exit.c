@@ -6,7 +6,7 @@
 /*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 18:45:52 by admin             #+#    #+#             */
-/*   Updated: 2026/06/08 11:42:14 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/08 14:45:10 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ void	run_exit(char **cmd, int *exit_code)
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
-		exit(2);
+		*exit_code = 2;
+		return ;
 	}
 	if (size > 2)
 	{
@@ -53,6 +54,5 @@ void	run_exit(char **cmd, int *exit_code)
 		return ;
 	}
 	if (size == 2)
-		exit((unsigned char)ft_atoi(cmd[1]));
-	exit((unsigned char)*exit_code);
+		*exit_code = (unsigned char)ft_atoi(cmd[1]);
 }

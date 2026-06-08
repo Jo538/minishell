@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
+#    By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/05/26 16:51:11 by admin            ###   ########.fr        #
+#    Updated: 2026/06/08 13:26:49 by jchartie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -65,7 +65,7 @@ $(LIBFT_ARCHIVE):
 	$(MAKE) -C $(LIBFT_DIR)
 
 # Phony targets declaration
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re test 
 
 # Clean project's object files
 clean:
@@ -80,7 +80,5 @@ fclean: clean
 re: fclean
 	$(MAKE) all
 
-# Create test binary
-test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
-	rm -f vg-*.log
-	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)
+test: $(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-fds=yes --suppressions=file.supp ./minishell

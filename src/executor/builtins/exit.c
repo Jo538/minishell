@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 18:45:52 by admin             #+#    #+#             */
-/*   Updated: 2026/06/05 10:13:54 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/08 11:42:14 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	run_exit(char **cmd, int *exit_code)
 	if (size > 2)
 	{
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		*exit_code = 2;
+		*exit_code = 1;
 		return ;
 	}
 	if (size == 2)

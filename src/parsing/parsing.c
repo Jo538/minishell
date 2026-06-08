@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 14:31:10 by benji             #+#    #+#             */
-/*   Updated: 2026/06/03 14:38:48 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/08 11:35:16 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	have_pipe(t_token *token)
 {
-	while(token)
+	while (token)
 	{
 		if (token->type == PIPE)
 			return (1);

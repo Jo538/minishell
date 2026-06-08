@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   make_right_part_utils.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 13:52:06 by benji             #+#    #+#             */
-/*   Updated: 2026/06/05 13:13:59 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/08 11:42:09 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,8 @@ void	free_argv(t_tree *tree, int i)
 	}
 }
 
-t_tree	*fill_av_from_index(t_tree *tree, int *start_index, t_env **my_env, int *exit_code)
+t_tree	*fill_av_from_index(t_tree *tree, int *start_index, t_env **my_env,
+	int *exit_code)
 {
 	char	*arg;
 
@@ -88,7 +89,6 @@ t_tree	*fill_av(t_tree *tree, t_env **my_env, int *exit_code)
 	int		i;
 
 	i = 0;
-	
 	return (fill_av_from_index(tree, &i, my_env, exit_code));
 }
 

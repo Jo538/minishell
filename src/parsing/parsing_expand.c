@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/08 11:54:55 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/08 12:22:48 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,7 @@ char	*search_in_env(char *str, t_env **my_env, int *exit)
 	i = 0;
 	if (str[0] == '?')
 	{
-		*exit = 0;
-		tmp = ft_itoa(0);
+		tmp = ft_itoa(*exit);
 		if (!tmp)
 			return (*exit = ERR_FATAL, NULL);
 		return (tmp);
@@ -52,23 +51,32 @@ char	*expand_ch(char *str, t_env **my_env, int *exit_code)
 {
 	char	*to_return;
 	char	*result;
+	int	allocated;
 
+	allocated = 0;
 	to_return = getenv(str);
 	if (!to_return)
+	{
 		to_return = search_in_env(str, my_env, exit_code);
+		allocated = 1;
+	}
 	if (*exit_code == ERR_FATAL)
 	{
 		free(str);
+		if (allocated)
+			free(to_return);
 		return (NULL);
 	}
 	if (to_return && to_return[0] != '\0')
 	{
 		result = ft_strdup(to_return);
-		if (str[0] == '$' && str[1] == '?')
+		if (allocated)
 			free(to_return);
 		free(str);
 		return (result);
 	}
+	if (allocated)
+		free(to_return);
 	free(str);
 	return (ft_strdup(""));
 }

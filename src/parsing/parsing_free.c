@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_free.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:09:45 by benji             #+#    #+#             */
-/*   Updated: 2026/05/10 11:27:49 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/08 12:31:47 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,9 @@ void	free_pipes(t_tree *tree)
 	free(tree);
 }
 
-void	free_the_tree(t_tree *tree, t_token *token)
+void	free_the_tree(t_tree *tree, int has_pipe)
 {
-	if (!have_pipe(token))
+	if (!has_pipe)
 		return (free_the_right_part(tree));
 	free_rec(tree);
 	free_pipes(tree);

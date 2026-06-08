@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/07 14:19:09 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/08 12:32:27 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,7 @@ t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 t_token		*expand_tokens(t_token	*token, t_env **my_env, int *exit_code);
 t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 int			have_pipe(t_token *token);
-void		free_the_tree(t_tree *tree, t_token *token);
+void		free_the_tree(t_tree *tree, int has_pipe);
 t_tree		*init_tree_w_malloc(t_token *token);
 t_tree		*fill_av(t_tree *tree, t_env **my_env, int *exit_code);
 t_tree		*fill_av_from_index(t_tree *tree, int *start, t_env **my_env, int *exit_code);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_expand.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/04 12:37:42 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/05 14:11:06 by benji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ char	*search_in_env(char *str, t_env **my_env, int *exit)
 {
 	int	i;
 	char	*tmp;
+	
 	i = 0;
 	if (str[0] == '?')
 	{
@@ -33,25 +34,42 @@ char	*search_in_env(char *str, t_env **my_env, int *exit)
 	}
 	while (my_env[i])
 	{
-		if (ft_strncmp(my_env[i]->key, str, ft_strlen(str) && 
-		ft_strlen(my_env[i]->key) == ft_strlen(str)))
-			return (my_env[i]->value);
+		if (ft_strlen(my_env[i]->key) == ft_strlen(str) &&
+			!(ft_strncmp(my_env[i]->key, str, ft_strlen(str))))
+		{
+			if (my_env[i]->value && my_env[i]->value[0] != '\0')
+				return (ft_strdup(my_env[i]->value));
+			else
+				return (ft_strdup(""));
+		}
 		i++;
 	}
-	return (NULL);
+	return (ft_strdup(""));
 }
 
 char	*expand_ch(char *str, t_env **my_env, int *exit_code)
 {
 	char	*to_return;
+	char	*result;
 
-	to_return = getenv(str);//ICI PENSER A AJOUTER LE CAS DE $?
+	to_return = getenv(str);
 	if (!to_return)
-		to_return = search_in_env(str ,my_env, exit_code);
-	free(str);
+		to_return = search_in_env(str, my_env, exit_code);
 	if (*exit_code == ERR_FATAL)
+	{
+		free(str);
 		return (NULL);
-	return (to_return);
+	}
+	if (to_return && to_return[0] != '\0')
+	{
+		result = ft_strdup(to_return);
+		if (str[0] == '$' && str[1] == '?')
+			free(to_return);
+		free(str);
+		return (result);
+	}
+	free(str);
+	return (ft_strdup(""));
 }
 
 char	*get_to_expand(char *str, int *to_i, int *to_start, int *exit_code, t_env **my_env)
@@ -91,6 +109,7 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 	char	*sub;
 	char	*expand;
 	char	*to_return;
+	char	*tmp;
 
 	i = 0;
 	start = 0;
@@ -104,16 +123,29 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 			i++;
 		sub = ft_substr(str, start, i - start);
 		if (!sub)
-			return (*exit_code = ERR_FATAL, NULL);
+			return (free(to_return), *exit_code = ERR_FATAL, NULL);
+		tmp = to_return;
 		to_return = ft_strjoin(to_return, sub);
+		free(tmp);
+		free(sub);
 		if (!to_return)
 			return (*exit_code = ERR_FATAL, NULL);
 		if (str[i] == '$')
 		{
 			expand = get_to_expand(str, &i, &start, exit_code, my_env);
-			to_return = ft_strjoin(to_return, expand);
-			if (!to_return)
-				return (*exit_code = ERR_FATAL, NULL);
+			if (expand)
+			{
+				tmp = to_return;
+				to_return = ft_strjoin(to_return, expand);
+				if (!to_return)
+				{
+					free(tmp);
+					free(expand);
+					return (*exit_code = ERR_FATAL, NULL);
+				}
+				free(tmp);
+				free(expand);
+			}
 		}
 	}
 	return (to_return);

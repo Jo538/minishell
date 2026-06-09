@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/08 12:32:27 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/09 14:14:14 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,14 @@ typedef struct s_env
 	int		set_flag;
 }	t_env;
 
+typedef struct s_istartsub
+{
+	int		i;
+	int		start;
+	char	*sub;
+}				t_istartsub;
+
+
 /* SIGNAUX */
 
 static volatile sig_atomic_t	g_signum;
@@ -196,7 +204,7 @@ t_token		*gt_pipe_left(t_token *tok);
 t_tree		*create_pipe_in_tree(t_tree *tree, t_token *token_trot);
 t_tree		*make_right_part(t_token *token, t_env **my_env, int *exit_code);
 t_tree		*put_right_part(t_tree *tree);
- t_tree		*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code);
+t_tree		*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code);
 int			have_a_token_left(t_token *token);
 t_token		*go_to_pipe_left(t_token *token);
 t_tree		*put_pipe_in_tree(t_tree *tree, t_token *token);
@@ -214,6 +222,7 @@ t_tree		*fill_av(t_tree *tree, t_env **my_env, int *exit_code);
 t_tree		*fill_av_from_index(t_tree *tree, int *start, t_env **my_env, int *exit_code);
 t_tree		*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code);
 void		free_the_redirs(t_redir *redir);
+void		errors_siv(char *str, int allocated, char *to_return);
 
 /* builtins */
 int			is_a_mutable_builtin(char *cmd);

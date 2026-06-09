@@ -145,6 +145,14 @@ typedef struct s_env
 	int		set_flag;
 }	t_env;
 
+typedef struct s_istartsub
+{
+	int		i;
+	int		start;
+	char	*sub;
+}				t_istartsub;
+
+
 /* SIGNAUX */
 
 extern volatile sig_atomic_t	g_signum;
@@ -216,6 +224,7 @@ t_tree		*fill_av_from_index(t_tree *tree, int *start,
 				t_env **my_env, int *exit_code);
 t_tree		*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code);
 void		free_the_redirs(t_redir *redir);
+void		errors_siv(char *str, int allocated, char *to_return);
 
 /* builtins */
 int			is_a_mutable_builtin(char *cmd);

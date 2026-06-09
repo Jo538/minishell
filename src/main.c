@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:31:07 by admin             #+#    #+#             */
-/*   Updated: 2026/06/08 12:31:27 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/09 23:17:35 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,13 @@ static t_env	**run_one_line(char *prompt, t_env **my_env, int *exit_code)
 	return (my_env);
 }
 
+static void	shell_cleanup(t_env **my_env)
+{
+	printf("minishell>>> exit\n");
+	rl_clear_history();
+	free_my_env(my_env);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int		exit_code;
@@ -50,18 +57,18 @@ int	main(int argc, char **argv, char **envp)
 	my_env = create_env(envp, &exit_code);
 	while (1)
 	{
+		g_signum = 0;
+		sig_interactive();
 		prompt = readline("minishell>>> ");
+		if (g_signum != 0)
+			exit_code = 128 + g_signum;
 		if (!prompt)
 			break ;
 		if (*prompt)
 			add_history(prompt);
 		my_env = run_one_line(prompt, my_env, &exit_code);
 		free(prompt);
-		if (exit_code == ERR_FATAL)
-			break ;
 	}
-	printf("minishell>>> exit\n");
-	rl_clear_history();
-	free_my_env(my_env);
+	shell_cleanup(my_env);
 	return (exit_code);
 }

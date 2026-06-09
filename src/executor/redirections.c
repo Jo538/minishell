@@ -12,28 +12,25 @@
 
 #include "minishell.h"
 
-static void	read_heredoc_into(int fd, char *delim)
+static int	open_heredoc(t_redir *redir, int *error)
 {
-	char	*line;
-	size_t	dlen;
+	int	fd;
+	int	interrupted;
 
-	dlen = ft_strlen(delim);
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_IGN);
-	while (1)
+	fd = open("temp_heredoc.txt", O_CREAT | O_TRUNC | O_RDWR, 0644);
+	if (fd == -1)
+		return (-1);
+	interrupted = read_heredoc_into(fd, redir->file);
+	close(fd);
+	if (interrupted)
 	{
-		line = readline("> ");
-		if (!line)
-			break ;
-		if (ft_strlen(line) == dlen && ft_strncmp(line, delim, dlen) == 0)
-		{
-			free(line);
-			break ;
-		}
-		write(fd, line, ft_strlen(line));
-		write(fd, "\n", 1);
-		free(line);
+		unlink("temp_heredoc.txt");
+		*error = -1;
+		return (-1);
 	}
+	fd = open("temp_heredoc.txt", O_RDONLY);
+	unlink("temp_heredoc.txt");
+	return (fd);
 }
 
 static int	open_redirection_file(t_redir *redir, int *error)
@@ -48,17 +45,8 @@ static int	open_redirection_file(t_redir *redir, int *error)
 	if (redir->type == APPEND_OUT_DIR)
 		fd = open(redir->file, O_CREAT | O_APPEND | O_WRONLY, 0644);
 	if (redir->type == HEREDOC)
-	{
-		fd = open("temp_heredoc.txt", O_CREAT | O_TRUNC | O_RDWR, 0644);
-		if (fd != -1)
-		{
-			read_heredoc_into(fd, redir->file);
-			close(fd);
-			fd = open("temp_heredoc.txt", O_RDONLY);
-			unlink("temp_heredoc.txt");
-		}
-	}
-	if (fd == -1)
+		fd = open_heredoc(redir, error);
+	if (fd == -1 && *error != -1)
 		*error = errno;
 	return (fd);
 }
@@ -99,12 +87,17 @@ void	files_redirections_orchestrator(char *cmd, int *pipefd,
 	int	fd;
 
 	(void)pipefd;
-	error = 0;
 	if (!redir)
 		return ;
 	while (redir)
 	{
+		error = 0;
 		fd = open_redirection_file(redir, &error);
+		if (fd == -1 && error == -1)
+		{
+			*exit_code = 130;
+			return ;
+		}
 		if (fd == -1)
 			return (error_with_errno(exit_code, OPEN_FILE, cmd, redir->file));
 		if (!same_redirection_later(redir))

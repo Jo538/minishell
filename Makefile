@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+         #
+#    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/06/08 13:26:49 by jchartie         ###   ########.fr        #
+#    Updated: 2026/06/09 12:30:49 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 # Compiler
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Wno-unused-function -g3 -O0
+CFLAGS = -Wall -Wextra -Werror -g3 -O0
 VPATH = src:src/lexer:src/check_if_good:src/executor:src/parsing:src/executor/builtins:src/env:tests
 NAME = minishell
 TEST_NAME = test_minishell
@@ -34,8 +34,8 @@ OBJ_DIR = obj
 
 # Sources and Objects
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
-	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
-	errors.c free_node.c \
+	orchestrator.c path.c child.c redirections.c heredoc.c pipe.c \
+	exec_orchestrator.c errors.c free_node.c \
 	parsing.c parsing_utils.c parsing_right_part.c \
 	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c \
 	make_right_part_utils.c right_part_utils_redirs.c \

@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:36:59 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 19:08:13 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/09 23:51:43 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,6 @@ static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 	char	*new_cmd;
 
 	i = 0;
-	if (!cmd || !*cmd || !path_tab)
-		return (NULL);
 	new_cmd = ft_strjoin("/", cmd);
 	if (!new_cmd)
 		return (NULL);
@@ -68,13 +66,14 @@ static char	*find_and_check_path(char *cmd, char **path_tab, int *error)
 		if (!access(path, X_OK))
 			return (free(new_cmd), path);
 		if (!access(path, F_OK))
-			return (free(path), free(new_cmd), *error = ERR_CMD_PERMISSION, NULL);
+		{
+			free(path);
+			return (free(new_cmd), *error = ERR_CMD_PERMISSION, NULL);
+		}
 		free(path);
 		i++;
 	}
-	free(new_cmd);
-	*error = ERR_CMD;
-	return (NULL);
+	return (free(new_cmd), *error = ERR_CMD, NULL);
 }
 
 static char	*resolve_absolute_path(char *cmd, int *exit_code)

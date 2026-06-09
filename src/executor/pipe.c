@@ -88,11 +88,13 @@ void	pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
 
 	if (pipe(pipefd) == -1)
 		*exit_code = errno;
+	sig_executing();
 	child[0] = fork();
 	if (child[0] == -1)
 		*exit_code = errno;
 	else if (child[0] == 0)
 	{
+		sig_child();
 		pipe_redirections('L', pipefd);
 		left_child(root, node, my_env, exit_code);
 	}
@@ -101,11 +103,9 @@ void	pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
 		*exit_code = errno;
 	else if (child[1] == 0)
 	{
+		sig_child();
 		pipe_redirections('R', pipefd);
 		right_child(root, node, my_env, exit_code);
 	}
-	close(pipefd[0]);
-	close(pipefd[1]);
-	waitpid(child[0], NULL, 0);
-	*exit_code = inspect_child_status(child[1], 0);
+	*exit_code = inspect_child_status(child[1], pipefd, child[0]);
 }

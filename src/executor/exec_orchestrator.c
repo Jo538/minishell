@@ -6,7 +6,7 @@
 /*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 11:44:32 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/08 14:30:42 by jchartie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,8 @@ t_env	**executor(t_tree *node, t_env **my_env, int *exit_code)
 	if (node->type == NODE_CMD && is_a_mutable_builtin(node->argv[0]))
 	{
 		my_env = run_mutate_builtin(node, my_env, exit_code);
+		if (!ft_strncmp(node->argv[0], "exit", max(node->argv[0], "exit")))
+			free_and_exit(node, my_env, exit_code);
 		return (my_env);
 	}
 	if (node->type == NODE_CMD)

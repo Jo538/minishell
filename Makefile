@@ -65,7 +65,7 @@ $(LIBFT_ARCHIVE):
 	$(MAKE) -C $(LIBFT_DIR)
 
 # Phony targets declaration
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re test 
 
 # Clean project's object files
 clean:
@@ -80,7 +80,5 @@ fclean: clean
 re: fclean
 	$(MAKE) all
 
-# Create test binary
-test: $(TEST_SRC) $(SRC) $(LIBFT_ARCHIVE)
-	rm -f vg-*.log
-	$(CC)  -DTESTING  $(INCLUDES) $(filter-out src/main.c, $^) $(CFLAGS) $(ADDITIONAL_FLAGS) -o $(TEST_NAME)
+test: $(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-fds=yes --suppressions=file.supp ./minishell

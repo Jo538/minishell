@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/09 14:14:14 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/09 23:18:47 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@
 # include <errno.h>
 # include <sys/ioctl.h>
 # include <sys/wait.h>
-#include <sys/stat.h>
+# include <sys/stat.h>
+# include <termios.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "libft.h"
@@ -81,13 +82,6 @@ typedef enum e_token
 	APPEND_OUT_DIR,
 	CMD
 }	t_token_type;
-
-typedef enum e_sig
-{
-	NO_SIG = 0,
-	SIG_INT,
-	SIG_QUIT
-}	t_sig;
 
 /* STRUCTS that live throughout project */
 
@@ -161,8 +155,13 @@ typedef struct s_istartsub
 
 /* SIGNAUX */
 
-static volatile sig_atomic_t	g_signum;
+extern volatile sig_atomic_t	g_signum;
 void		sig_init(void);
+void		sig_interactive(void);
+void		sig_executing(void);
+void		sig_child(void);
+void		sig_heredoc(struct sigaction *old_int, struct sigaction *old_quit);
+int			read_heredoc_into(int fd, char *delim);
 
 /* CHECKER */
 
@@ -186,16 +185,18 @@ void		free_token_list(t_token *token_list_head);
 t_token		*lexer(char *prompt, int *exit_code);
 char		*path_orchestrator(char *cmd, t_env **my_env, int *exit_code);
 void		free_tab(char **tab);
-void		cmd_orchestrator(t_tree *current_node, t_env **my_env, int *exit_code);
+void		cmd_orchestrator(t_tree *current_node, t_env **my_env,
+				int *exit_code);
 void		files_redirections_orchestrator(char *cmd, int *pipefd,
 				t_redir *redir, int *exit_code);
 void		pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
 				int *exit_code);
 void		child_process(int *pipefd, t_tree *node, t_env **my_env,
 				int *exit_code);
-int			inspect_child_status(pid_t child, int status);
+int			inspect_child_status(pid_t child, int *pipefd, pid_t other);
 t_env		**executor(t_tree *node, t_env **my_env, int *exit_code);
-void		error_orchestrator(int *exit_code, int error, char *cmd, char *file);
+void		error_orchestrator(int *exit_code, int error, char *cmd,
+				char *file);
 void		error_with_errno(int *exit_code, int type, char *cmd, char *file);
 
 /* PARSING */
@@ -219,7 +220,8 @@ int			have_pipe(t_token *token);
 void		free_the_tree(t_tree *tree, int has_pipe);
 t_tree		*init_tree_w_malloc(t_token *token);
 t_tree		*fill_av(t_tree *tree, t_env **my_env, int *exit_code);
-t_tree		*fill_av_from_index(t_tree *tree, int *start, t_env **my_env, int *exit_code);
+t_tree		*fill_av_from_index(t_tree *tree, int *start,
+				t_env **my_env, int *exit_code);
 t_tree		*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code);
 void		free_the_redirs(t_redir *redir);
 void		errors_siv(char *str, int allocated, char *to_return);

@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 10:59:45 by jchartie          #+#    #+#             */
-/*   Updated: 2026/06/09 13:32:36 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/09 23:12:36 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
 
 static int	ft_count_len(int n)

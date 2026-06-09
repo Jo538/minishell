@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+         #
+#    By: bribot <bribot@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/06/08 13:26:49 by jchartie         ###   ########.fr        #
+#    Updated: 2026/06/09 14:08:47 by bribot           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,9 +36,9 @@ OBJ_DIR = obj
 SRC = main.c signals.c create_state.c create_token.c append_to_token.c \
 	orchestrator.c path.c child.c redirections.c pipe.c exec_orchestrator.c \
 	errors.c free_node.c \
-	parsing.c parsing_utils.c parsing_right_part.c \
+	parsing.c parsing_utils.c parsing_right_part.c parsing_expand_utils.c \
 	parsing_pipes.c parsing_expand.c parsing_redirs.c parsing_free.c \
-	make_right_part_utils.c right_part_utils_redirs.c \
+	make_right_part_utils.c right_part_utils_redirs.c make_right_part_utilsbis.c \
 	check_redirs.c check_ifgood.c exit.c pwd.c echo.c cd.c create_env.c \
 	consolidate_env.c env.c export.c export_print.c export_utils.c unset.c \
 	builtin_orchestrator.c

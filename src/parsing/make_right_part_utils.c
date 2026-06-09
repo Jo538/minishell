@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 13:52:06 by benji             #+#    #+#             */
-/*   Updated: 2026/06/08 11:42:09 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/09 13:46:43 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,6 @@ char	*join_segments(t_token *token, t_env **my_env, int *exit_code)
 		seg = seg->next;
 	}
 	return (to_return);
-}
-
-void	free_argv(t_tree *tree, int i)
-{
-	while (i >= 0)
-	{
-		free(tree->argv[i]);
-		i--;
-	}
 }
 
 t_tree	*fill_av_from_index(t_tree *tree, int *start_index, t_env **my_env,

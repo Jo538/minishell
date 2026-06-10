@@ -6,7 +6,7 @@
 /*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:04:28 by admin             #+#    #+#             */
-/*   Updated: 2026/06/09 23:52:53 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/10 15:17:03 by admin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,8 @@ void	run_cd(char **cmd, t_env **my_env, int *exit_code)
 
 	if (cmd[2])
 	{
-		ft_putstr_fd(" exit: too many arguments\n", 2);
-		*exit_code = 2;
+		ft_putstr_fd(" cd: too many arguments\n", 2);
+		*exit_code = 1;
 		return ;
 	}
 	target = resolve_target(cmd, my_env, exit_code);

@@ -231,7 +231,7 @@ int			is_a_mutable_builtin(char *cmd);
 void		free_node(t_tree *node);
 void		run_echo(char **cmd);
 void		run_env(char **cmd, t_env **my_env, int *exit_code);
-void		run_exit(char **cmd, int *exit_code);
+int			run_exit(char **cmd, int *exit_code);
 void		run_pwd(void);
 int			is_builtin(t_tree *node);
 void		builtin_orchestrator(t_tree *root, t_tree *node, t_env **my_env,

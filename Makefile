@@ -6,7 +6,7 @@
 #    By: admin <admin@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/14 14:01:07 by admin             #+#    #+#              #
-#    Updated: 2026/06/10 14:43:55 by admin            ###   ########.fr        #
+#    Updated: 2026/06/10 15:20:24 by admin            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ ADDITIONAL_FLAGS = -lreadline
 
 # Directories
 INCLUDES = -Iincludes -Ilibft
+
 LIBFT_DIR = libft
 OBJ_DIR = obj
 

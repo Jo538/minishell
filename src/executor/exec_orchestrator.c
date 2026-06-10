@@ -13,7 +13,7 @@
 #include "minishell.h"
 
 static t_env	**apply_redirs_and_run_builtin(t_tree *node, t_env **my_env,
-	int *exit_code)
+	int *exit_code, int *stay)
 {
 	char	*cmd;
 	int		prev_code;
@@ -33,19 +33,20 @@ static t_env	**apply_redirs_and_run_builtin(t_tree *node, t_env **my_env,
 	else if (!ft_strncmp(cmd, "exit", max(cmd, "exit")))
 	{
 		*exit_code = prev_code;
-		run_exit(node->argv, exit_code);
+		*stay = run_exit(node->argv, exit_code);
 	}
 	return (my_env);
 }
 
-static t_env	**run_mutate_builtin(t_tree *node, t_env **my_env, int *ec)
+static t_env	**run_mutate_builtin(t_tree *node, t_env **my_env, int *ec,
+	int *stay)
 {
 	int	copy_stdin;
 	int	copy_stdout;
 
 	copy_stdin = dup(0);
 	copy_stdout = dup(1);
-	my_env = apply_redirs_and_run_builtin(node, my_env, ec);
+	my_env = apply_redirs_and_run_builtin(node, my_env, ec, stay);
 	dup2(copy_stdin, 0);
 	close(copy_stdin);
 	dup2(copy_stdout, 1);
@@ -70,10 +71,14 @@ int	is_a_mutable_builtin(char *cmd)
 
 t_env	**executor(t_tree *node, t_env **my_env, int *exit_code)
 {
+	int	stay;
+
+	stay = 0;
 	if (node->type == NODE_CMD && is_a_mutable_builtin(node->argv[0]))
 	{
-		my_env = run_mutate_builtin(node, my_env, exit_code);
-		if (!ft_strncmp(node->argv[0], "exit", max(node->argv[0], "exit")))
+		my_env = run_mutate_builtin(node, my_env, exit_code, &stay);
+		if (!stay
+			&& !ft_strncmp(node->argv[0], "exit", max(node->argv[0], "exit")))
 			free_and_exit(node, my_env, exit_code);
 		return (my_env);
 	}

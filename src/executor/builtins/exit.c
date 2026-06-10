@@ -30,7 +30,7 @@ static int	is_numeric_arg(char *s)
 	return (1);
 }
 
-void	run_exit(char **cmd, int *exit_code)
+int	run_exit(char **cmd, int *exit_code)
 {
 	int	size;
 
@@ -45,14 +45,15 @@ void	run_exit(char **cmd, int *exit_code)
 		ft_putstr_fd(cmd[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		*exit_code = 2;
-		return ;
+		return (0);
 	}
 	if (size > 2)
 	{
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		*exit_code = 2;
-		return ;
+		*exit_code = 1;
+		return (1);
 	}
 	if (size == 2)
 		*exit_code = (unsigned char)ft_atoi(cmd[1]);
+	return (0);
 }

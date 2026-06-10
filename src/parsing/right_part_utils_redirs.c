@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   right_part_utils_redirs.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 15:40:20 by benji             #+#    #+#             */
-/*   Updated: 2026/06/05 13:17:31 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/10 17:40:36 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,11 @@ t_tree	*create_fredir(t_tree *tree, t_env **my_env, int *exit_code)
 	t_redir	*trot;
 	char	*filename;
 
-	if (!tree || !tree->token_ref || !is_redirection_token(tree->token_ref->type))
+	if (!tree || !tree->token_ref
+		|| !is_redirection_token(tree->token_ref->type))
 		return (tree);
-	if (!tree->token_ref->next || !tree->token_ref->next->segment || !tree->token_ref->next->segment->value)
+	if (!tree->token_ref->next || !tree->token_ref->next->segment
+		|| !tree->token_ref->next->segment->value)
 		return (tree);
 	trot = malloc(sizeof(t_redir));
 	if (!trot)
@@ -52,9 +54,11 @@ t_redir	*create_redir(t_tree *tree, t_env **my_env, int *exit_code)
 	t_redir	*trot;
 	char	*filename;
 
-	if (!tree || !tree->token_ref || !is_redirection_token(tree->token_ref->type))
+	if (!tree || !tree->token_ref
+		|| !is_redirection_token(tree->token_ref->type))
 		return (NULL);
-	if (!tree->token_ref->next || !tree->token_ref->next->segment || !tree->token_ref->next->segment->value)
+	if (!tree->token_ref->next || !tree->token_ref->next->segment
+		|| !tree->token_ref->next->segment->value)
 		return (NULL);
 	trot = malloc(sizeof(t_redir));
 	if (!trot)
@@ -76,9 +80,9 @@ t_tree	*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	t_redir	*stat;
 
-	if (!tree || !tree->token_ref || !is_redirection_token(tree->token_ref->type))
+	if (!tree || !tree->token_ref
+		|| !is_redirection_token(tree->token_ref->type))
 		return (tree);
-
 	if (!tree->redirections)
 	{
 		tree = create_fredir(tree, my_env, exit_code);

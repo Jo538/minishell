@@ -1,43 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   make_right_part_utilsbis.c                         :+:      :+:    :+:   */
+/*   parsing_pipes_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/09 13:46:45 by bribot            #+#    #+#             */
-/*   Updated: 2026/06/10 16:18:57 by bribot           ###   ########.fr       */
+/*   Created: 2026/06/10 17:19:32 by bribot            #+#    #+#             */
+/*   Updated: 2026/06/10 17:41:01 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	free_argv(t_tree *tree, int i)
+t_token	*gt_first_word(t_token *first_word)
 {
-	while (i >= 0)
-	{
-		free(tree->argv[i]);
-		i--;
-	}
-}
-
-char	*spe_siv(char *str, int *exit)
-{
-	char	*tmp;
-
-	if (str[0] == '?')
-	{
-		tmp = ft_itoa(*exit);
-		if (!tmp)
-			return (*exit = ERR_FATAL, NULL);
-		return (tmp);
-	}
-	if (str[0] == ' ' || str[0] == '\0')
-	{
-		tmp = ft_strdup("$");
-		if (!tmp)
-			return (*exit = ERR_FATAL, NULL);
-		return (tmp);
-	}
-	return (NULL);
+	while (first_word && first_word->before)
+		first_word = first_word->before;
+	while (first_word && first_word->type != WORD)
+		first_word = first_word->next;
+	return (first_word);
 }

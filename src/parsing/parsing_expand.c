@@ -6,32 +6,11 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:18:40 by benji             #+#    #+#             */
-/*   Updated: 2026/06/09 15:45:39 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/10 16:19:15 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*spe_siv(char *str, int *exit)
-{
-	char	*tmp;
-
-	if (str[0] == '?')
-	{
-		tmp = ft_itoa(*exit);
-		if (!tmp)
-			return (*exit = ERR_FATAL, NULL);
-		return (tmp);
-	}
-	if (str[0] == ' ' || str[0] == '\0')
-	{
-		tmp = ft_strdup("$");
-		if (!tmp)
-			return (*exit = ERR_FATAL, NULL);
-		return (tmp);
-	}
-	return (NULL);
-}
 
 char	*search_in_env(char *str, t_env **my_env, int *exit)
 {
@@ -100,7 +79,7 @@ char	*get_to_expand(char *str, t_istartsub *is, int *exit_code,
 		i = j + 1;
 	else
 	{
-		while (str[i] && str[i] != '$' && str[i] != ' ' && str[i] != 34 && str[i] != 39)
+		while (expand_need_to_in(str, i))
 			i++;
 	}
 	to_return = ft_substr(str, j, i - j);
@@ -118,43 +97,24 @@ char	*expand_segtrot(char *str, t_env **my_env, int *exit_code)
 	t_istartsub	is;
 	char		*expand;
 	char		*to_return;
-	char		*tmp;
 
-	is.i = 0;
-	is.start = 0;
-	to_return = malloc(1);
+	to_return = init_expand_segtrot(&is);
 	if (!to_return)
-		return (NULL);
-	to_return[0] = 0;
+		return (*exit_code = ERR_FATAL, NULL);
 	while (str[is.i])
 	{
 		while (str[is.i] && (str[is.i] != '$' || (str[is.i] == '$'
-				&& str[is.i + 1] && str[is.i + 1] == '$')))
+					&& str[is.i + 1] && str[is.i + 1] == '$')))
 			is.i++;
-		is.sub = ft_substr(str, is.start, is.i - is.start);
-		if (!is.sub)
-			return (free(to_return), *exit_code = ERR_FATAL, NULL);
-		tmp = to_return;
-		to_return = ft_strjoin(to_return, is.sub);
-		free(tmp);
-		free(is.sub);
-		if (!to_return)
-			return (*exit_code = ERR_FATAL, NULL);
+		to_return = expand_segtrot_gtr(is, str, to_return);
 		if (str[is.i] == '$')
 		{
 			expand = get_to_expand(str, &is, exit_code, my_env);
 			if (expand)
 			{
-				tmp = to_return;
-				to_return = ft_strjoin(to_return, expand);
+				to_return = expand_join_ab(to_return, expand);
 				if (!to_return)
-				{
-					free(tmp);
-					free(expand);
 					return (*exit_code = ERR_FATAL, NULL);
-				}
-				free(tmp);
-				free(expand);
 			}
 		}
 	}
@@ -173,11 +133,11 @@ t_token	*expand_tokens(t_token	*token, t_env **my_env, int *exit_code)
 	{
 		if (segtrot->quote_type != S_QUOTED)
 		{
-			expanded = expand_segtrot(segtrot->value, my_env, exit_code); //il y a encore le cas de $$ a gerer et d autres scases type $? (la ca ne gere que les cas ultras classiques)
+			expanded = expand_segtrot(segtrot->value, my_env, exit_code);
 			free(segtrot->value);
 			segtrot->value = expanded;
 		}
 		segtrot = segtrot->next;
 	}
-	return (token); //necessite a faire
+	return (token);
 }

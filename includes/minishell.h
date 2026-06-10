@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/09 23:18:47 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/10 17:41:25 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,10 +152,10 @@ typedef struct s_istartsub
 	char	*sub;
 }				t_istartsub;
 
-
 /* SIGNAUX */
 
 extern volatile sig_atomic_t	g_signum;
+
 void		sig_init(void);
 void		sig_interactive(void);
 void		sig_executing(void);
@@ -209,9 +209,9 @@ t_tree		*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code);
 int			have_a_token_left(t_token *token);
 t_token		*go_to_pipe_left(t_token *token);
 t_tree		*put_pipe_in_tree(t_tree *tree, t_token *token);
-t_tree		*create_pipe_part(t_token *token);
+t_tree		*create_pipe_part(t_token *token, int *exit_code);
 t_token		*find_last_pipe(t_token *token);
-t_tree		*create_tree(t_token *token);
+t_tree		*create_tree(t_token *token, int *exit_code);
 t_tree		*parsing_main(t_token *token, t_env **my_env, int *exit_code);
 t_tree		*handle_redirs_etc_parsing(t_tree *to_return, t_token *token);
 t_token		*expand_tokens(t_token	*token, t_env **my_env, int *exit_code);
@@ -225,6 +225,12 @@ t_tree		*fill_av_from_index(t_tree *tree, int *start,
 t_tree		*handle_redirs(t_tree *tree, t_env **my_env, int *exit_code);
 void		free_the_redirs(t_redir *redir);
 void		errors_siv(char *str, int allocated, char *to_return);
+char		*init_expand_segtrot(t_istartsub *is);
+char		*expand_join_ab(char *to_return, char *expand);
+char		*expand_segtrot_gtr(t_istartsub is, char *str, char *to_return);
+int			expand_need_to_in(char *str, int i);
+char		*spe_siv(char *str, int *exit);
+t_token		*gt_first_word(t_token *first_word);
 
 /* builtins */
 int			is_a_mutable_builtin(char *cmd);

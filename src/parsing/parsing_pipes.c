@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_pipes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:21:11 by bribot            #+#    #+#             */
-/*   Updated: 2026/05/10 11:03:35 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/10 17:19:41 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,30 @@ t_tree	*put_pipe_in_tree(t_tree *tree, t_token *token)
 	return (tree);
 }
 
-t_tree	*create_pipe_part(t_token *token)
+t_tree	*pipe_init_tree(t_token *token, int *exit_code)
 {
 	t_tree	*tree;
-	t_token	*first_word;
 
 	if (!token)
 		return (NULL);
 	tree = malloc(sizeof(t_tree));
 	if (!tree)
-		return (NULL);
+		return (*exit_code = ERR_FATAL, NULL);
 	tree->type = PIPE;
 	tree->token_ref = token;
 	tree->left = NULL;
 	tree->right = NULL;
+	return (tree);
+}
+
+t_tree	*create_pipe_part(t_token *token, int *exit_code)
+{
+	t_tree	*tree;
+	t_token	*first_word;
+
+	tree = pipe_init_tree(token, exit_code);
+	if (*exit_code == ERR_FATAL)
+		return (NULL);
 	while (have_a_token_left(token))
 	{
 		token = go_to_pipe_left(token);
@@ -57,10 +67,7 @@ t_tree	*create_pipe_part(t_token *token)
 			return (NULL);
 	}
 	first_word = token;
-	while (first_word && first_word->before)
-		first_word = first_word->before;
-	while (first_word && first_word->type != WORD)
-		first_word = first_word->next;
+	first_word = gt_first_word(first_word);
 	if (first_word)
 	{
 		tree = put_pipe_in_tree(tree, first_word);
@@ -84,7 +91,7 @@ t_token	*find_last_pipe(t_token *token)
 	return (last_finded);
 }
 
-t_tree	*create_tree(t_token *token)
+t_tree	*create_tree(t_token *token, int *exit_code)
 {
 	t_token	*last_pipe;
 	t_tree	*tree;
@@ -101,7 +108,7 @@ t_tree	*create_tree(t_token *token)
 		tree->right = NULL;
 		return (tree);
 	}
-	tree = create_pipe_part(last_pipe);
+	tree = create_pipe_part(last_pipe, exit_code);
 	if (!tree)
 		return (NULL);
 	return (tree);

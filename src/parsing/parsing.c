@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 14:31:10 by benji             #+#    #+#             */
-/*   Updated: 2026/06/08 11:35:16 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/10 16:54:02 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ t_tree	*parsing_main(t_token *token, t_env **my_env, int *exit_code)
 	first_token = token;
 	if (!have_pipe(token))
 		return (make_right_part(token, my_env, exit_code));
-	tree = create_tree(first_token);
+	tree = create_tree(first_token, exit_code);
 	if (!tree)
-		return (NULL);
+		return (*exit_code = ERR_FATAL, NULL);
 	tree = fill_right_part(tree, my_env, exit_code);
 	if (*exit_code == ERR_FATAL)
 		return (NULL);

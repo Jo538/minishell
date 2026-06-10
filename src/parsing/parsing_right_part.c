@@ -3,65 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_right_part.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: benji <benji@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:17:08 by bribot            #+#    #+#             */
-/*   Updated: 2026/06/05 12:54:27 by benji            ###   ########.fr       */
+/*   Updated: 2026/06/10 17:39:10 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// static void	free_right_part_tree(t_tree *tree, int arg_count)
-// {
-// 	while (arg_count > 0)
-// 	{
-// 		free(tree->argv[--arg_count]);
-// 	}
-// 	free(tree->argv);
-// 	free(tree);
-// }
+t_tree	*start_tree(t_token *token, t_env **my_env, int *exit_code,
+				int *arg_count)
+{
+	t_tree	*tree;
+	int		i;
 
-// static int	count_arguments(t_token *token)
-// {
-// 	int	count;
-
-// 	count = 0;
-// 	if (!token)
-// 		return (0);
-// 	if (token->type == PIPE)
-// 		token = token->next;
-// 	while (token && token->type != PIPE)
-// 	{
-// 		if (token->type == WORD)
-// 			count++;
-// 		else
-// 		{
-// 			if (token->next)
-// 				token = token->next;
-// 		}
-// 		if (token)
-// 			token = token->next;
-// 	}
-// 	return (count);
-// }
+	i = 0;
+	if (token->type == PIPE)
+		token = token->next;
+	tree = init_tree_w_malloc(token);
+	if (!tree)
+		return (*exit_code = ERR_FATAL, NULL);
+	tree = fill_av(tree, my_env, exit_code);
+	if (!tree->argv)
+		return (free(tree), *exit_code = ERR_FATAL, NULL);
+	i = 0;
+	while (tree->argv[i])
+		i++;
+	*arg_count = i;
+	return (tree);
+}
 
 t_tree	*make_right_part(t_token *token, t_env **my_env, int *exit_code)
 {
 	t_tree	*tree;
 	int		arg_count;
 
-	if (token->type == PIPE)
-		token = token->next;
-	tree = init_tree_w_malloc(token);
+	tree = start_tree(token, my_env, exit_code, &arg_count);
 	if (!tree)
-		return(*exit_code = ERR_FATAL, NULL);
-	tree = fill_av(tree, my_env, exit_code);
-	if (!tree->argv)
-		return(free(tree), *exit_code = ERR_FATAL, NULL);
-	arg_count = 0;
-	while (tree->argv[arg_count])
-		arg_count++;
+		return (*exit_code = ERR_FATAL, NULL);
 	tree = handle_redirs(tree, my_env, exit_code);
 	while (tree->token_ref && tree->token_ref->type != PIPE)
 	{
@@ -74,16 +54,14 @@ t_tree	*make_right_part(t_token *token, t_env **my_env, int *exit_code)
 				return (NULL);
 		}
 		else
-		{
 			tree = handle_redirs(tree, my_env, exit_code);
-		}
 	}
 	if (*exit_code == ERR_FATAL)
-			return (NULL);
+		return (NULL);
 	return (tree);
 }
 
- t_tree	*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code)
+t_tree	*fill_right_part(t_tree *tree, t_env **my_env, int *exit_code)
 {
 	t_tree	*trot;
 

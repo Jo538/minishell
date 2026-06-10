@@ -2,6 +2,9 @@ CLAUDE.md
 .claude
 .DS_Store
 minishell_tester/
+docs/
+.vscode/
+file.supp
 
 # Build artefacts
 obj/

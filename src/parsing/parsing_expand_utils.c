@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:05:02 by bribot            #+#    #+#             */
-/*   Updated: 2026/06/10 17:40:55 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/11 11:20:02 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,13 @@ char	*init_expand_segtrot(t_istartsub *is)
 
 char	*expand_join_ab(char *to_return, char *expand)
 {
+	char	*tmp;
+
 	if (!to_return)
 		return (NULL);
+	tmp = to_return;
 	to_return = ft_strjoin(to_return, expand);
+	free(tmp);
 	free(expand);
 	if (!to_return)
 		return (NULL);

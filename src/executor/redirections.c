@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 13:07:00 by admin             #+#    #+#             */
-/*   Updated: 2026/06/08 14:37:50 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/11 12:23:12 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	open_heredoc(t_redir *redir, int *error)
+static int	open_heredoc(t_redir *redir, t_envexit envexit)
 {
 	int	fd;
 	int	interrupted;
@@ -20,12 +20,13 @@ static int	open_heredoc(t_redir *redir, int *error)
 	fd = open("temp_heredoc.txt", O_CREAT | O_TRUNC | O_RDWR, 0644);
 	if (fd == -1)
 		return (-1);
-	interrupted = read_heredoc_into(fd, redir->file);
+	interrupted = read_heredoc_into(fd, redir->file,
+			redir->heredoc_quoted, envexit);
 	close(fd);
 	if (interrupted)
 	{
 		unlink("temp_heredoc.txt");
-		*error = -1;
+		*envexit.exit_code = -1;
 		return (-1);
 	}
 	fd = open("temp_heredoc.txt", O_RDONLY);
@@ -33,7 +34,7 @@ static int	open_heredoc(t_redir *redir, int *error)
 	return (fd);
 }
 
-static int	open_redirection_file(t_redir *redir, int *error)
+static int	open_redirection_file(t_redir *redir, t_envexit envexit)
 {
 	int	fd;
 
@@ -45,9 +46,9 @@ static int	open_redirection_file(t_redir *redir, int *error)
 	if (redir->type == APPEND_OUT_DIR)
 		fd = open(redir->file, O_CREAT | O_APPEND | O_WRONLY, 0644);
 	if (redir->type == HEREDOC)
-		fd = open_heredoc(redir, error);
-	if (fd == -1 && *error != -1)
-		*error = errno;
+		fd = open_heredoc(redir, envexit);
+	if (fd == -1 && *envexit.exit_code != -1)
+		*envexit.exit_code = errno;
 	return (fd);
 }
 
@@ -81,7 +82,7 @@ static int	same_redirection_later(t_redir *redir)
 }
 
 void	files_redirections_orchestrator(char *cmd, int *pipefd,
-	t_redir *redir, int *exit_code)
+	t_redir *redir, t_envexit envexit)
 {
 	int	error;
 	int	fd;
@@ -92,14 +93,15 @@ void	files_redirections_orchestrator(char *cmd, int *pipefd,
 	while (redir)
 	{
 		error = 0;
-		fd = open_redirection_file(redir, &error);
+		fd = open_redirection_file(redir, envexit);
 		if (fd == -1 && error == -1)
 		{
-			*exit_code = 130;
+			*envexit.exit_code = 130;
 			return ;
 		}
 		if (fd == -1)
-			return (error_with_errno(exit_code, OPEN_FILE, cmd, redir->file));
+			return (error_with_errno(envexit.exit_code,
+					OPEN_FILE, cmd, redir->file));
 		if (!same_redirection_later(redir))
 			run_redirection(fd, redir);
 		else

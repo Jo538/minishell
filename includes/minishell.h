@@ -6,7 +6,7 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 13:55:42 by admin             #+#    #+#             */
-/*   Updated: 2026/06/10 17:41:25 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/11 12:02:43 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,7 @@ typedef struct s_redir
 {
 	int				type;
 	char			*file;
+	int				heredoc_quoted;
 	struct s_redir	*next;
 }	t_redir;
 
@@ -152,6 +153,21 @@ typedef struct s_istartsub
 	char	*sub;
 }				t_istartsub;
 
+typedef struct s_envexit
+{
+	int		*exit_code;
+	t_env	**my_env;
+}				t_envexit;
+
+typedef struct s_ls
+{
+	char				*line;
+	int					saved_stdin;
+	int					saved_stdout;
+	int					tty_fd;
+	int					res;
+	char				*delim;
+}				t_ls;
 /* SIGNAUX */
 
 extern volatile sig_atomic_t	g_signum;
@@ -161,7 +177,8 @@ void		sig_interactive(void);
 void		sig_executing(void);
 void		sig_child(void);
 void		sig_heredoc(struct sigaction *old_int, struct sigaction *old_quit);
-int			read_heredoc_into(int fd, char *delim);
+int			read_heredoc_into(int fd, char *delim, int heredoc_quoted,
+				t_envexit envexit);
 
 /* CHECKER */
 
@@ -188,7 +205,7 @@ void		free_tab(char **tab);
 void		cmd_orchestrator(t_tree *current_node, t_env **my_env,
 				int *exit_code);
 void		files_redirections_orchestrator(char *cmd, int *pipefd,
-				t_redir *redir, int *exit_code);
+				t_redir *redir, t_envexit envexit);
 void		pipe_orchestrator(t_tree *root, t_tree *node, t_env **my_env,
 				int *exit_code);
 void		child_process(int *pipefd, t_tree *node, t_env **my_env,
@@ -198,7 +215,8 @@ t_env		**executor(t_tree *node, t_env **my_env, int *exit_code);
 void		error_orchestrator(int *exit_code, int error, char *cmd,
 				char *file);
 void		error_with_errno(int *exit_code, int type, char *cmd, char *file);
-
+t_envexit	env_exit_init(int *exit_code, t_env **my_env);
+t_ls		init_ls(char *delim);
 /* PARSING */
 t_token		*find_last_pipe(t_token *token);
 t_token		*gt_pipe_left(t_token *tok);
@@ -231,7 +249,10 @@ char		*expand_segtrot_gtr(t_istartsub is, char *str, char *to_return);
 int			expand_need_to_in(char *str, int i);
 char		*spe_siv(char *str, int *exit);
 t_token		*gt_first_word(t_token *first_word);
-
+char		*expand_ch(char *str, t_env **my_env, int *exit_code);
+char		*get_to_expand(char *str, t_istartsub *is, int *exit_code,
+				t_env **my_env);
+char		*expand_segtrot(char *str, t_env **my_env, int *exit_code);
 /* builtins */
 int			is_a_mutable_builtin(char *cmd);
 void		free_node(t_tree *node);

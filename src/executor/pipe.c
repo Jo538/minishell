@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipe.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:54:46 by admin             #+#    #+#             */
-/*   Updated: 2026/06/04 11:43:26 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/11 10:58:17 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static void	exec_in_pipe(t_tree *root, t_tree *cmd_node, t_env **my_env,
 	prev_code = *exit_code;
 	*exit_code = 0;
 	files_redirections_orchestrator(cmd_node->argv[0], NULL,
-		cmd_node->redirections, exit_code);
+		cmd_node->redirections, env_exit_init(exit_code, my_env));
 	if (*exit_code)
 		free_and_exit(root, my_env, exit_code);
 	*exit_code = prev_code;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_orchestrator.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jchartie <jchartie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:23:28 by admin             #+#    #+#             */
-/*   Updated: 2026/06/08 14:30:42 by jchartie         ###   ########.fr       */
+/*   Updated: 2026/06/11 10:32:08 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,16 @@
 static t_env	**apply_redirs_and_run_builtin(t_tree *node, t_env **my_env,
 	int *exit_code, int *stay)
 {
-	char	*cmd;
-	int		prev_code;
+	char		*cmd;
+	int			prev_code;
+	t_envexit	envexit;
 
+	envexit.my_env = my_env;
+	envexit.exit_code = exit_code;
 	cmd = node->argv[0];
 	prev_code = *exit_code;
 	*exit_code = 0;
-	files_redirections_orchestrator(cmd, NULL, node->redirections, exit_code);
+	files_redirections_orchestrator(cmd, NULL, node->redirections, envexit);
 	if (*exit_code)
 		return (my_env);
 	if (!ft_strncmp(cmd, "cd", max(cmd, "cd")))

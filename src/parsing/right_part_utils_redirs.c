@@ -6,11 +6,27 @@
 /*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 15:40:20 by benji             #+#    #+#             */
-/*   Updated: 2026/06/10 17:40:36 by bribot           ###   ########.fr       */
+/*   Updated: 2026/06/11 12:21:51 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	token_has_quotes(t_token *token)
+{
+	t_segment	*seg;
+
+	if (!token)
+		return (0);
+	seg = token->segment;
+	while (seg)
+	{
+		if (seg->quote_type != UNQUOTED)
+			return (1);
+		seg = seg->next;
+	}
+	return (0);
+}
 
 char	*join_segments(t_token *token, t_env **my_env, int *exit_code);
 
@@ -42,11 +58,12 @@ t_tree	*create_fredir(t_tree *tree, t_env **my_env, int *exit_code)
 	if (*exit_code == ERR_FATAL)
 		return (free(trot), NULL);
 	trot->file = filename;
+	trot->heredoc_quoted = (trot->type == HEREDOC
+			&& token_has_quotes(tree->token_ref));
 	if (!trot->file)
 		return (free(trot), *exit_code = ERR_FATAL, NULL);
-	tree->redirections = trot;
-	tree->token_ref = tree->token_ref->next;
-	return (tree);
+	return (tree->redirections = trot,
+		tree->token_ref = tree->token_ref->next, tree);
 }
 
 t_redir	*create_redir(t_tree *tree, t_env **my_env, int *exit_code)
@@ -70,6 +87,8 @@ t_redir	*create_redir(t_tree *tree, t_env **my_env, int *exit_code)
 	if (*exit_code == ERR_FATAL)
 		return (free(trot), NULL);
 	trot->file = filename;
+	trot->heredoc_quoted = (trot->type == HEREDOC
+			&& token_has_quotes(tree->token_ref));
 	if (!trot->file)
 		return (free(trot), *exit_code = ERR_FATAL, NULL);
 	tree->token_ref = tree->token_ref->next;

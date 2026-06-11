@@ -3,24 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   child.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: admin <admin@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bribot <bribot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 14:42:39 by admin             #+#    #+#             */
-/*   Updated: 2026/06/09 23:38:01 by admin            ###   ########.fr       */
+/*   Updated: 2026/06/11 12:03:06 by bribot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+t_envexit	env_exit_init(int *exit_code, t_env **my_env)
+{
+	t_envexit	envexit;
+
+	*exit_code = 0;
+	envexit.exit_code = exit_code;
+	envexit.my_env = my_env;
+	return (envexit);
+}
+
 void	child_process(int *pipefd, t_tree *node, t_env **my_env, int *exit_code)
 {
-	char	**env;
-	char	*path;
+	char		**env;
+	char		*path;
+	t_envexit	envexit;
 
 	path = NULL;
-	*exit_code = 0;
+	envexit = env_exit_init(exit_code, my_env);
 	files_redirections_orchestrator(node->argv[0], pipefd,
-		node->redirections, exit_code);
+		node->redirections, envexit);
 	if (*exit_code)
 		free_and_exit(node, my_env, exit_code);
 	if (is_builtin(node))
